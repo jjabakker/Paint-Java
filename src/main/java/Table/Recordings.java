@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class Recordings extends PaintTable {
 
-    static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
     }
 
     public Recordings() {
