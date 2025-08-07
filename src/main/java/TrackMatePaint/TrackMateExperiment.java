@@ -27,7 +27,7 @@ public class TrackMateExperiment {
         go(experimentPath, omeroExperimentPath, convert, sweepCaseName);
     }
 
-    void go(Path experimentPath, Path omeroExperimentPath, boolean processFlag, String caseName) {
+    void go(Path experimentPath, Path omeroExperimentPath, boolean convertFlag, String caseName) {
         Path experimentInfoFilePath = experimentPath.resolve("Experiment Info.csv");
 
         log.info(String.format("Experiment path: %s", experimentPath));
