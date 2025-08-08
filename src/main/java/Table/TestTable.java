@@ -1,6 +1,6 @@
 package Table;
 
-import PaintLogger.AppLogger;
+import PaintUtilities.AppLogger;
 import tech.tablesaw.api.DoubleColumn;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.IntColumn;

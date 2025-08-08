@@ -1,4 +1,4 @@
-package PaintLogger;
+package PaintUtilities;
 
 import java.io.IOException;
 import java.util.logging.*;

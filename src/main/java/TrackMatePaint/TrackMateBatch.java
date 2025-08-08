@@ -15,11 +15,11 @@ import java.util.logging.Logger;
 import java.time.Duration;
 import java.time.Instant;
 
-import PaintLogger.AppLogger;
+import PaintUtilities.AppLogger;
 import com.opencsv.CSVReaderHeaderAware;
 import com.opencsv.exceptions.CsvValidationException;
 
-import static Utilities.DurationFormatter.formatDuration;
+// import PaintUtilities.DurationFormatter.formatDuration;
 
 public class TrackMateBatch {
 
@@ -174,7 +174,7 @@ public class TrackMateBatch {
 
         log.info("");
         log.info(String.format("✅ Number of experiments processed %d out of %d.", nrExperimentsProcessed, nrExperimentsToProcess));
-        log.info(String.format("✅ Time taken to process: %s.", formatDuration(duration)));
+        // log.info(String.format("✅ Time taken to process: %s.", formatDuration(duration)));
     }
 
     private static void setupLookAndFeelOfUI() {

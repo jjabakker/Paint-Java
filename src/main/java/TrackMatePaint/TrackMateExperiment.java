@@ -1,6 +1,6 @@
 package TrackMatePaint;
 
-import Utilities.FileCleanForTrackMate;
+import PaintUtilities.FileCleanForTrackMate;
 import com.opencsv.CSVReaderHeaderAware;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
@@ -15,9 +15,9 @@ import java.time.Instant;
 import java.util.*;
 
 import java.util.logging.Logger;
-import PaintLogger.AppLogger;
+import PaintUtilities.AppLogger;
 
-import static Utilities.DurationFormatter.formatDuration;
+import static PaintUtilities.DurationFormatter.formatDuration;
 
 public class TrackMateExperiment {
 

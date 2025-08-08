@@ -1,4 +1,4 @@
-package Paint;
+package PaintUtilities;
 
 import com.google.gson.*;
 
