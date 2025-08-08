@@ -3,8 +3,8 @@ package Paint;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Square {
-    private List<Track> tracks = new ArrayList<>();
+public class PaintSquare {
+    private List<PaintTrack> paintTracks = new ArrayList<>();
     private double startX;
     private double startY;
     private double endX;
@@ -33,17 +33,17 @@ public class Square {
     private boolean squareManuallyExcluded;
     private boolean imageExcluded;
 
-    public Square() {}
+    public PaintSquare() {}
 
-    public Square(double startX, double startY, double endX, double endY,
-                  double variability, double density, double densityRatio, double tau, double rSquared,
-                  double medianDiffusionCoefficient, double meanDiffusionCoefficient,
-                  double medianDiffusionCoefficientExt, double meanDiffusionCoefficientExt,
-                  double medianLongTrackDuration, double medianShortTrackDuration,
-                  double medianDisplacement, double maxDisplacement, double totalDisplacement,
-                  double medianMaxSpeed, double maxMaxSpeed, double medianMeanSpeed, double maxMeanSpeed,
-                  double maxTrackDuration, double totalTrackDuration, double medianTrackDuration,
-                  boolean squareManuallyExcluded, boolean imageExcluded) {
+    public PaintSquare(double startX, double startY, double endX, double endY,
+                       double variability, double density, double densityRatio, double tau, double rSquared,
+                       double medianDiffusionCoefficient, double meanDiffusionCoefficient,
+                       double medianDiffusionCoefficientExt, double meanDiffusionCoefficientExt,
+                       double medianLongTrackDuration, double medianShortTrackDuration,
+                       double medianDisplacement, double maxDisplacement, double totalDisplacement,
+                       double medianMaxSpeed, double maxMaxSpeed, double medianMeanSpeed, double maxMeanSpeed,
+                       double maxTrackDuration, double totalTrackDuration, double medianTrackDuration,
+                       boolean squareManuallyExcluded, boolean imageExcluded) {
         this.startX = startX;
         this.startY = startY;
         this.endX = endX;
@@ -75,12 +75,12 @@ public class Square {
 
     // Getters and setters for all fields
 
-    public List<Track> getTracks() {
-        return tracks;
+    public List<PaintTrack> getTracks() {
+        return paintTracks;
     }
 
-    public void setTracks(List<Track> tracks) {
-        this.tracks = tracks;
+    public void setTracks(List<PaintTrack> paintTracks) {
+        this.paintTracks = paintTracks;
     }
 
     public double getStartX() {

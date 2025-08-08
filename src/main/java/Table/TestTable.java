@@ -73,7 +73,7 @@ public class TestTable {
         // Write CSV
         filteredRecordings.writeTable("filtered_output.csv");
 
-        // Read recordings
+        // Read tracks
         Tracks tracks = Tracks.load("/Users/hans/Downloads/All Tracks.csv");
 
         Tracks squareTracks = tracks.tracksInSquare(10.0, 20.0, 15.0, 25.0);

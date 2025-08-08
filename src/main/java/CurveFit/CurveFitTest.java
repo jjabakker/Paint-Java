@@ -1,5 +1,7 @@
 package CurveFit;
 
+import PaintUtilities.ExpDecayFitter;
+
 class ExpDecayTest {
 
     public static void main(String[] args) {

@@ -4,16 +4,16 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Project {
+public class PaintProject {
     private String projectName;
     private Path projectPath;
-    private List<Experiment> experiments;
+    private List<PaintExperiment> experiments;
 
-    public Project() {
+    public PaintProject() {
         this.experiments = new ArrayList<>();
     }
 
-    public Project(Path projectPath) {
+    public PaintProject(Path projectPath) {
         this.projectName = projectPath.getFileName().toString();
         this.projectPath = projectPath;
         this.experiments = new ArrayList<>();
@@ -27,25 +27,16 @@ public class Project {
         this.projectName = projectName;
     }
 
-    public List<Experiment> getExperiments() {
+    public List<PaintExperiment> getExperiments() {
         return experiments;
     }
 
-    public void setExperiments(List<Experiment> experiments) {
+    public void setExperiments(List<PaintExperiment> experiments) {
         this.experiments = experiments;
     }
 
-    public void addExperiment(Experiment experiment) {
+    public void addExperiment(PaintExperiment experiment) {
         this.experiments.add(experiment);
     }
 
-    // CSV (only projectName, since experiments is complex)
-    public String toCSV() {
-        return projectName;
-    }
-
-    public static Project fromCSV(String csvLine) {
-        // Simple: one field
-        return new Project(Path.of(csvLine.trim()));
-    }
 }

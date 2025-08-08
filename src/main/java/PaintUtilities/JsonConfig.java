@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class JsonConfig {
 
@@ -13,7 +14,7 @@ public class JsonConfig {
     private Path jsonFilePath;  // store path for saving
 
     public JsonConfig(String jsonFilePath) {
-        this.jsonFilePath = Path.of(jsonFilePath);
+        this.jsonFilePath = Paths.get(jsonFilePath);
         try (FileReader reader = new FileReader(jsonFilePath)) {
             root = JsonParser.parseReader(reader).getAsJsonObject();
         } catch (IOException e) {

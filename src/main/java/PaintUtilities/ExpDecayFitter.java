@@ -1,4 +1,4 @@
-package CurveFit;
+package PaintUtilities;
 
 import org.apache.commons.math3.analysis.ParametricUnivariateFunction;
 import org.apache.commons.math3.fitting.AbstractCurveFitter;

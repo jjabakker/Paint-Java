@@ -31,12 +31,19 @@ public class DirectoryClassifier {
     }
 
     // --- File/Dir Constants ---
-    private static final Set<String> EXPERIMENT_FILES = Set.of("Experiment Info.csv", "All Recordings.csv");
-    private static final Set<String> REQUIRED_DIRS = Set.of("Brightfield Images", "TrackMate Images");
-    private static final String OPTIONAL_FILE = "All Squares.csv";
-    private static final Set<String> OPTIONAL_FILES = Set.of("All Squares.csv", "All Tracks.csv", "Paint.json");
+    private static final Set<String> EXPERIMENT_FILES = Collections.unmodifiableSet(
+            new HashSet<>(Arrays.asList("Experiment Info.csv", "All Recordings.csv")));
 
-    private static final Set<String> PROJECT_FILES = Set.of("All Recordings.csv", "All Tracks.csv", "All Squares.csv");
+    private static final Set<String> REQUIRED_DIRS = Collections.unmodifiableSet(
+            new HashSet<>(Arrays.asList("Brightfield Images", "TrackMate Images")));
+
+    private static final String OPTIONAL_FILE = "All Squares.csv";
+
+    private static final Set<String> OPTIONAL_FILES = Collections.unmodifiableSet(
+            new HashSet<>(Arrays.asList("All Squares.csv", "All Tracks.csv", "Paint.json")));
+
+    private static final Set<String> PROJECT_FILES = Collections.unmodifiableSet(
+            new HashSet<>(Arrays.asList("All Recordings.csv", "All Tracks.csv", "All Squares.csv")));
 
     public static ClassificationResult classifyDirectoryWork(Path directory) throws IOException {
         List<Path> contents = Files.list(directory)

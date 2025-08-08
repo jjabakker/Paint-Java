@@ -31,7 +31,7 @@ public class TrackMateBatchRunner {
             ProcessBuilder pb = new ProcessBuilder(
                     "/Users/hans/Library/Java/JavaVirtualMachines/ms-11.0.28/Contents/Home/bin/java",
                     "-javaagent:/Applications/Fiji.app/jars/ij1-patcher-1.2.9-SNAPSHOT.jar=init",
-                    "-cp", "/Applications/Fiji.app/jars/*:/Users/hans/IdeaProjects/Paint/target/Paint-1.0-SNAPSHOT-jar-with-dependencies.jar",
+                    "-cp", "/Applications/Fiji.app/jars/*:/Users/hans/IdeaProjects/PaintUtilities/target/PaintUtilities-1.0-SNAPSHOT-jar-with-dependencies.jar",
                     "TrackMateTest.TrackMateRunnerSingle",
                     nd2File.getAbsolutePath()
             );

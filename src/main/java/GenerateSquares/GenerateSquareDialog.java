@@ -9,7 +9,7 @@ import javax.swing.text.DocumentFilter;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import PaintUtilities.JsonConfig;
 import PaintUtilities.DirectoryClassifier;
@@ -133,7 +133,7 @@ public class GenerateSquareDialog {
                 double minDensityRatioVal = Double.parseDouble(minDensityRatioField.getText());
                 double maxVariabilityVal = Double.parseDouble(maxVariabilityField.getText());
 
-                DirectoryClassifier.ClassificationResult result = DirectoryClassifier.classifyDirectoryWork(Path.of(directoryField.getText()));
+                DirectoryClassifier.ClassificationResult result = DirectoryClassifier.classifyDirectoryWork(Paths.get(directoryField.getText()));
 
                 System.out.println("Maturity: " + result.maturity);
                 System.out.println("Type: " + result.type);
@@ -275,16 +275,33 @@ public class GenerateSquareDialog {
             }
         }
 
+//        private boolean isValidFloat(String text) {
+//            if (text.isEmpty()) return true;
+//            if (text.equals("-")) return true;
+//            if (text.equals(".")) return true;
+//            if (text.equals("-.")) return true;
+//            try {
+//                Float.parseFloat(text);
+//                return true;
+//            } catch (NumberFormatException e) {
+//                return false;
+//            }
+//        }
+
         private boolean isValidFloat(String text) {
-            if (text.isEmpty()) return true;
-            if (text.equals("-")) return true;
-            if (text.equals(".")) return true;
-            if (text.equals("-.")) return true;
-            try {
-                Float.parseFloat(text);
-                return true;
-            } catch (NumberFormatException e) {
-                return false;
+            switch (text) {
+                case "":
+                case "-":
+                case ".":
+                case "-.":
+                    return true;
+                default:
+                    try {
+                        Float.parseFloat(text);
+                        return true;
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
             }
         }
     }
