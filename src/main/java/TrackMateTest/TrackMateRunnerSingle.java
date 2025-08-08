@@ -1,6 +1,12 @@
 package TrackMateTest;
 
+
 public class TrackMateRunnerSingle {
+
+    static {
+        net.imagej.patcher.LegacyInjector.preinit();
+    }
+
     public static void main(String[] args) {
         if (args.length < 1) {
             System.err.println("Usage: java TrackMateRunnerSingle <imagePath>");

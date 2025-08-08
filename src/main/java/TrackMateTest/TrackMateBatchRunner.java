@@ -8,6 +8,7 @@ import java.util.List;
 public class TrackMateBatchRunner {
 
     public static void main(String[] args) throws IOException, InterruptedException {
+
         // Directory with .nd2 files to process
         File recordingsDir = new File("/Users/hans/Downloads/221012 Images");
 
@@ -26,15 +27,17 @@ public class TrackMateBatchRunner {
         List<Process> processes = new ArrayList<>();
 
         for (File nd2File : nd2Files) {
+
             ProcessBuilder pb = new ProcessBuilder(
-                    "java",
-                    "-Xmx10G",
-                    "-cp", "/Applications/Fiji.app/jars:/Users/hans/IdeaProjects/Paint/target/Paint-1.0-SNAPSHOT-jar-with-dependencies.jar",
+                    "/Users/hans/Library/Java/JavaVirtualMachines/ms-11.0.28/Contents/Home/bin/java",
+                    "-javaagent:/Applications/Fiji.app/jars/ij1-patcher-1.2.9-SNAPSHOT.jar=init",
+                    "-cp", "/Applications/Fiji.app/jars/*:/Users/hans/IdeaProjects/Paint/target/Paint-1.0-SNAPSHOT-jar-with-dependencies.jar",
                     "TrackMateTest.TrackMateRunnerSingle",
                     nd2File.getAbsolutePath()
             );
 
             pb.inheritIO(); // For debugging: inherit output
+            System.out.printf("✅ %s starting%n ", nd2File.getName());
             Process p = pb.start();
             processes.add(p);
 
