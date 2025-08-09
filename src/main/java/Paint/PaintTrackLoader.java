@@ -1,0 +1,96 @@
+package Paint;
+
+import tech.tablesaw.api.Row;
+import tech.tablesaw.api.StringColumn;
+import tech.tablesaw.api.Table;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+public class PaintTrackLoader {
+
+    public static void main(String[] args) {
+        try {
+            List<PaintTrack> tracks = loadTracks(Paths.get("/Users/hans/Downloads/221012/All Tracks.csv"), null);
+            System.out.println("All tracks count: " + tracks.size());
+
+            tracks = loadAllTracks(Paths.get("/Users/hans/Downloads/221012/All Tracks.csv"));
+            System.out.println("All tracks count: " + tracks.size());
+
+            List<PaintTrack> filteredTracks = loadTracks(Paths.get("/Users/hans/Downloads/221012/All Tracks.csv"), "221012-Exp-1-A1-2-threshold-8");
+            System.out.println("Filtered tracks count: " + filteredTracks.size());
+        } catch (IOException e) {
+            System.err.println("Failed to load tracks: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+
+    // Load all the tracks from CSV
+
+    public static List<PaintTrack> loadAllTracks(Path csvPath) throws IOException {
+        return loadTracks(csvPath, null);
+    }
+
+
+     // Load tracks from CSV, optionally filtered by recordingName.
+     // If recordingName is null or empty, all tracks are loaded.
+
+    public static List<PaintTrack> loadTracks(Path csvPath, String recordingName) throws RuntimeException {
+
+        Table table;
+
+        try {
+            table = Table.read().csv(csvPath.toFile());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        if (recordingName != null && !recordingName.isEmpty() && table.containsColumn(recordingName)) {
+            if (table.column("Ext Recording Name") instanceof StringColumn) {
+                StringColumn recordingCol = table.stringColumn("Ext Recording Name");
+                table = table.where(recordingCol.isEqualTo(recordingName));
+            }
+        }
+        return createTracks(table);
+    }
+
+    private static List<PaintTrack> createTracks(Table table) {
+
+        List<PaintTrack> tracks = new ArrayList<>();
+
+        try {
+            for (Row row : table) {
+                PaintTrack track = new PaintTrack(
+                        String.valueOf(row.getInt("Track Id")),
+                        row.getString("Track Label"),
+                        row.getInt("Nr Spots"),
+                        row.getInt("Nr Gaps"),
+                        row.getInt("Longest Gap"),
+                        row.getDouble("Track Duration"),
+                        row.getDouble("Track X Location"),
+                        row.getDouble("Track Y Location"),
+                        row.getDouble("Track Displacement"),
+                        row.getDouble("Track Max Speed"),
+                        row.getDouble("Track Median Speed"),
+                        row.getDouble("Track Mean Speed"),
+                        row.getDouble("Track Max Speed Calc"),
+                        row.getDouble("Track Median Speed Calc"),
+                        row.getDouble("Track Mean Speed Calc"),
+                        row.getDouble("Diffusion Coefficient"),
+                        row.getDouble("Diffusion Coefficient Ext"),
+                        row.getDouble("Total Distance"),
+                        row.getDouble("Confinement Ratio")
+                );
+                tracks.add(track);
+            }
+        }
+        catch (Exception e) {
+            System.err.println("Failed to load tracks - columns contain data in wrong format: " + e.getMessage());
+        }
+        return tracks;
+    }
+}
