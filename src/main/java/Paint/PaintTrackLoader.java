@@ -13,25 +13,21 @@ import java.util.List;
 public class PaintTrackLoader {
 
     public static void main(String[] args) {
-        try {
-            List<PaintTrack> tracks = loadTracks(Paths.get("/Users/hans/Downloads/221012/All Tracks.csv"), null);
-            System.out.println("All tracks count: " + tracks.size());
 
-            tracks = loadAllTracks(Paths.get("/Users/hans/Downloads/221012/All Tracks.csv"));
-            System.out.println("All tracks count: " + tracks.size());
+        List<PaintTrack> tracks = loadTracks(Paths.get("/Users/hans/Downloads/221012/All Tracks.csv"), null);
+        System.out.println("All tracks count: " + tracks.size());
 
-            List<PaintTrack> filteredTracks = loadTracks(Paths.get("/Users/hans/Downloads/221012/All Tracks.csv"), "221012-Exp-1-A1-2-threshold-8");
-            System.out.println("Filtered tracks count: " + filteredTracks.size());
-        } catch (IOException e) {
-            System.err.println("Failed to load tracks: " + e.getMessage());
-            e.printStackTrace();
-        }
+        tracks = loadAllTracks(Paths.get("/Users/hans/Downloads/221012/All Tracks.csv"));
+        System.out.println("All tracks count: " + tracks.size());
+
+        List<PaintTrack> filteredTracks = loadTracks(Paths.get("/Users/hans/Downloads/221012/All Tracks.csv"), "221012-Exp-1-A1-2-threshold-8");
+        System.out.println("Filtered tracks count: " + filteredTracks.size());
     }
 
 
     // Load all the tracks from CSV
 
-    public static List<PaintTrack> loadAllTracks(Path csvPath) throws IOException {
+    public static List<PaintTrack> loadAllTracks(Path csvPath)  {
         return loadTracks(csvPath, null);
     }
 
@@ -39,14 +35,18 @@ public class PaintTrackLoader {
      // Load tracks from CSV, optionally filtered by recordingName.
      // If recordingName is null or empty, all tracks are loaded.
 
-    public static List<PaintTrack> loadTracks(Path csvPath, String recordingName) throws RuntimeException {
+    public static List<PaintTrack> loadTracks(Path csvPath, String recordingName)  {
 
-        Table table;
+        Table table = null;
 
         try {
             table = Table.read().csv(csvPath.toFile());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            String errorMsg = e.toString(); // e.g. "java.io.FileNotFoundException: /path/to/file (No such file or directory)"
+            int colonIndex = errorMsg.lastIndexOf(":");
+            String messageAfterColon = (colonIndex != -1) ? errorMsg.substring(colonIndex + 1).trim() : errorMsg;
+            System.err.println("Failed to read tracks file: " + messageAfterColon);
+            System.exit(-1);
         }
 
         if (recordingName != null && !recordingName.isEmpty() && table.containsColumn(recordingName)) {
@@ -90,6 +90,7 @@ public class PaintTrackLoader {
         }
         catch (Exception e) {
             System.err.println("Failed to load tracks - columns contain data in wrong format: " + e.getMessage());
+            System.exit(-1);
         }
         return tracks;
     }
