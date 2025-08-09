@@ -21,8 +21,6 @@ public class PaintTrack {
     private double totalDistance;
     private double confinementRatio;
 
-    public PaintTrack() {}
-
     public PaintTrack(String trackId, String trackLabel, int nrSpots, int nrGaps, double longestGap, double trackDuration,
                       double trackXLocation, double trackYLocation, double trackDisplacement, double trackMaxSpeed,
                       double trackMedianSpeed, double trackMeanSpeed, double trackMaxSpeedCalc, double trackMedianSpeedCalc,
