@@ -1,5 +1,7 @@
 package Paint.Loaders;
 
+import Paint.Objects.PaintExperiment;
+import Paint.Objects.PaintProject;
 import tech.tablesaw.api.ColumnType;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvReadOptions;
@@ -20,17 +22,14 @@ public class PainProjectLoader {
             Path projectPath;
 
             if (args != null && args.length != 0) {
-                // System.err.println("Usage: java Paint.Loaders.PainProjectLoader <project-directory>");
-                // System.err.println("Example: java Paint.Loaders.PainProjectLoader /path/to/PaintProject");
-                // System.exit(1);
                 projectPath = Paths.get(args[0]);
-            }
-            else {
+            } else {
                 projectPath = Paths.get("/Users/hans/Downloads/Paint Data - v38/Regular Probes/Paint Regular Probes - 20 Squares");
             }
 
-            List<String> experimentNames = loadProject(projectPath, true);
-            System.out.println("Experiments count: " + experimentNames.size());
+            PaintProject project = loadProject(projectPath, true);
+            System.out.println("Project: " + project.getProjectName());
+            System.out.println("Experiments count: " + project.getExperiments().size());
 
         } catch (Exception e) {
             System.err.println("Failed to load project: " + e.getMessage());
@@ -38,7 +37,8 @@ public class PainProjectLoader {
         }
     }
 
-    public static List<String> loadProject(Path projectPath, boolean matureProject) {
+    public static PaintProject loadProject(Path projectPath, boolean matureProject) {
+
         // Read the top-level "All Recordings.csv" as strings
         Path filePath = projectPath.resolve("All Recordings.csv");
         Table table;
@@ -58,7 +58,7 @@ public class PainProjectLoader {
             String errorMsg = e.toString();
             int colonIndex = errorMsg.lastIndexOf(":");
             String messageAfterColon = (colonIndex != -1) ? errorMsg.substring(colonIndex + 1).trim() : errorMsg;
-            throw new RuntimeException("Failed to read top-level 'All Recordings.csv': " + messageAfterColon, e);
+            throw new RuntimeException("Failed to project information in read top-level 'All Recordings.csv': " + messageAfterColon, e);
         }
 
         if (!table.columnNames().contains("Experiment Name")) {
@@ -78,26 +78,55 @@ public class PainProjectLoader {
         }
         List<String> experimentNames = new ArrayList<>(uniqueTrimmed);
 
-        // Validate per-experiment requirements via helper
-        List<String> errors = new ArrayList<>();
+        PaintProject project = new PaintProject(projectPath);
+
+        // Validate per-experiment and create objects for those that pass
+        List<String> allErrors = new ArrayList<>();
         for (String experimentName : experimentNames) {
             Path experimentPath = projectPath.resolve(experimentName);
+            List<String> errors = new ArrayList<>();
+
             if (!Files.isDirectory(experimentPath)) {
                 errors.add("Experiment directory does not exist: " + experimentName);
-                continue;
+            } else {
+                errors.addAll(collectExperimentValidationErrors(experimentPath, experimentName, matureProject));
             }
-            errors.addAll(collectExperimentValidationErrors(experimentPath, experimentName, matureProject));
+
+            if (errors.isEmpty()) {
+                // Create a minimal PaintExperiment and add to the project
+                PaintExperiment experiment = new PaintExperiment();
+                experiment.setExperimentName(experimentName);
+                // Later: we can enrich the experiment with recordings/tracks/etc.
+                project.addExperiment(experiment);
+            } else {
+                // Accumulate errors but do not stop loading other experiments
+                for (String err : errors) {
+                    allErrors.add("[" + experimentName + "] " + err);
+                }
+            }
         }
 
-        if (!errors.isEmpty()) {
-            StringBuilder sb = new StringBuilder("Project validation failed:");
-            for (String err : errors) {
-                sb.append(System.lineSeparator()).append("- ").append(err);
+        if (project.getExperiments().isEmpty()) {
+            StringBuilder sb = new StringBuilder("No valid experiments found in project: ")
+                    .append(projectPath.getFileName());
+            if (!allErrors.isEmpty()) {
+                sb.append(System.lineSeparator()).append("Errors:");
+                for (String err : allErrors) {
+                    sb.append(System.lineSeparator()).append("- ").append(err);
+                }
             }
             throw new IllegalStateException(sb.toString());
         }
 
-        return experimentNames;
+        // Optionally log warnings for skipped experiments (non-fatal)
+        if (!allErrors.isEmpty()) {
+            System.err.println("Some experiments were skipped due to validation errors:");
+            for (String err : allErrors) {
+                System.err.println("- " + err);
+            }
+        }
+
+        return project;
     }
 
     // New helper that encapsulates all experiment-level checks
