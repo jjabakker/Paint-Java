@@ -49,7 +49,7 @@ public class PaintTrackLoader {
             System.exit(-1);
         }
 
-        if (recordingName != null && !recordingName.isEmpty() && table.containsColumn(recordingName)) {
+        if (recordingName != null && !recordingName.isEmpty() && table.containsColumn("Ext Recording Name")) {
             if (table.column("Ext Recording Name") instanceof StringColumn) {
                 StringColumn recordingCol = table.stringColumn("Ext Recording Name");
                 table = table.where(recordingCol.isEqualTo(recordingName));
