@@ -1,4 +1,4 @@
-package Paint;
+package Paint.Objects;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -39,4 +39,7 @@ public class PaintProject {
         this.experiments.add(experiment);
     }
 
+    public boolean loadProject(Path projectPath) {
+        return true;
+    }
 }

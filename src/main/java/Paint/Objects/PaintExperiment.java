@@ -1,4 +1,4 @@
-package Paint;
+package Paint.Objects;
 
 import tech.tablesaw.api.Table;
 import tech.tablesaw.api.Row;
@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import PaintUtilities.ColumnValue;

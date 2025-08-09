@@ -1,11 +1,10 @@
-package Paint;
+package Paint.Objects;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import PaintUtilities.ColumnValue;
-import com.sun.org.apache.bcel.internal.generic.BREAKPOINT;
 
 public class PaintRecording {
 

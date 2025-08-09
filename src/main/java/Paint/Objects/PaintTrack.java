@@ -1,4 +1,4 @@
-package Paint;
+package Paint.Objects;
 
 public class PaintTrack {
     private String trackId;

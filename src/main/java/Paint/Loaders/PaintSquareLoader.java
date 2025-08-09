@@ -1,5 +1,6 @@
-package Paint;
+package Paint.Loaders;
 
+import Paint.Objects.PaintSquare;
 import tech.tablesaw.api.Row;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
@@ -24,17 +25,21 @@ public class PaintSquareLoader {
     }
 
 
-    // Load all the squares from CSV
 
     public static List<PaintSquare> loadAllSquares(Path csvPath) {
+
+        // Load all the squares from CSV
+
         return loadSquares(csvPath, null);
     }
 
 
-    // Load squares from CSV, optionally filtered by recordingName.
-    // If the recordingName is null or empty, all tracks are loaded.
+
 
     public static List<PaintSquare> loadSquares(Path csvPath, String recordingName) {
+
+        // Load squares from CSV, optionally filtered by recordingName.
+        // If the recordingName is null or empty, all tracks are loaded.
 
         Table table = null;
 

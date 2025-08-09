@@ -1,10 +1,10 @@
-package Paint;
+package Paint.Loaders;
 
+import Paint.Objects.PaintTrack;
 import tech.tablesaw.api.Row;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -25,17 +25,19 @@ public class PaintTrackLoader {
     }
 
 
-    // Load all the tracks from CSV
+
 
     public static List<PaintTrack> loadAllTracks(Path csvPath)  {
+
+        // Load all the tracks from CSV
+
         return loadTracks(csvPath, null);
     }
 
-
-     // Load tracks from CSV, optionally filtered by recordingName.
-     // If recordingName is null or empty, all tracks are loaded.
-
     public static List<PaintTrack> loadTracks(Path csvPath, String recordingName)  {
+
+        // Load tracks from CSV, optionally filtered by recordingName.
+        // If the recordingName is null or empty, all tracks are loaded.
 
         Table table = null;
 
@@ -57,6 +59,10 @@ public class PaintTrackLoader {
         }
         return createTracks(table);
     }
+
+//    public static List<PaintTrack> loadTracksSet(String csvPath, String recordingName) {
+//
+//    }
 
     private static List<PaintTrack> createTracks(Table table) {
 

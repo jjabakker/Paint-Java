@@ -1,4 +1,4 @@
-package Paint;
+package Paint.Objects;
 
 public class PaintSquare {
     private String uniqueKey;
