@@ -6,14 +6,13 @@ import tech.tablesaw.api.ColumnType;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvReadOptions;
 
-import java.nio.file.Files;
+import com.opencsv.CSVReader; // add import
+import java.io.FileReader;   // add import
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class PainProjectLoader {
 
@@ -24,7 +23,7 @@ public class PainProjectLoader {
             if (args != null && args.length != 0) {
                 projectPath = Paths.get(args[0]);
             } else {
-                projectPath = Paths.get("/Users/hans/Downloads/Paint Data - v38/Regular Probes/Paint Regular Probes - 20 Squares");
+                projectPath = Paths.get("/Users/hans/Downloads/Paint Data - v38/Regular Probes/Paint Regular Probes - 20 Squares"); // Replace or pass via args
             }
 
             PaintProject project = loadProject(projectPath, true);
@@ -38,69 +37,53 @@ public class PainProjectLoader {
     }
 
     public static PaintProject loadProject(Path projectPath, boolean matureProject) {
-
-        // Read the top-level "All Recordings.csv" as strings
         Path filePath = projectPath.resolve("All Recordings.csv");
         Table table;
 
         try {
-            // Probe to get column count
-            Table temp = Table.read().csv(filePath.toFile());
-            ColumnType[] allString = new ColumnType[temp.columnCount()];
-            Arrays.fill(allString, ColumnType.STRING);
-
+            long t0 = System.nanoTime();
+            ColumnType[] allString = buildAllStringTypesFromHeader(filePath);
             CsvReadOptions options = CsvReadOptions.builder(filePath.toFile())
                     .columnTypes(allString)
                     .build();
-
             table = Table.read().csv(options);
+            long t1 = System.nanoTime();
+            long ms = (t1 - t0) / 1_000_000L;
+            if (ms > 2_000) {
+                System.err.println("Warning: reading top-level All Recordings.csv took " + ms + " ms");
+            }
         } catch (Exception e) {
-            String errorMsg = e.toString();
-            int colonIndex = errorMsg.lastIndexOf(":");
-            String messageAfterColon = (colonIndex != -1) ? errorMsg.substring(colonIndex + 1).trim() : errorMsg;
-            throw new RuntimeException("Failed to project information in read top-level 'All Recordings.csv': " + messageAfterColon, e);
+            String message = extractFriendlyMessage(e);
+            throw new RuntimeException("Failed to read top-level 'All Recordings.csv': " + message, e);
         }
 
         if (!table.columnNames().contains("Experiment Name")) {
             throw new IllegalStateException("Column 'Experiment Name' is missing in 'All Recordings.csv'.");
         }
 
-        // Collect ALL unique experiment names (no Process filtering), while trimming whitespace
-        List<String> rawNames = table.stringColumn("Experiment Name").unique().asList();
-        Set<String> uniqueTrimmed = new LinkedHashSet<>();
-        for (String name : rawNames) {
-            if (name != null) {
-                String trimmed = name.trim();
-                if (!trimmed.isEmpty()) {
-                    uniqueTrimmed.add(trimmed);
-                }
-            }
-        }
-        List<String> experimentNames = new ArrayList<>(uniqueTrimmed);
+        List<String> experimentNames = table.stringColumn("Experiment Name")
+                .unique()
+                .asList()
+                .stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
 
         PaintProject project = new PaintProject(projectPath);
 
-        // Validate per-experiment and create objects for those that pass
         List<String> allErrors = new ArrayList<>();
         for (String experimentName : experimentNames) {
             Path experimentPath = projectPath.resolve(experimentName);
-            List<String> errors = new ArrayList<>();
 
-            if (!Files.isDirectory(experimentPath)) {
-                errors.add("Experiment directory does not exist: " + experimentName);
-            } else {
-                errors.addAll(collectExperimentValidationErrors(experimentPath, experimentName, matureProject));
-            }
+            PaintExperimentLoader.Result result =
+                    PaintExperimentLoader.loadExperiment(experimentPath, experimentName, matureProject);
 
-            if (errors.isEmpty()) {
-                // Create a minimal PaintExperiment and add to the project
-                PaintExperiment experiment = new PaintExperiment();
-                experiment.setExperimentName(experimentName);
-                // Later: we can enrich the experiment with recordings/tracks/etc.
+            if (result.isSuccess()) {
+                PaintExperiment experiment = result.experiment().get();
                 project.addExperiment(experiment);
             } else {
-                // Accumulate errors but do not stop loading other experiments
-                for (String err : errors) {
+                for (String err : result.errors()) {
                     allErrors.add("[" + experimentName + "] " + err);
                 }
             }
@@ -118,7 +101,6 @@ public class PainProjectLoader {
             throw new IllegalStateException(sb.toString());
         }
 
-        // Optionally log warnings for skipped experiments (non-fatal)
         if (!allErrors.isEmpty()) {
             System.err.println("Some experiments were skipped due to validation errors:");
             for (String err : allErrors) {
@@ -129,37 +111,22 @@ public class PainProjectLoader {
         return project;
     }
 
-    // New helper that encapsulates all experiment-level checks
-    private static List<String> collectExperimentValidationErrors(Path experimentPath, String experimentName, boolean matureProject) {
-        List<String> errors = new ArrayList<>();
-
-        Path recordingsPath = experimentPath.resolve("All Recordings.csv");
-        if (!Files.isRegularFile(recordingsPath)) {
-            errors.add("File 'All Recordings.csv' does not exist in experiment: " + experimentName);
-        }
-
-        Path tracksPath = experimentPath.resolve("All Tracks.csv");
-        if (!Files.isRegularFile(tracksPath)) {
-            errors.add("File 'All Tracks.csv' does not exist in experiment: " + experimentName);
-        }
-
-        if (matureProject) {
-            Path squaresPath = experimentPath.resolve("All Squares.csv");
-            if (!Files.isRegularFile(squaresPath)) {
-                errors.add("File 'All Squares.csv' does not exist in experiment: " + experimentName);
+    // Build an all-STRING ColumnType[] using only the header row (fast, no full parse)
+    private static ColumnType[] buildAllStringTypesFromHeader(Path csvPath) throws Exception {
+        try (CSVReader reader = new CSVReader(new FileReader(csvPath.toFile()))) {
+            String[] header = reader.readNext();
+            if (header == null || header.length == 0) {
+                throw new IllegalStateException("CSV has no header: " + csvPath.getFileName());
             }
+            ColumnType[] types = new ColumnType[header.length];
+            Arrays.fill(types, ColumnType.STRING);
+            return types;
         }
+    }
 
-        Path trackMateImagesPath = experimentPath.resolve("TrackMate Images");
-        if (!Files.isDirectory(trackMateImagesPath)) {
-            errors.add("Directory 'TrackMate Images' does not exist in experiment: " + experimentName);
-        }
-
-        Path brightfieldImagesPath = experimentPath.resolve("Brightfield Images");
-        if (!Files.isDirectory(brightfieldImagesPath)) {
-            errors.add("Directory 'Brightfield Images' does not exist in experiment: " + experimentName);
-        }
-
-        return errors;
+    private static String extractFriendlyMessage(Exception e) {
+        String errorMsg = e.toString();
+        int colonIndex = errorMsg.lastIndexOf(":");
+        return (colonIndex != -1) ? errorMsg.substring(colonIndex + 1).trim() : errorMsg;
     }
 }
