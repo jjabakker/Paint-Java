@@ -39,7 +39,5 @@ public class PaintProject {
         this.experiments.add(experiment);
     }
 
-    public boolean loadProject(Path projectPath) {
-        return true;
-    }
+
 }
