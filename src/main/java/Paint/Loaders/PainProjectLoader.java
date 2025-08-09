@@ -9,7 +9,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PainProjectLoader {
 
@@ -59,61 +61,32 @@ public class PainProjectLoader {
             throw new RuntimeException("Failed to read top-level 'All Recordings.csv': " + messageAfterColon, e);
         }
 
-        List<String> rawExperimentNames;
-        try {
-            rawExperimentNames = table.stringColumn("Experiment Name")
-                    .unique()
-                    .asList();
-        } catch (Exception e) {
-            throw new IllegalStateException("Column 'Experiment Name' is missing or unreadable in 'All Recordings.csv'.", e);
+        if (!table.columnNames().contains("Experiment Name")) {
+            throw new IllegalStateException("Column 'Experiment Name' is missing in 'All Recordings.csv'.");
         }
 
-        // Normalize names to avoid trailing/leading spaces from CSV
-        List<String> experimentNames = new ArrayList<>(rawExperimentNames.size());
-        for (String name : rawExperimentNames) {
-            experimentNames.add(name == null ? "" : name.trim());
+        // Collect ALL unique experiment names (no Process filtering), while trimming whitespace
+        List<String> rawNames = table.stringColumn("Experiment Name").unique().asList();
+        Set<String> uniqueTrimmed = new LinkedHashSet<>();
+        for (String name : rawNames) {
+            if (name != null) {
+                String trimmed = name.trim();
+                if (!trimmed.isEmpty()) {
+                    uniqueTrimmed.add(trimmed);
+                }
+            }
         }
+        List<String> experimentNames = new ArrayList<>(uniqueTrimmed);
 
-        // Validate per-experiment directories and required CSVs
+        // Validate per-experiment requirements via helper
         List<String> errors = new ArrayList<>();
         for (String experimentName : experimentNames) {
-            if (experimentName.isEmpty()) {
-                errors.add("Encountered empty experiment name in top level 'All Recordings.csv'.");
-                continue;
-            }
-
             Path experimentPath = projectPath.resolve(experimentName);
             if (!Files.isDirectory(experimentPath)) {
                 errors.add("Experiment directory does not exist: " + experimentName);
                 continue;
             }
-
-            Path recordingsPath = experimentPath.resolve("All Recordings.csv");
-            if (!Files.isRegularFile(recordingsPath)) {
-                errors.add("File 'All Recordings.csv' does not exist in experiment: " + experimentName);
-            }
-
-            Path tracksPath = experimentPath.resolve("All Tracks.csv");
-            if (!Files.isRegularFile(tracksPath)) {
-                errors.add("File 'All Tracks.csv' does not exist in experiment: " + experimentName);
-            }
-
-            if (matureProject) {
-                Path squaresPath = experimentPath.resolve("All Squares.csv");
-                if (!Files.isRegularFile(squaresPath)) {
-                    errors.add("File 'All Squares.csv' does not exist in experiment: " + experimentName);
-                }
-            }
-
-            Path trackMateImagesPath = experimentPath.resolve("TrackMate Images");
-            if (!Files.isDirectory(trackMateImagesPath)) {
-                errors.add("Directory 'TrackMate Images' does not exist in experiment: " + experimentName);
-            }
-
-            Path brightfieldImagesPath = experimentPath.resolve("Brightfield Images");
-            if (!Files.isDirectory(brightfieldImagesPath)) {
-                errors.add("Directory 'Brightfield Images' does not exist in experiment: " + experimentName);
-            }
+            errors.addAll(collectExperimentValidationErrors(experimentPath, experimentName, matureProject));
         }
 
         if (!errors.isEmpty()) {
@@ -125,5 +98,39 @@ public class PainProjectLoader {
         }
 
         return experimentNames;
+    }
+
+    // New helper that encapsulates all experiment-level checks
+    private static List<String> collectExperimentValidationErrors(Path experimentPath, String experimentName, boolean matureProject) {
+        List<String> errors = new ArrayList<>();
+
+        Path recordingsPath = experimentPath.resolve("All Recordings.csv");
+        if (!Files.isRegularFile(recordingsPath)) {
+            errors.add("File 'All Recordings.csv' does not exist in experiment: " + experimentName);
+        }
+
+        Path tracksPath = experimentPath.resolve("All Tracks.csv");
+        if (!Files.isRegularFile(tracksPath)) {
+            errors.add("File 'All Tracks.csv' does not exist in experiment: " + experimentName);
+        }
+
+        if (matureProject) {
+            Path squaresPath = experimentPath.resolve("All Squares.csv");
+            if (!Files.isRegularFile(squaresPath)) {
+                errors.add("File 'All Squares.csv' does not exist in experiment: " + experimentName);
+            }
+        }
+
+        Path trackMateImagesPath = experimentPath.resolve("TrackMate Images");
+        if (!Files.isDirectory(trackMateImagesPath)) {
+            errors.add("Directory 'TrackMate Images' does not exist in experiment: " + experimentName);
+        }
+
+        Path brightfieldImagesPath = experimentPath.resolve("Brightfield Images");
+        if (!Files.isDirectory(brightfieldImagesPath)) {
+            errors.add("Directory 'Brightfield Images' does not exist in experiment: " + experimentName);
+        }
+
+        return errors;
     }
 }
