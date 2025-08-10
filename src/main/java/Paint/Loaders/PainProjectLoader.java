@@ -37,21 +37,15 @@ public class PainProjectLoader {
     }
 
     public static PaintProject loadProject(Path projectPath, boolean matureProject) {
-        Path filePath = projectPath.resolve("All Recordings.csv");
+        Path filePath = projectPath.resolve("Experiment Info.csv");
         Table table;
 
         try {
-            long t0 = System.nanoTime();
             ColumnType[] allString = buildAllStringTypesFromHeader(filePath);
             CsvReadOptions options = CsvReadOptions.builder(filePath.toFile())
                     .columnTypes(allString)
                     .build();
             table = Table.read().csv(options);
-            long t1 = System.nanoTime();
-            long ms = (t1 - t0) / 1_000_000L;
-            if (ms > 2_000) {
-                System.err.println("Warning: reading top-level All Recordings.csv took " + ms + " ms");
-            }
         } catch (Exception e) {
             String message = extractFriendlyMessage(e);
             throw new RuntimeException("Failed to read top-level 'All Recordings.csv': " + message, e);
