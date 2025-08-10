@@ -1,5 +1,6 @@
 package Paint.Loaders;
 
+import Paint.Constants.PaintConstants;
 import Paint.Objects.PaintExperiment;
 import Paint.Objects.PaintProject;
 import tech.tablesaw.api.ColumnType;
@@ -42,8 +43,9 @@ public class PainProjectLoader {
                 }
             }
 
+
+            System.out.println("Project: " + projectPath.getFileName().toString());
             PaintProject project = loadProject(projectPath, matureProject);
-            System.out.println("Project: " + project.getProjectName());
             System.out.println("Processed experiments count: " + project.getExperiments().size());
 
         } catch (Exception e) {
@@ -70,7 +72,7 @@ public class PainProjectLoader {
 
         // There needs to be a column named 'Experiment Name'
         if (!table.columnNames().contains("Experiment Name")) {
-            throw new IllegalStateException("Column 'Experiment Name' is missing in 'All Recordings.csv'.");
+            throw new IllegalStateException("Column 'Experiment Name' is missing in " + PaintConstants.PROJECT_INFO_CSV + ".");
         }
 
         // Get a list of unique experiment names
