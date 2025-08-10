@@ -1,5 +1,7 @@
 package PaintUtilities;
 
+import Paint.Constants.PaintConstants;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
@@ -44,6 +46,25 @@ public class DirectoryClassifier {
 
     private static final Set<String> PROJECT_FILES = Collections.unmodifiableSet(
             new HashSet<>(Arrays.asList("All Recordings.csv", "All Tracks.csv", "All Squares.csv")));
+
+    private static final HashSet<String> REQUIRED_TOP_LEVEL_FILES =
+            new HashSet<>(Arrays.asList(
+                    PaintConstants.EXPERIMENT_INFO_CSV,
+                    PaintConstants.RECORDINGS_CSV
+            ));
+
+    private static final HashSet<String> EXPECTED_EXPERIMENT_FILES =
+            new HashSet<>(Arrays.asList(
+                    PaintConstants.SQUARES_CSV,
+                    PaintConstants.TRACKS_CSV,
+                    PaintConstants.PAINT_JSON
+            ));
+
+    private static final HashSet<String> EXPECTED_EXPERIMENT_DIRS =
+            new HashSet<>(Arrays.asList(
+                    PaintConstants.DIR_BRIGHTFIELD_IMAGES,
+                    PaintConstants.DIR_TRACKMATE_IMAGES
+            ));
 
     public static ClassificationResult classifyDirectoryWork(Path directory) throws IOException {
         List<Path> contents = Files.list(directory)

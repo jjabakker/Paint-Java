@@ -1,10 +1,12 @@
 package Paint.Loaders;
 
+import Paint.Constants.PaintConstants;
 import Paint.Objects.PaintExperiment;
 import Paint.Objects.PaintRecording;
 import Paint.Objects.PaintSquare;
 import Paint.Objects.PaintTrack;
 import tech.tablesaw.api.ColumnType;
+import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvReadOptions;
 
@@ -49,26 +51,18 @@ public final class PaintExperimentLoader {
         }
     }
 
-    // Filenames and directories used by an experiment
-    private static final String RECORDINGS_CSV = "All Recordings.csv";
-    private static final String TRACKS_CSV = "All Tracks.csv";
-    private static final String SQUARES_CSV = "All Squares.csv";
-    private static final String DIR_TRACKMATE_IMAGES = "TrackMate Images";
-    private static final String DIR_BRIGHTFIELD_IMAGES = "Brightfield Images";
-
     private PaintExperimentLoader() {
         // utility
     }
 
     public static Result loadExperiment(Path experimentPath, String experimentName, boolean matureProject) {
 
-        //  Create a list of experiment that appear to meet the most obvious requirements
+        // Validate structure
         List<String> errors = validateExperimentLayout(experimentPath, experimentName, matureProject);
         if (!errors.isEmpty()) {
             return Result.failure(errors);
         }
 
-        // Create the domain object
         PaintExperiment experiment = new PaintExperiment();
         experiment.setExperimentName(experimentName);
 
@@ -77,48 +71,75 @@ public final class PaintExperimentLoader {
         try {
             recordings = loadRecordings(experimentPath);
         } catch (Exception e) {
-            errors.add("Failed to read '" + RECORDINGS_CSV + "': " + extractFriendlyMessage(e));
+            errors.add("Failed to read '" + PaintConstants.RECORDINGS_CSV + "': " + extractFriendlyMessage(e));
             return Result.failure(errors);
         }
 
-        // Load tracks once (per experiment)
-        List<PaintTrack> tracks;
+        // Read once
+        Table tracksTable;
         try {
-            Path tracksCsv = experimentPath.resolve(TRACKS_CSV);
-            tracks = PaintTrackLoader.loadAllTracks(tracksCsv);
+            tracksTable = Table.read().csv(experimentPath.resolve(PaintConstants.TRACKS_CSV).toFile());
         } catch (Exception e) {
-            errors.add("Failed to load tracks from '" + TRACKS_CSV + "': " + extractFriendlyMessage(e));
+            errors.add("Failed to load tracks from '" + PaintConstants.TRACKS_CSV + "': " + extractFriendlyMessage(e));
             return Result.failure(errors);
         }
 
-        // Load squares once (per experiment), only if mature project
-        List<PaintSquare> squares = Collections.emptyList();
+        Table squaresTable = null;
         if (matureProject) {
+            Path squaresCsv = experimentPath.resolve(PaintConstants.SQUARES_CSV);
+            if (!Files.isRegularFile(squaresCsv)) {
+                errors.add("Expected '" + PaintConstants.SQUARES_CSV + "' file was not found.");
+                return Result.failure(errors);
+            }
             try {
-                Path squaresCsv = experimentPath.resolve(SQUARES_CSV);
-                if (Files.isRegularFile(squaresCsv)) {
-                    squares = PaintSquareLoader.loadAllSquares(squaresCsv);
-                } else {
-                    // Should have been validated earlier; keep defensive fallback
-                    errors.add("Expected '" + SQUARES_CSV + "' file was not found.");
-                    return Result.failure(errors);
-                }
+                squaresTable = Table.read().csv(squaresCsv.toFile());
             } catch (Exception e) {
-                errors.add("Failed to load squares from '" + SQUARES_CSV + "': " + extractFriendlyMessage(e));
+                errors.add("Failed to load squares from '" + PaintConstants.SQUARES_CSV + "': " + extractFriendlyMessage(e));
                 return Result.failure(errors);
             }
         }
 
-        // Attach shared data to each recording and add to experiment
+        // Filter and delegate parsing to loaders
         for (PaintRecording rec : recordings) {
-            rec.setTracks(tracks);
-            if (matureProject) {
-                rec.setSquares(squares);
+            String recordingName = rec.getRecordingName();
+
+            try {
+                Table filteredTracks = filterByRecording(tracksTable, recordingName);
+                List<PaintTrack> tracksForRecording = PaintTrackLoader.fromTable(filteredTracks);
+                rec.setTracks(tracksForRecording);
+            } catch (Exception e) {
+                errors.add("Failed to build tracks for recording '" + recordingName + "': " + extractFriendlyMessage(e));
             }
+
+            if (matureProject && squaresTable != null) {
+                try {
+                    Table filteredSquares = filterByRecording(squaresTable, recordingName);
+                    List<PaintSquare> squaresForRecording = PaintSquareLoader.fromTable(filteredSquares);
+                    rec.setSquares(squaresForRecording);
+                } catch (Exception e) {
+                    errors.add("Failed to build squares for recording '" + recordingName + "': " + extractFriendlyMessage(e));
+                }
+            }
+
             experiment.addRecording(rec);
         }
 
+        if (!errors.isEmpty()) {
+            return Result.failure(errors);
+        }
+
         return Result.success(experiment);
+    }
+
+    private static Table filterByRecording(Table table, String recordingName) {
+        if (recordingName == null || recordingName.isEmpty()) {
+            return table;
+        }
+        if (table.containsColumn(PaintConstants.COL_EXT_RECORDING_NAME) && table.column(PaintConstants.COL_EXT_RECORDING_NAME) instanceof StringColumn) {
+            StringColumn col = table.stringColumn(PaintConstants.COL_EXT_RECORDING_NAME);
+            return table.where(col.isEqualTo(recordingName));
+        }
+        return table.emptyCopy();
     }
 
     private static List<String> validateExperimentLayout(Path experimentPath, String experimentName, boolean matureProject) {
@@ -129,38 +150,38 @@ public final class PaintExperimentLoader {
             return errors;
         }
 
-        Path recordingsPath = experimentPath.resolve(RECORDINGS_CSV);
+        Path recordingsPath = experimentPath.resolve(PaintConstants.RECORDINGS_CSV);
         if (!Files.isRegularFile(recordingsPath)) {
-            errors.add("File '" + RECORDINGS_CSV + "' does not exist.");
+            errors.add("File '" + PaintConstants.RECORDINGS_CSV + "' does not exist.");
         }
 
-        Path tracksPath = experimentPath.resolve(TRACKS_CSV);
+        Path tracksPath = experimentPath.resolve(PaintConstants.TRACKS_CSV);
         if (!Files.isRegularFile(tracksPath)) {
-            errors.add("File '" + TRACKS_CSV + "' does not exist.");
+            errors.add("File '" + PaintConstants.TRACKS_CSV + "' does not exist.");
         }
 
         if (matureProject) {
-            Path squaresPath = experimentPath.resolve(SQUARES_CSV);
+            Path squaresPath = experimentPath.resolve(PaintConstants.SQUARES_CSV);
             if (!Files.isRegularFile(squaresPath)) {
-                errors.add("File '" + SQUARES_CSV + "' does not exist.");
+                errors.add("File '" + PaintConstants.SQUARES_CSV + "' does not exist.");
             }
         }
 
-        Path trackMateImagesPath = experimentPath.resolve(DIR_TRACKMATE_IMAGES);
+        Path trackMateImagesPath = experimentPath.resolve(PaintConstants.DIR_TRACKMATE_IMAGES);
         if (!Files.isDirectory(trackMateImagesPath)) {
-            errors.add("Directory '" + DIR_TRACKMATE_IMAGES + "' does not exist.");
+            errors.add("Directory '" + PaintConstants.DIR_TRACKMATE_IMAGES + "' does not exist.");
         }
 
-        Path brightfieldImagesPath = experimentPath.resolve(DIR_BRIGHTFIELD_IMAGES);
+        Path brightfieldImagesPath = experimentPath.resolve(PaintConstants.DIR_BRIGHTFIELD_IMAGES);
         if (!Files.isDirectory(brightfieldImagesPath)) {
-            errors.add("Directory '" + DIR_BRIGHTFIELD_IMAGES + "' does not exist.");
+            errors.add("Directory '" + PaintConstants.DIR_BRIGHTFIELD_IMAGES + "' does not exist.");
         }
 
         return errors;
     }
 
     private static List<PaintRecording> loadRecordings(Path experimentPath) {
-        Path filePath = experimentPath.resolve(RECORDINGS_CSV);
+        Path filePath = experimentPath.resolve(PaintConstants.RECORDINGS_CSV);
 
         // Read as all-strings to prevent type inference issues
         Table table;
@@ -178,12 +199,11 @@ public final class PaintExperimentLoader {
             throw new RuntimeException(e);
         }
 
-        if (!table.columnNames().contains("Recording Name")) {
-            throw new IllegalStateException("Column 'Recording Name' is missing in '" + RECORDINGS_CSV + "'.");
+        if (!table.columnNames().contains(PaintConstants.COL_RECORDING_NAME)) {
+            throw new IllegalStateException("Column '" + PaintConstants.COL_RECORDING_NAME + "' is missing in '" + PaintConstants.RECORDINGS_CSV + "'.");
         }
 
-        // Create a PaintRecording per row (or unique names if preferred)
-        List<String> names = table.stringColumn("Recording Name")
+        List<String> names = table.stringColumn(PaintConstants.COL_RECORDING_NAME)
                 .asList()
                 .stream()
                 .filter(Objects::nonNull)
@@ -192,7 +212,6 @@ public final class PaintExperimentLoader {
                 .collect(Collectors.toList());
 
         if (names.isEmpty()) {
-            // Still create a single placeholder recording to reflect the experiment presence
             PaintRecording placeholder = new PaintRecording();
             placeholder.setRecordingName("Recording");
             return Collections.singletonList(placeholder);
