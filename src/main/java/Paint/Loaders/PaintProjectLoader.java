@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class PainProjectLoader {
+public class PaintProjectLoader {
 
     public static void main(String[] args) {
         try {
