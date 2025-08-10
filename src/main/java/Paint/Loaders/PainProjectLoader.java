@@ -29,8 +29,12 @@ public class PainProjectLoader {
             boolean matureProject = true;
 
             if (args.length > 1) {
-                if ("--legacy".equalsIgnoreCase(args[1])) matureProject = false;
-                else if ("--mature".equalsIgnoreCase(args[1])) matureProject = true;
+                if ("--legacy".equalsIgnoreCase(args[1])) {
+                    matureProject = false;
+                }
+                else if ("--mature".equalsIgnoreCase(args[1])) {
+                    matureProject = true;
+                }
                 else {
                     System.err.println("Unknown option: " + args[1]);
                     System.out.println("Use --mature or --legacy (default is --mature).");
@@ -52,6 +56,7 @@ public class PainProjectLoader {
         Path filePath = projectPath.resolve(PaintConstants.PROJECT_INFO_CSV);
         Table table;
 
+        // Read the top-level 'All Recordings.csv' file
         try {
             ColumnType[] allString = buildAllStringTypesFromHeader(filePath);
             CsvReadOptions options = CsvReadOptions.builder(filePath.toFile())
@@ -63,10 +68,12 @@ public class PainProjectLoader {
             throw new RuntimeException("Failed to read top-level " + PaintConstants.PROJECT_INFO_CSV + ":" + message, e);
         }
 
+        // There needs to be a column named 'Experiment Name'
         if (!table.columnNames().contains("Experiment Name")) {
             throw new IllegalStateException("Column 'Experiment Name' is missing in 'All Recordings.csv'.");
         }
 
+        // Get a list of unique experiment names
         List<String> experimentNames = table.stringColumn("Experiment Name")
                 .unique()
                 .asList()
@@ -76,7 +83,7 @@ public class PainProjectLoader {
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
 
-        // Determine which experiments have at least one row with Process flag set to a truthy value
+        // Determine which experiments have at least one row with the Process flag set to a truthy value
         Map<String, Boolean> experimentHasProcessYes = new HashMap<>();
         List<String> skippedByProcess = new ArrayList<>();
         Set<String> yesValues = new HashSet<>(Arrays.asList("y", "ye", "yes", "ok", "true", "t", "1"));
@@ -105,7 +112,7 @@ public class PainProjectLoader {
 
         List<String> allErrors = new ArrayList<>();
         for (String experimentName : experimentNames) {
-            // If Process column exists and no row for this experiment has Process=true, skip and record
+            // If the Process column exists and no row for this experiment has Process=true, skip and record
             if (hasProcessColumn && !experimentHasProcessYes.getOrDefault(experimentName, false)) {
                 skippedByProcess.add(experimentName);
                 continue;

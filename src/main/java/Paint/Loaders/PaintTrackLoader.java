@@ -59,9 +59,6 @@ public class PaintTrackLoader {
         return createTracks(table);
     }
 
-//    public static List<PaintTrack> loadTracksSet(String csvPath, String recordingName) {
-//
-//    }
 
     private static List<PaintTrack> createTracks(Table table) {
 
