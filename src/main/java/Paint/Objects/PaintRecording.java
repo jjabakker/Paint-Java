@@ -1,6 +1,5 @@
 package Paint.Objects;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -24,6 +23,7 @@ public class PaintRecording {
             "Process",
             "Ext Recording Name",
             "Nr Spots",
+            "Nr Tracks",
             "Recording Size",
             "Run Time",
             "Time Stamp" };
@@ -43,16 +43,26 @@ public class PaintRecording {
     // The second set exists only in All Recordings
     private int numberSpots;
     private int numberTracks;
-    private int runTime;
+    private double runTime;
     private int recordingSize;
-    private LocalDate timeStamp;
-    private double maxFrameGap;
+    private String timeStamp;
+    private int maxFrameGap;
     private double gapClosingMaxDistance;
     private double linkingMaxDistance;
     private boolean medianFiltering;
-    private int SpotsinAllTracks;
-    private int minSpotsInTrack;
-    private String Case;
+    private int numberOfSpotsInAllTracks;
+    private int minNumberOfSpotsInTrack;
+    private String caseName;
+
+    private double minRequiredRSquared;
+    private double maxAllowableVariability;
+    private double minRequiredDensityRatio;
+    private int minTracksForTau;
+    private boolean exclude;
+    private String neighbourMode;
+    private double tau;
+    private double rSquared;
+    private double density;
 
     private List<PaintSquare> paintSquares;
     private List<PaintTrack> paintTracks;
@@ -74,21 +84,13 @@ public class PaintRecording {
                 curColumn = cv.getColumnName();
                 curValue  = cv.getValue().toString();
                 switch (curColumn) {
+
+                    // String values
                     case "Recording Name":
                         this.recordingName = (String) cv.getValue();
                         break;
-                    case "Recording Sequence Nr":
-                        break;
                     case "Experiment Name":
                         this.probeName = (String) cv.getValue();
-                        break;
-                    case "Experiment Date":
-                        break;
-                    case "Condition Nr":
-                        this.conditionNr = Integer.parseInt(cv.getValue().toString());
-                        break;
-                    case "Replicate Nr":
-                        this.replicateNr = Integer.parseInt(cv.getValue().toString());
                         break;
                     case "Probe":
                         this.probeName = (String) cv.getValue();
@@ -102,29 +104,45 @@ public class PaintRecording {
                     case "Adjuvant":
                         this.adjuvant = (String) cv.getValue();
                         break;
+                    case "Time Stamp":
+                        this.timeStamp = cv.getValue().toString();
+                        break;
+                    case "Neighbour Mode":
+                        this.neighbourMode = (String) cv.getValue();
+                        break;
+                    case "Case":
+                        this.caseName = (String) cv.getValue();
+                        break;
+
+                    // Integer values
+                    case "Condition Nr":
+                        this.conditionNr = Integer.parseInt(cv.getValue().toString());
+                        break;
+                    case "Replicate Nr":
+                        this.replicateNr = Integer.parseInt(cv.getValue().toString());
+                        break;
+                    case "Nr Spots":
+                        this.numberSpots = Integer.parseInt(cv.getValue().toString());
+                        break;
+                    case "Nr Tracks":
+                        this.numberTracks = Integer.parseInt(cv.getValue().toString());
+                        break;
+                    case "Max Frame Gap":
+                        this.maxFrameGap = Integer.parseInt(cv.getValue().toString());
+                        break;
+                    case "Nr Spots in All Tracks":
+                        this.numberOfSpotsInAllTracks = Integer.parseInt(cv.getValue().toString());
+                        break;
+
+                    // Double values
                     case "Concentration":
                         this.concentration = Double.parseDouble(cv.getValue().toString());;
                         break;
                     case "Threshold":
                         this.threshold = Double.parseDouble(cv.getValue().toString());
                         break;
-                    case "Process":
-                        this.processFlag = checkBooleanValue(cv.getValue().toString());
-                        break;
-                    case "Nr Spots":
-                        this.numberSpots = Integer.parseInt(cv.getValue().toString());
-                        break;
-                    case "Number Tracks":
-                        this.numberTracks = Integer.parseInt(cv.getValue().toString());
-                        break;
                     case "Run Time":
-                        this.runTime = Integer.parseInt(cv.getValue().toString());
-                        break;
-                    case "Time Stamp":
-                        this.timeStamp = LocalDate.parse(cv.getValue().toString(), DATE_FORMAT);
-                        break;
-                    case "Max Frame Gap":
-                        this.maxFrameGap = (double) cv.getValue();
+                        this.runTime = Double.parseDouble(cv.getValue().toString());
                         break;
                     case "Gap Closing Max Distance":
                         this.gapClosingMaxDistance = Double.parseDouble(cv.getValue().toString());
@@ -132,9 +150,53 @@ public class PaintRecording {
                     case "Linking Max Distance":
                         this.linkingMaxDistance = Double.parseDouble(cv.getValue().toString());
                         break;
+                    case "Min Required R Squared":
+                        this.minRequiredRSquared = Double.parseDouble(cv.getValue().toString());
+                        break;
+                    case "Max Allowable Variability":
+                        this.maxAllowableVariability = Double.parseDouble(cv.getValue().toString());
+                        break;
+                    case "Min Required Density Ratio":
+                        this.minRequiredDensityRatio = Double.parseDouble(cv.getValue().toString());
+                        break;
+                   case "Tau":
+                        this.tau = Double.parseDouble(cv.getValue().toString());
+                        break;
+                    case "Density":
+                        this.density = Double.parseDouble(cv.getValue().toString());
+                        break;
+                    case "R Squared":
+                        this.rSquared = Double.parseDouble(cv.getValue().toString());
+                        break;
+
+                    // Boolean values
+                    case "Process":
+                        this.processFlag = checkBooleanValue(cv.getValue().toString());
+                        break;
                     case "Median Filtering":
                         this.medianFiltering = checkBooleanValue(cv.getValue().toString());
+                    case "Exclude":
+                        this.exclude = checkBooleanValue(cv.getValue().toString());
                         break;
+
+                    // These fields should be int but occur as double in the files
+                    case "Nr of Squares in Row":
+                        this.maxFrameGap = (int) Double.parseDouble(cv.getValue().toString());
+                        break;
+                    case "Min Spots in Track":
+                        this.minNumberOfSpotsInTrack = (int) Double.parseDouble(cv.getValue().toString());
+                        break;
+                    case "Min Tracks for Tau":
+                        this.minTracksForTau = (int) Double.parseDouble(cv.getValue().toString());
+                        break;
+
+                    // These are legacy values. They exist, but we don't use them.
+                    case "Experiment Date":
+                    case "Ext Recording Name":
+                    case "Recording Size":
+                    case "Recording Sequence Nr":
+                        break;
+
                     default:
                         System.out.println("Warning: Unknown column " + cv.getColumnName());
                         break;
@@ -217,7 +279,7 @@ public class PaintRecording {
         this.paintTracks.add(paintTrack);
     }
 
-    static Boolean checkBooleanValue(String string) {
+    public static Boolean checkBooleanValue(String string) {
         Set<String> yesValues = new HashSet<>(Arrays.asList("y", "ye", "yes", "ok", "true", "t"));
         return yesValues.contains(string.trim().toLowerCase());
     }
