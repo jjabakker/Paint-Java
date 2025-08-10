@@ -7,6 +7,9 @@ import tech.tablesaw.api.ColumnType;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvReadOptions;
 
+import com.opencsv.CSVReader;
+import java.io.FileReader;
+
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -58,7 +61,6 @@ public class PainProjectLoader {
         Path filePath = projectPath.resolve(PaintConstants.PROJECT_INFO_CSV);
         Table table;
 
-        // Read the top-level 'All Recordings.csv' file
         try {
             ColumnType[] allString = buildAllStringTypesFromHeader(filePath);
             CsvReadOptions options = CsvReadOptions.builder(filePath.toFile())
@@ -75,8 +77,8 @@ public class PainProjectLoader {
             throw new IllegalStateException("Column 'Experiment Name' is missing in " + PaintConstants.PROJECT_INFO_CSV + ".");
         }
 
-        // Get a list of unique experiment names
-        List<String> experimentNames = table.stringColumn("Experiment Name")
+        // Unique experiment names listed in PROJECT_INFO
+        List<String> allExperimentNames = table.stringColumn("Experiment Name")
                 .unique()
                 .asList()
                 .stream()
@@ -85,41 +87,44 @@ public class PainProjectLoader {
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
 
-        // Determine which experiments have at least one row with the Process flag set to a truthy value
-        Map<String, Boolean> experimentHasProcessYes = new HashMap<>();
-        List<String> skippedByProcess = new ArrayList<>();
-        Set<String> yesValues = new HashSet<>(Arrays.asList("y", "ye", "yes", "ok", "true", "t", "1"));
+        // If PROJECT_INFO has a 'Process' column, only include experiments
+        // for which the Process flag is set (truthy).
+        // Otherwise, include all.
+        List<String> experimentsToLoad = new ArrayList<>();
+        List<String> experimentsSkipped = new ArrayList<>();
 
         boolean hasProcessColumn = table.columnNames().contains("Process");
         if (hasProcessColumn) {
-            // Initialize all to false
-            for (String exp : experimentNames) {
-                experimentHasProcessYes.put(exp, false);
-            }
+            Set<String> yesValues = new HashSet<>(Arrays.asList("y", "ye", "yes", "ok", "true", "t", "1"));
+            // Build a set of experiments that have Process set
+            Set<String> allowed = new HashSet<>();
             List<String> expCol = table.stringColumn("Experiment Name").asList();
             List<String> procCol = table.stringColumn("Process").asList();
 
             for (int i = 0; i < table.rowCount(); i++) {
                 String exp = expCol.get(i);
-                if (exp == null) continue;
                 String p = procCol.get(i);
-                boolean isYes = p != null && yesValues.contains(p.trim().toLowerCase());
-                if (isYes) {
-                    experimentHasProcessYes.put(exp.trim(), true);
+                if (exp == null) continue;
+                if (p != null && yesValues.contains(p.trim().toLowerCase())) {
+                    allowed.add(exp.trim());
                 }
             }
+
+            for (String exp : allExperimentNames) {
+                if (allowed.contains(exp)) {
+                    experimentsToLoad.add(exp);
+                } else {
+                    experimentsSkipped.add(exp);
+                }
+            }
+        } else {
+            experimentsToLoad.addAll(allExperimentNames);
         }
 
         PaintProject project = new PaintProject(projectPath);
 
         List<String> allErrors = new ArrayList<>();
-        for (String experimentName : experimentNames) {
-            // If the Process column exists and no row for this experiment has Process=true, skip and record
-            if (hasProcessColumn && !experimentHasProcessYes.getOrDefault(experimentName, false)) {
-                skippedByProcess.add(experimentName);
-                continue;
-            }
-
+        for (String experimentName : experimentsToLoad) {
             Path experimentPath = projectPath.resolve(experimentName);
 
             PaintExperimentLoader.Result result =
@@ -135,10 +140,18 @@ public class PainProjectLoader {
             }
         }
 
-        // Inform user about experiments skipped due to the Process flag
-        if (!skippedByProcess.isEmpty()) {
-            System.out.println("Note: The following experiment(s) were skipped because the Process flag is not set:");
-            for (String name : skippedByProcess) {
+        // Notify the user about experiments processed due to a positive  Process flag
+        if (!experimentsToLoad.isEmpty()) {
+            System.out.println("Note: Processed experiment(s)" );
+            for (String name : experimentsToLoad) {
+                System.out.println("- " + name);
+            }
+        }
+
+        // Notify user about experiments skipped due to the Process flag
+        if (!experimentsSkipped.isEmpty()) {
+            System.out.println("Note: Skipped experiment(s) because Process flag is not set in " + PaintConstants.PROJECT_INFO_CSV);
+            for (String name : experimentsSkipped) {
                 System.out.println("- " + name);
             }
         }
@@ -167,7 +180,7 @@ public class PainProjectLoader {
 
     // Build an all-STRING ColumnType[] using only the header row (fast, no full parse)
     private static ColumnType[] buildAllStringTypesFromHeader(Path csvPath) throws Exception {
-        try (com.opencsv.CSVReader reader = new com.opencsv.CSVReader(new java.io.FileReader(csvPath.toFile()))) {
+        try (CSVReader reader = new CSVReader(new FileReader(csvPath.toFile()))) {
             String[] header = reader.readNext();
             if (header == null || header.length == 0) {
                 throw new IllegalStateException("CSV has no header: " + csvPath.getFileName());
