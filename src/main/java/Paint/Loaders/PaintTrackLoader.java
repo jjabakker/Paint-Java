@@ -24,18 +24,12 @@ public class PaintTrackLoader {
         System.out.println("Filtered tracks count: " + filteredTracks.size());
     }
 
-
-
-
     public static List<PaintTrack> loadAllTracks(Path csvPath)  {
-
         // Load all the tracks from CSV
-
         return loadTracks(csvPath, null);
     }
 
     public static List<PaintTrack> loadTracks(Path csvPath, String recordingName)  {
-
         // Load tracks from CSV, optionally filtered by recordingName.
         // If the recordingName is null or empty, all tracks are loaded.
 
@@ -57,6 +51,11 @@ public class PaintTrackLoader {
                 table = table.where(recordingCol.isEqualTo(recordingName));
             }
         }
+        return createTracks(table);
+    }
+
+    // New: public, side-effect-free conversion from a preloaded/filtered Table
+    public static List<PaintTrack> fromTable(Table table) {
         return createTracks(table);
     }
 
