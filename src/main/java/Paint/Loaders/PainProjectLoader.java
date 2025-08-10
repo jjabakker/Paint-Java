@@ -49,7 +49,7 @@ public class PainProjectLoader {
     }
 
     public static PaintProject loadProject(Path projectPath, boolean matureProject) {
-        Path filePath = projectPath.resolve("Experiment Info.csv");
+        Path filePath = projectPath.resolve(PaintConstants.PROJECT_INFO_CSV);
         Table table;
 
         try {
@@ -60,7 +60,7 @@ public class PainProjectLoader {
             table = Table.read().csv(options);
         } catch (Exception e) {
             String message = extractFriendlyMessage(e);
-            throw new RuntimeException("Failed to read top-level 'All Recordings.csv': " + message, e);
+            throw new RuntimeException("Failed to read top-level " + PaintConstants.PROJECT_INFO_CSV + ":" + message, e);
         }
 
         if (!table.columnNames().contains("Experiment Name")) {
