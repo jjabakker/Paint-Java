@@ -1,5 +1,6 @@
 package Paint.Loaders;
 
+import Paint.Constants.PaintConstants;
 import Paint.Objects.PaintExperiment;
 import Paint.Objects.PaintProject;
 import tech.tablesaw.api.ColumnType;
@@ -17,15 +18,17 @@ import java.util.stream.Collectors;
 public class PainProjectLoader {
 
     public static void main(String[] args) {
+
+        if (args == null || args.length == 0 || "-h".equals(args[0]) || "--help".equals(args[0])) {
+            System.out.println("Usage: java -cp <jar> Paint.Loaders.PainProjectLoader <project-root-path> [--mature|--legacy]");
+            System.out.println("  <project-root-path>  Path containing " + PaintConstants.EXPERIMENT_INFO_CSV + " and experiment directories");
+            System.out.println("  --mature             Expect squares file (" + PaintConstants.SQUARES_CSV + ") in experiments (default)");
+            System.out.println("  --legacy             Do not require squares file");
+            System.exit(0);
+        }
+
+        Path projectPath = Paths.get(args[0]);
         try {
-            Path projectPath;
-
-            if (args != null && args.length != 0) {
-                projectPath = Paths.get(args[0]);
-            } else {
-                projectPath = Paths.get("/Users/hans/Downloads/Paint Data - v38/Regular Probes/Paint Regular Probes - 20 Squares"); // Replace or pass via args
-            }
-
             PaintProject project = loadProject(projectPath, true);
             System.out.println("Project: " + project.getProjectName());
             System.out.println("Experiments count: " + project.getExperiments().size());
