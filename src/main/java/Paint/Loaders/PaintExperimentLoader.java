@@ -5,15 +5,18 @@ import Paint.Objects.PaintExperiment;
 import Paint.Objects.PaintRecording;
 import Paint.Objects.PaintSquare;
 import Paint.Objects.PaintTrack;
+import PaintUtilities.ColumnValue;
 import tech.tablesaw.api.ColumnType;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvReadOptions;
+import tech.tablesaw.api.Row;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
+
+import PaintUtilities.ExceptionUtils;
 
 /**
  * Responsible for validating and loading a single experiment from disk.
@@ -70,8 +73,11 @@ public final class PaintExperimentLoader {
         List<PaintRecording> recordings;
         try {
             recordings = loadRecordings(experimentPath);
+            for (PaintRecording rec : recordings) {
+                experiment.addRecording(rec);
+            }
         } catch (Exception e) {
-            errors.add("Failed to read '" + PaintConstants.RECORDINGS_CSV + "': " + extractFriendlyMessage(e));
+            errors.add("Failed to read '" + PaintConstants.RECORDINGS_CSV + "': " + ExceptionUtils.friendlyMessage(e));
             return Result.failure(errors);
         }
 
@@ -80,7 +86,7 @@ public final class PaintExperimentLoader {
         try {
             tracksTable = Table.read().csv(experimentPath.resolve(PaintConstants.TRACKS_CSV).toFile());
         } catch (Exception e) {
-            errors.add("Failed to load tracks from '" + PaintConstants.TRACKS_CSV + "': " + extractFriendlyMessage(e));
+            errors.add("Failed to load tracks from '" + PaintConstants.TRACKS_CSV + "': " + ExceptionUtils.friendlyMessage(e));
             return Result.failure(errors);
         }
 
@@ -94,7 +100,7 @@ public final class PaintExperimentLoader {
             try {
                 squaresTable = Table.read().csv(squaresCsv.toFile());
             } catch (Exception e) {
-                errors.add("Failed to load squares from '" + PaintConstants.SQUARES_CSV + "': " + extractFriendlyMessage(e));
+                errors.add("Failed to load squares from '" + PaintConstants.SQUARES_CSV + "': " + ExceptionUtils.friendlyMessage(e));
                 return Result.failure(errors);
             }
         }
@@ -108,7 +114,7 @@ public final class PaintExperimentLoader {
                 List<PaintTrack> tracksForRecording = PaintTrackLoader.fromTable(filteredTracks);
                 rec.setTracks(tracksForRecording);
             } catch (Exception e) {
-                errors.add("Failed to build tracks for recording '" + recordingName + "': " + extractFriendlyMessage(e));
+                errors.add("Failed to build tracks for recording '" + recordingName + "': " + ExceptionUtils.friendlyMessage(e));
             }
 
             if (matureProject && squaresTable != null) {
@@ -117,7 +123,7 @@ public final class PaintExperimentLoader {
                     List<PaintSquare> squaresForRecording = PaintSquareLoader.fromTable(filteredSquares);
                     rec.setSquares(squaresForRecording);
                 } catch (Exception e) {
-                    errors.add("Failed to build squares for recording '" + recordingName + "': " + extractFriendlyMessage(e));
+                    errors.add("Failed to build squares for recording '" + recordingName + "': " + ExceptionUtils.friendlyMessage(e));
                 }
             }
 
@@ -203,32 +209,38 @@ public final class PaintExperimentLoader {
             throw new IllegalStateException("Column '" + PaintConstants.COL_RECORDING_NAME + "' is missing in '" + PaintConstants.RECORDINGS_CSV + "'.");
         }
 
-        List<String> names = table.stringColumn(PaintConstants.COL_RECORDING_NAME)
-                .asList()
-                .stream()
-                .filter(Objects::nonNull)
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .collect(Collectors.toList());
+        // Build a PaintRecording per row, pulling values from the table
+        List<PaintRecording> recordings = new ArrayList<>(table.rowCount());
+        for (Row row : table) {
+            List<ColumnValue>  colValues = new ArrayList<>();
+            ColumnValue colValuePair;
 
-        if (names.isEmpty()) {
+            for (int colIndex = 0; colIndex < table.columnCount(); colIndex++) {
+                String columnName = table.column(colIndex).name();
+                Object value = row.getObject(colIndex);
+                colValues.add(new ColumnValue(columnName, (String) value));
+                // System.out.println(columnName + " = " + value);
+            }
+
+            // Create a new PaintRecording with the values from the table passed as an List of ColumnValue objects
+            PaintRecording rec = new PaintRecording(colValues);
+
+            // Process flag (truthy values like y/yes/true/1)
+            //            String processStr = getString(row, "Process");
+            //            boolean process = processStr != null && Boolean.TRUE.equals(PaintRecording.checkBooleanValue(processStr));
+            //            rec.setProcessFlag(process);
+
+            recordings.add(rec);
+        }
+
+        // If no rows, create a placeholder
+        if (recordings.isEmpty()) {
             PaintRecording placeholder = new PaintRecording();
             placeholder.setRecordingName("Recording");
             return Collections.singletonList(placeholder);
         }
 
-        List<PaintRecording> recordings = new ArrayList<>(names.size());
-        for (String name : names) {
-            PaintRecording rec = new PaintRecording();
-            rec.setRecordingName(name);
-            recordings.add(rec);
-        }
         return recordings;
     }
 
-    private static String extractFriendlyMessage(Exception e) {
-        String m = e.toString();
-        int colon = m.lastIndexOf(':');
-        return (colon != -1) ? m.substring(colon + 1).trim() : m;
-    }
 }

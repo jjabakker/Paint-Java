@@ -13,6 +13,7 @@ import java.io.FileReader;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
+import PaintUtilities.ExceptionUtils;
 
 public class PaintProjectLoader {
 
@@ -68,7 +69,7 @@ public class PaintProjectLoader {
                     .build();
             table = Table.read().csv(options);
         } catch (Exception e) {
-            String message = extractFriendlyMessage(e);
+            String message = ExceptionUtils.friendlyMessage(e);
             throw new RuntimeException("Failed to read top-level " + PaintConstants.PROJECT_INFO_CSV + ":" + message, e);
         }
 
@@ -191,9 +192,5 @@ public class PaintProjectLoader {
         }
     }
 
-    private static String extractFriendlyMessage(Exception e) {
-        String errorMsg = e.toString();
-        int colonIndex = errorMsg.lastIndexOf(":");
-        return (colonIndex != -1) ? errorMsg.substring(colonIndex + 1).trim() : errorMsg;
-    }
+
 }
