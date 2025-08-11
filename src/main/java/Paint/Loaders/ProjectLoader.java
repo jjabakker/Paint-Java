@@ -1,6 +1,6 @@
 package Paint.Loaders;
 
-import Paint.Constants.PaintConstants;
+import static Paint.Constants.PaintConstants.*;
 import Paint.Objects.Experiment;
 import Paint.Objects.Project;
 import Paint.Objects.Recording;
@@ -53,7 +53,6 @@ public class ProjectLoader {
 
             System.out.println("Project: " + projectPath.getFileName().toString());
             project = loadProject(projectPath, matureProject);
-            System.out.println("Processed experiments count: " + project.getExperiments().size());
 
         } catch (Exception e) {
             System.err.println("Failed to load project: " + e.getMessage());
@@ -72,7 +71,7 @@ public class ProjectLoader {
     }
 
     public static Project loadProject(Path projectPath, boolean matureProject) {
-        Path filePath = projectPath.resolve(PaintConstants.PROJECT_INFO_CSV);
+        Path filePath = projectPath.resolve(PROJECT_INFO_CSV);
         Table table;
 
         try {
@@ -83,12 +82,12 @@ public class ProjectLoader {
             table = Table.read().csv(options);
         } catch (Exception e) {
             String message = ExceptionUtils.friendlyMessage(e);
-            throw new RuntimeException("Failed to read top-level " + PaintConstants.PROJECT_INFO_CSV + ":" + message, e);
+            throw new RuntimeException("Failed to read top-level " + PROJECT_INFO_CSV + ":" + message, e);
         }
 
         // There needs to be a column named 'Experiment Name'
         if (!table.columnNames().contains("Experiment Name")) {
-            throw new IllegalStateException("Column 'Experiment Name' is missing in " + PaintConstants.PROJECT_INFO_CSV + ".");
+            throw new IllegalStateException("Column 'Experiment Name' is missing in " + PROJECT_INFO_CSV + ".");
         }
 
         // Unique experiment names listed in PROJECT_INFO
@@ -156,7 +155,7 @@ public class ProjectLoader {
 
         // Notify the user about experiments processed due to a positive  Process flag
         if (!experimentsToLoad.isEmpty()) {
-            System.out.println("Note: Processed experiment(s)" );
+            System.out.println(String.format("\nProcessed %d experiment%s", experimentsToLoad.size(), experimentsToLoad.size() == 1 ? "" : "s"));
             for (String name : experimentsToLoad) {
                 System.out.println("- " + name);
             }
@@ -164,7 +163,7 @@ public class ProjectLoader {
 
         // Notify user about experiments skipped due to the Process flag
         if (!experimentsSkipped.isEmpty()) {
-            System.out.println("Note: Skipped experiment(s) because Process flag is not set in " + PaintConstants.PROJECT_INFO_CSV);
+            System.out.println(String.format("\nSkipped %d experiment%s because Process flag is not set in %s", experimentsSkipped.size(), experimentsSkipped.size() == 1 ? "" : "s", PROJECT_INFO_CSV));
             for (String name : experimentsSkipped) {
                 System.out.println("- " + name);
             }

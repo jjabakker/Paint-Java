@@ -1,10 +1,8 @@
 package Paint.Loaders;
 
-import Paint.Constants.PaintConstants;
-import Paint.Objects.Experiment;
-import Paint.Objects.Recording;
-import Paint.Objects.Square;
-import Paint.Objects.Track;
+import static Paint.Constants.PaintConstants.*;
+
+import Paint.Objects.*;
 import PaintUtilities.ColumnValue;
 import tech.tablesaw.api.ColumnType;
 import tech.tablesaw.api.StringColumn;
@@ -78,7 +76,7 @@ public final class ExperimentLoader {
                 experiment.addRecording(rec);
             }
         } catch (Exception e) {
-            errors.add("Failed to read '" + PaintConstants.RECORDINGS_CSV + "': " + ExceptionUtils.friendlyMessage(e));
+            errors.add("Failed to read '" + RECORDINGS_CSV + "': " + ExceptionUtils.friendlyMessage(e));
             return Result.failure(errors);
         }
 
@@ -145,8 +143,8 @@ public final class ExperimentLoader {
         if (recordingName == null || recordingName.isEmpty()) {
             return table;
         }
-        if (table.containsColumn(PaintConstants.COL_EXT_RECORDING_NAME) && table.column(PaintConstants.COL_EXT_RECORDING_NAME) instanceof StringColumn) {
-            StringColumn col = table.stringColumn(PaintConstants.COL_EXT_RECORDING_NAME);
+        if (table.containsColumn(COL_EXT_RECORDING_NAME) && table.column(COL_EXT_RECORDING_NAME) instanceof StringColumn) {
+            StringColumn col = table.stringColumn(COL_EXT_RECORDING_NAME);
             return table.where(col.isEqualTo(recordingName));
         }
         return table.emptyCopy();
@@ -160,38 +158,38 @@ public final class ExperimentLoader {
             return errors;
         }
 
-        Path recordingsPath = experimentPath.resolve(PaintConstants.RECORDINGS_CSV);
+        Path recordingsPath = experimentPath.resolve(RECORDINGS_CSV);
         if (!Files.isRegularFile(recordingsPath)) {
-            errors.add("File '" + PaintConstants.RECORDINGS_CSV + "' does not exist.");
+            errors.add("File '" + RECORDINGS_CSV + "' does not exist.");
         }
 
-        Path tracksPath = experimentPath.resolve(PaintConstants.TRACKS_CSV);
+        Path tracksPath = experimentPath.resolve(TRACKS_CSV);
         if (!Files.isRegularFile(tracksPath)) {
-            errors.add("File '" + PaintConstants.TRACKS_CSV + "' does not exist.");
+            errors.add("File '" + TRACKS_CSV + "' does not exist.");
         }
 
         if (matureProject) {
-            Path squaresPath = experimentPath.resolve(PaintConstants.SQUARES_CSV);
+            Path squaresPath = experimentPath.resolve(SQUARES_CSV);
             if (!Files.isRegularFile(squaresPath)) {
-                errors.add("File '" + PaintConstants.SQUARES_CSV + "' does not exist.");
+                errors.add("File '" + SQUARES_CSV + "' does not exist.");
             }
         }
 
-        Path trackMateImagesPath = experimentPath.resolve(PaintConstants.DIR_TRACKMATE_IMAGES);
+        Path trackMateImagesPath = experimentPath.resolve(DIR_TRACKMATE_IMAGES);
         if (!Files.isDirectory(trackMateImagesPath)) {
-            errors.add("Directory '" + PaintConstants.DIR_TRACKMATE_IMAGES + "' does not exist.");
+            errors.add("Directory '" + DIR_TRACKMATE_IMAGES + "' does not exist.");
         }
 
-        Path brightfieldImagesPath = experimentPath.resolve(PaintConstants.DIR_BRIGHTFIELD_IMAGES);
+        Path brightfieldImagesPath = experimentPath.resolve(DIR_BRIGHTFIELD_IMAGES);
         if (!Files.isDirectory(brightfieldImagesPath)) {
-            errors.add("Directory '" + PaintConstants.DIR_BRIGHTFIELD_IMAGES + "' does not exist.");
+            errors.add("Directory '" + DIR_BRIGHTFIELD_IMAGES + "' does not exist.");
         }
 
         return errors;
     }
 
     private static List<Recording> loadRecordings(Path experimentPath) {
-        Path filePath = experimentPath.resolve(PaintConstants.RECORDINGS_CSV);
+        Path filePath = experimentPath.resolve(RECORDINGS_CSV);
 
         // Read as all-strings to prevent type inference issues
         Table table;
@@ -209,8 +207,8 @@ public final class ExperimentLoader {
             throw new RuntimeException(e);
         }
 
-        if (!table.columnNames().contains(PaintConstants.COL_RECORDING_NAME)) {
-            throw new IllegalStateException("Column '" + PaintConstants.COL_RECORDING_NAME + "' is missing in '" + PaintConstants.RECORDINGS_CSV + "'.");
+        if (!table.columnNames().contains(COL_RECORDING_NAME)) {
+            throw new IllegalStateException("Column '" + COL_RECORDING_NAME + "' is missing in '" + RECORDINGS_CSV + "'.");
         }
 
         // Build a PaintRecording per row, pulling values from the table
@@ -248,7 +246,7 @@ public final class ExperimentLoader {
         Table table;
 
         try {
-            experimentPath = experimentPath.resolve(PaintConstants.RECORDINGS_CSV);
+            experimentPath = experimentPath.resolve(RECORDINGS_CSV);
             Table probe = Table.read().csv(experimentPath.toFile());
             ColumnType[] allString = new ColumnType[probe.columnCount()];
             Arrays.fill(allString, ColumnType.STRING);
