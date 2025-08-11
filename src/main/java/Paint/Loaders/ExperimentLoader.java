@@ -1,10 +1,10 @@
 package Paint.Loaders;
 
 import Paint.Constants.PaintConstants;
-import Paint.Objects.PaintExperiment;
-import Paint.Objects.PaintRecording;
-import Paint.Objects.PaintSquare;
-import Paint.Objects.PaintTrack;
+import Paint.Objects.Experiment;
+import Paint.Objects.Recording;
+import Paint.Objects.Square;
+import Paint.Objects.Track;
 import PaintUtilities.ColumnValue;
 import tech.tablesaw.api.ColumnType;
 import tech.tablesaw.api.StringColumn;
@@ -23,18 +23,18 @@ import PaintUtilities.ExceptionUtils;
  * Responsible for validating and loading a single experiment from disk.
  * Aggregates errors instead of throwing immediately, so callers can decide how to handle failures.
  */
-public final class PaintExperimentLoader {
+public final class ExperimentLoader {
 
     public static final class Result {
-        private final PaintExperiment experiment;
+        private final Experiment experiment;
         private final List<String> errors;
 
-        private Result(PaintExperiment experiment, List<String> errors) {
+        private Result(Experiment experiment, List<String> errors) {
             this.experiment = experiment;
             this.errors = errors;
         }
 
-        public static Result success(PaintExperiment experiment) {
+        public static Result success(Experiment experiment) {
             return new Result(experiment, Collections.emptyList());
         }
 
@@ -42,7 +42,7 @@ public final class PaintExperimentLoader {
             return new Result(null, new ArrayList<>(errors));
         }
 
-        public Optional<PaintExperiment> experiment() {
+        public Optional<Experiment> experiment() {
             return Optional.ofNullable(experiment);
         }
 
@@ -55,7 +55,7 @@ public final class PaintExperimentLoader {
         }
     }
 
-    private PaintExperimentLoader() {
+    private ExperimentLoader() {
         // utility
     }
 
@@ -67,14 +67,14 @@ public final class PaintExperimentLoader {
             return Result.failure(errors);
         }
 
-        PaintExperiment experiment = new PaintExperiment();
+        Experiment experiment = new Experiment();
         experiment.setExperimentName(experimentName);
 
         // Load recordings
-        List<PaintRecording> recordings;
+        List<Recording> recordings;
         try {
             recordings = loadRecordings(experimentPath);
-            for (PaintRecording rec : recordings) {
+            for (Recording rec : recordings) {
                 experiment.addRecording(rec);
             }
         } catch (Exception e) {
@@ -110,12 +110,12 @@ public final class PaintExperimentLoader {
         }
 
         // Filter and delegate parsing to loaders
-        for (PaintRecording rec : recordings) {
+        for (Recording rec : recordings) {
             String recordingName = rec.getRecordingName();
 
             try {
                 Table filteredTracks = filterByRecording(tracksTable, recordingName);
-                List<PaintTrack> tracksForRecording = PaintTrackLoader.fromTable(filteredTracks);
+                List<Track> tracksForRecording = TracksLoader.fromTable(filteredTracks);
                 rec.setTracks(tracksForRecording);
             } catch (Exception e) {
                 errors.add("Failed to build tracks for recording '" + recordingName + "': " + ExceptionUtils.friendlyMessage(e));
@@ -124,7 +124,7 @@ public final class PaintExperimentLoader {
             if (matureProject && squaresTable != null) {
                 try {
                     Table filteredSquares = filterByRecording(squaresTable, recordingName);
-                    List<PaintSquare> squaresForRecording = PaintSquareLoader.fromTable(filteredSquares);
+                    List<Square> squaresForRecording = SquaresLoader.fromTable(filteredSquares);
                     rec.setSquares(squaresForRecording);
                 } catch (Exception e) {
                     errors.add("Failed to build squares for recording '" + recordingName + "': " + ExceptionUtils.friendlyMessage(e));
@@ -190,7 +190,7 @@ public final class PaintExperimentLoader {
         return errors;
     }
 
-    private static List<PaintRecording> loadRecordings(Path experimentPath) {
+    private static List<Recording> loadRecordings(Path experimentPath) {
         Path filePath = experimentPath.resolve(PaintConstants.RECORDINGS_CSV);
 
         // Read as all-strings to prevent type inference issues
@@ -214,7 +214,7 @@ public final class PaintExperimentLoader {
         }
 
         // Build a PaintRecording per row, pulling values from the table
-        List<PaintRecording> recordings = new ArrayList<>(table.rowCount());
+        List<Recording> recordings = new ArrayList<>(table.rowCount());
         for (Row row : table) {
             List<ColumnValue>  colValues = new ArrayList<>();
             ColumnValue colValuePair;
@@ -227,7 +227,7 @@ public final class PaintExperimentLoader {
             }
 
             // Create a new PaintRecording with the values from the table passed as an List of ColumnValue objects
-            PaintRecording rec = new PaintRecording(colValues);
+            Recording rec = new Recording(colValues);
             recordings.add(rec);
         }
 
@@ -236,7 +236,7 @@ public final class PaintExperimentLoader {
 
         // If no rows, create a placeholder
         if (recordings.isEmpty()) {
-            PaintRecording placeholder = new PaintRecording();
+            Recording placeholder = new Recording();
             placeholder.setRecordingName("Recording");
             return Collections.singletonList(placeholder);
         }
@@ -244,7 +244,7 @@ public final class PaintExperimentLoader {
         return recordings;
     }
 
-    private static PaintExperiment getExperimentAttributes(PaintExperiment experiment, Path experimentPath, String experimentName) {
+    private static Experiment getExperimentAttributes(Experiment experiment, Path experimentPath, String experimentName) {
         Table table;
 
         try {

@@ -1,13 +1,13 @@
 package Paint.Loaders;
 
-import Paint.Objects.PaintSquare;
+import Paint.Objects.Square;
 import tech.tablesaw.api.Row;
 import tech.tablesaw.api.Table;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PaintSquareLoader {
+public class SquaresLoader {
 
     public static void main(String[] args) {/* implementation omitted for shortness */}
 
@@ -16,16 +16,16 @@ public class PaintSquareLoader {
     //public static List<PaintSquare> loadSquares(Path csvPath, String recordingName) {/* implementation omitted for shortness */}
 
     // New: public, side-effect-free conversion from a preloaded/filtered Table
-    public static List<PaintSquare> fromTable(Table table) {
+    public static List<Square> fromTable(Table table) {
         return createSquares(table);
     }
 
-    private static List<PaintSquare> createSquares(Table table) {
-        List<PaintSquare> squares = new ArrayList<>();
+    private static List<Square> createSquares(Table table) {
+        List<Square> squares = new ArrayList<>();
 
         try {
             for (Row row : table) {
-                PaintSquare square = new PaintSquare(
+                Square square = new Square(
                         row.getString("Unique Key"),
                         row.getInt("Recording Sequence Nr"),
                         row.getInt("Condition Nr"),

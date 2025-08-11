@@ -50,12 +50,12 @@ Note: Each item is actionable and can be checked off when complete. The list is 
 46. [ ] Replace JFrame default close operation in GenerateSquareDialog with DISPOSE_ON_CLOSE and return results to caller if part of a larger app.
 47. [ ] Add a small CLI entry point to run classification and printing, helpful for automation and testing without UI.
 48. [ ] Introduce a versioned CHANGELOG.md and CONTRIBUTING.md describing setup, build, test, and code style.
-49. [ ] Add docs/usage.md with examples for loading CSVs, filtering paintTracks, and generating paintSquares.
+49. [ ] Add docs/usage.md with examples for loading CSVs, filtering tracks, and generating squares.
 50. [ ] Audit resource casing and names (PaintUtilities.json vs paint.json); standardize to one canonical name and update code and resources.
 51. [ ] Load configuration from classpath resource with fallback to user home app directory; provide a Save As path chooser.
 52. [ ] Guard file operations with try-with-resources and informative catch handling; avoid swallowing exceptions.
 53. [ ] Use Path and Files APIs consistently (no mixing raw strings) and validate existence/permissions before operations.
-54. [ ] Remove dead code and stubs or paintTrack them with TODO tags that reference tasks in this checklist.
+54. [ ] Remove dead code and stubs or track them with TODO tags that reference tasks in this checklist.
 55. [ ] Add JavaDocs to public classes/methods explaining responsibilities and expected behavior.
 56. [ ] Review access modifiers: reduce visibility to package-private/private where appropriate.
 57. [ ] Introduce a small Result/Either type or use Optional where methods can fail without exceptions, to reduce null handling.

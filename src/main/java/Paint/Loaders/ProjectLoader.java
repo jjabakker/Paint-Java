@@ -1,9 +1,9 @@
 package Paint.Loaders;
 
 import Paint.Constants.PaintConstants;
-import Paint.Objects.PaintExperiment;
-import Paint.Objects.PaintProject;
-import Paint.Objects.PaintRecording;
+import Paint.Objects.Experiment;
+import Paint.Objects.Project;
+import Paint.Objects.Recording;
 import tech.tablesaw.api.ColumnType;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvReadOptions;
@@ -16,10 +16,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import PaintUtilities.ExceptionUtils;
 
-public class PaintProjectLoader {
+public class ProjectLoader {
 
     public static void main(String[] args) {
-        PaintProject project = null;
+        Project project = null;
 
         try {
             Path projectPath;
@@ -61,17 +61,17 @@ public class PaintProjectLoader {
         }
 
         if (project != null) {
-            List <PaintExperiment> experiments = project.getExperiments();
-            for (PaintExperiment experiment : experiments) {
+            List <Experiment> experiments = project.getExperiments();
+            for (Experiment experiment : experiments) {
                 System.out.println(experiment);
-                for (PaintRecording rec : experiment.getRecordings()) {
+                for (Recording rec : experiment.getRecordings()) {
                     System.out.println(rec);
                 }
             }
         }
     }
 
-    public static PaintProject loadProject(Path projectPath, boolean matureProject) {
+    public static Project loadProject(Path projectPath, boolean matureProject) {
         Path filePath = projectPath.resolve(PaintConstants.PROJECT_INFO_CSV);
         Table table;
 
@@ -135,17 +135,17 @@ public class PaintProjectLoader {
             experimentsToLoad.addAll(allExperimentNames);
         }
 
-        PaintProject project = new PaintProject(projectPath);
+        Project project = new Project(projectPath);
 
         List<String> allErrors = new ArrayList<>();
         for (String experimentName : experimentsToLoad) {
             Path experimentPath = projectPath.resolve(experimentName);
 
-            PaintExperimentLoader.Result result =
-                    PaintExperimentLoader.loadExperiment(experimentPath, experimentName, matureProject);
+            ExperimentLoader.Result result =
+                    ExperimentLoader.loadExperiment(experimentPath, experimentName, matureProject);
 
             if (result.isSuccess()) {
-                PaintExperiment experiment = result.experiment().get();
+                Experiment experiment = result.experiment().get();
                 project.addExperiment(experiment);
             } else {
                 for (String err : result.errors()) {

@@ -1,6 +1,6 @@
 package Paint.Loaders;
 
-import Paint.Objects.PaintTrack;
+import Paint.Objects.Track;
 import tech.tablesaw.api.Row;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
@@ -10,26 +10,26 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PaintTrackLoader {
+public class TracksLoader {
 
     public static void main(String[] args) {
 
-        List<PaintTrack> tracks = loadTracks(Paths.get("/Users/hans/Downloads/221012/All Tracks.csv"), null);
+        List<Track> tracks = loadTracks(Paths.get("/Users/hans/Downloads/221012/All Tracks.csv"), null);
         System.out.println("All tracks count: " + tracks.size());
 
         tracks = loadAllTracks(Paths.get("/Users/hans/Downloads/221012/All Tracks.csv"));
         System.out.println("All tracks count: " + tracks.size());
 
-        List<PaintTrack> filteredTracks = loadTracks(Paths.get("/Users/hans/Downloads/221012/All Tracks.csv"), "221012-Exp-1-A1-2-threshold-8");
+        List<Track> filteredTracks = loadTracks(Paths.get("/Users/hans/Downloads/221012/All Tracks.csv"), "221012-Exp-1-A1-2-threshold-8");
         System.out.println("Filtered tracks count: " + filteredTracks.size());
     }
 
-    public static List<PaintTrack> loadAllTracks(Path csvPath)  {
+    public static List<Track> loadAllTracks(Path csvPath)  {
         // Load all the tracks from CSV
         return loadTracks(csvPath, null);
     }
 
-    public static List<PaintTrack> loadTracks(Path csvPath, String recordingName)  {
+    public static List<Track> loadTracks(Path csvPath, String recordingName)  {
         // Load tracks from CSV, optionally filtered by recordingName.
         // If the recordingName is null or empty, all tracks are loaded.
 
@@ -55,18 +55,18 @@ public class PaintTrackLoader {
     }
 
     // New: public, side-effect-free conversion from a preloaded/filtered Table
-    public static List<PaintTrack> fromTable(Table table) {
+    public static List<Track> fromTable(Table table) {
         return createTracks(table);
     }
 
 
-    private static List<PaintTrack> createTracks(Table table) {
+    private static List<Track> createTracks(Table table) {
 
-        List<PaintTrack> tracks = new ArrayList<>();
+        List<Track> tracks = new ArrayList<>();
 
         try {
             for (Row row : table) {
-                PaintTrack track = new PaintTrack(
+                Track track = new Track(
                         String.valueOf(row.getInt("Track Id")),
                         row.getString("Track Label"),
                         row.getInt("Nr Spots"),

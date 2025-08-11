@@ -5,7 +5,7 @@ import java.util.*;
 
 import PaintUtilities.ColumnValue;
 
-public class PaintRecording {
+public class Recording {
 
     // Not used anywhere for now, but needed for integrity check
     static final String[] columnsToCheckAllRecordings = {
@@ -53,18 +53,18 @@ public class PaintRecording {
     private double rSquared;
     private double density;
 
-    private List<PaintSquare> squares = new ArrayList<>();
-    private List<PaintTrack> tracks = new ArrayList<>();
+    private List<Square> squares = new ArrayList<>();
+    private List<Track> tracks = new ArrayList<>();
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
-    public PaintRecording() {
+    public Recording() {
         this.squares = new ArrayList<>();
         // this.tracks = new ArrayList<>();
     }
 
 
-    public PaintRecording(List<ColumnValue> columns) {
+    public Recording(List<ColumnValue> columns) {
 
         String curColumn = "";
         String curValue = "";
@@ -211,9 +211,9 @@ public class PaintRecording {
     }
 
 
-    public PaintRecording(String recordingName, int conditionNr, int replicateNr,
-                          String probeName, String probeType, String cellType, String adjuvant,
-                          double concentration, boolean processFlag, double threshold) {
+    public Recording(String recordingName, int conditionNr, int replicateNr,
+                     String probeName, String probeType, String cellType, String adjuvant,
+                     double concentration, boolean processFlag, double threshold) {
         this.recordingName = recordingName;
         this.conditionNr = conditionNr;
         this.replicateNr = replicateNr;
@@ -259,26 +259,26 @@ public class PaintRecording {
     public double getThreshold() { return threshold; }
     public void setThreshold(double threshold) { this.threshold = threshold; }
 
-    public List<PaintSquare> getSquares() {
+    public List<Square> getSquares() {
         return squares;
     }
 
-    public void setSquares(List<PaintSquare> paintSquares) {
-        this.squares = paintSquares;
+    public void setSquares(List<Square> squares) {
+        this.squares = squares;
     }
 
-    public void addSquare(PaintSquare paintSquare) {
-        this.squares.add(paintSquare);
+    public void addSquare(Square square) {
+        this.squares.add(square);
     }
 
-    public List<PaintTrack> getTracks() {
+    public List<Track> getTracks() {
         return tracks;
     }
 
-    public void setTracks(List<PaintTrack> paintTracks) { this.tracks = paintTracks; }
+    public void setTracks(List<Track> tracks) { this.tracks = tracks; }
 
-    public void addTrack(PaintTrack paintTrack) {
-        this.tracks.add(paintTrack);
+    public void addTrack(Track track) {
+        this.tracks.add(track);
     }
 
     public static Boolean checkBooleanValue(String string) {

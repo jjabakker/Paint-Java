@@ -1,6 +1,6 @@
 package Paint.Objects;
 
-public class PaintTrack {
+public class Track {
     private String trackId;
     private String trackLabel;
     private int nrSpots;
@@ -21,11 +21,11 @@ public class PaintTrack {
     private double totalDistance;
     private double confinementRatio;
 
-    public PaintTrack(String trackId, String trackLabel, int nrSpots, int nrGaps, double longestGap, double trackDuration,
-                      double trackXLocation, double trackYLocation, double trackDisplacement, double trackMaxSpeed,
-                      double trackMedianSpeed, double trackMeanSpeed, double trackMaxSpeedCalc, double trackMedianSpeedCalc,
-                      double trackMeanSpeedCalc, double diffusionCoefficient, double diffusionCoefficientExt,
-                      double totalDistance, double confinementRatio) {
+    public Track(String trackId, String trackLabel, int nrSpots, int nrGaps, double longestGap, double trackDuration,
+                 double trackXLocation, double trackYLocation, double trackDisplacement, double trackMaxSpeed,
+                 double trackMedianSpeed, double trackMeanSpeed, double trackMaxSpeedCalc, double trackMedianSpeedCalc,
+                 double trackMeanSpeedCalc, double diffusionCoefficient, double diffusionCoefficientExt,
+                 double totalDistance, double confinementRatio) {
         this.trackId = trackId;
         this.trackLabel = trackLabel;
         this.nrSpots = nrSpots;
@@ -132,12 +132,12 @@ public class PaintTrack {
     }
 
     // CSV deserialization
-    public static PaintTrack fromCSV(String csvLine) {
+    public static Track fromCSV(String csvLine) {
         String[] parts = csvLine.split(",", -1);
         if (parts.length != 19) {
             throw new IllegalArgumentException("CSV line does not have 19 fields: " + csvLine);
         }
-        return new PaintTrack(
+        return new Track(
                 unescape(parts[0]),
                 unescape(parts[1]),
                 Integer.parseInt(parts[2]),

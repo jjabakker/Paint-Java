@@ -4,16 +4,16 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PaintProject {
+public class Project {
     private String projectName;
     private Path projectPath;
-    private List<PaintExperiment> experiments;
+    private List<Experiment> experiments;
 
-    public PaintProject() {
+    public Project() {
         this.experiments = new ArrayList<>();
     }
 
-    public PaintProject(Path projectPath) {
+    public Project(Path projectPath) {
         this.projectName = projectPath.getFileName().toString();
         this.projectPath = projectPath;
         this.experiments = new ArrayList<>();
@@ -27,12 +27,12 @@ public class PaintProject {
         this.projectName = projectName;
     }
 
-    public List<PaintExperiment> getExperiments() {
+    public List<Experiment> getExperiments() {
         return experiments;
     }
 
-    public PaintExperiment getExperiment(String experimentName) {
-        for (PaintExperiment experiment : experiments) {
+    public Experiment getExperiment(String experimentName) {
+        for (Experiment experiment : experiments) {
             if (experiment.getExperimentName().equals(experimentName)) {
                 return experiment;
             }
@@ -40,11 +40,11 @@ public class PaintProject {
         return null; // not found
     }
 
-    public void setExperiments(List<PaintExperiment> experiments) {
+    public void setExperiments(List<Experiment> experiments) {
         this.experiments = experiments;
     }
 
-    public void addExperiment(PaintExperiment experiment) {
+    public void addExperiment(Experiment experiment) {
         this.experiments.add(experiment);
     }
 

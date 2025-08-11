@@ -3,7 +3,6 @@ package Paint.Objects;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.api.Row;
 import tech.tablesaw.api.ColumnType;
-import tech.tablesaw.columns.Column;
 import tech.tablesaw.io.csv.CsvReadOptions;
 
 import java.io.IOException;
@@ -14,7 +13,7 @@ import java.util.*;
 
 import PaintUtilities.ColumnValue;
 
-public class PaintExperiment {
+public class Experiment {
 
     private String experimentName;
     private double minRequiredRSquared;
@@ -29,15 +28,15 @@ public class PaintExperiment {
     private String neighbourMode;
     private String caseName;
 
-    private ArrayList<PaintRecording> paintRecordings;
+    private ArrayList<Recording> recordings;
 
     public static void main(String[] args) {
-        PaintExperiment p = new PaintExperiment(Paths.get("/Users/hans/Downloads/221012/Experiment Info.csv"));
+        Experiment p = new Experiment(Paths.get("/Users/hans/Downloads/221012/Experiment Info.csv"));
     }
 
-    public PaintExperiment(Path experimentPath) {
+    public Experiment(Path experimentPath) {
 
-        this.paintRecordings = new ArrayList<>();
+        this.recordings = new ArrayList<>();
 
         // Read first line to get columns count
         String headerLine;
@@ -68,13 +67,13 @@ public class PaintExperiment {
                 Object cell = row.getObject(i);
                 data.add(new ColumnValue(columns[i], cell == null ? "" : cell.toString()));
             }
-            PaintRecording paintRecording = new PaintRecording(data);
-            this.paintRecordings.add(paintRecording);
+            Recording recording = new Recording(data);
+            this.recordings.add(recording);
         }
     }
 
-    public PaintExperiment() {
-        this.paintRecordings = new ArrayList<>();
+    public Experiment() {
+        this.recordings = new ArrayList<>();
     }
 
     public String getExperimentName() {
@@ -85,12 +84,12 @@ public class PaintExperiment {
         this.experimentName = experimentName;
     }
 
-    public List<PaintRecording> getRecordings() {
-        return paintRecordings;
+    public List<Recording> getRecordings() {
+        return recordings;
     }
 
-    public void addRecording(PaintRecording paintRecording) {
-        this.paintRecordings.add(paintRecording);
+    public void addRecording(Recording recording) {
+        this.recordings.add(recording);
     }
 
     public String toString() {
@@ -114,9 +113,9 @@ public class PaintExperiment {
         sb.append(String.format("\tNeighbour Mode               : %s%n", neighbourMode));
         sb.append(String.format("\tCase Name                    : %s%n", caseName));
 
-        sb.append(String.format("%nExperiment %s has %d recordings%n",  experimentName,  paintRecordings.size()));
-        for (PaintRecording paintRecording : paintRecordings) {
-            sb.append(String.format("\t%s%n", paintRecording.getRecordingName()));
+        sb.append(String.format("%nExperiment %s has %d recordings%n",  experimentName,  recordings.size()));
+        for (Recording recording : recordings) {
+            sb.append(String.format("\t%s%n", recording.getRecordingName()));
         }
 
         return sb.toString();
