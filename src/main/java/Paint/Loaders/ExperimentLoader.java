@@ -16,6 +16,10 @@ import java.nio.file.Path;
 import java.util.*;
 
 import PaintUtilities.ExceptionUtils;
+import static PaintUtilities.ExceptionUtils.friendlyMessage;
+import Paint.Objects.TracksTable;
+import Paint.Objects.SquaresTable;
+
 
 /**
  * Responsible for validating and loading a single experiment from disk.
@@ -83,54 +87,14 @@ public final class ExperimentLoader {
         // Get Experiment Attributes from old style data
         experiment =  getExperimentAttributes(experiment, experimentPath, experimentName);
 
-        // Read once
-        Table tracksTable;
-        try {
-            tracksTable = Table.read().csv(experimentPath.resolve(PaintConstants.TRACKS_CSV).toFile());
-        } catch (Exception e) {
-            errors.add("Failed to load tracks from '" + PaintConstants.TRACKS_CSV + "': " + ExceptionUtils.friendlyMessage(e));
-            return Result.failure(errors);
-        }
+        // Read Tracks once
+        TracksTable tracksTable = new TracksTable(experimentPath.resolve(TRACKS_CSV));
+        experiment.setTracksTable(tracksTable);
 
-        Table squaresTable = null;
-        if (matureProject) {
-            Path squaresCsv = experimentPath.resolve(PaintConstants.SQUARES_CSV);
-            if (!Files.isRegularFile(squaresCsv)) {
-                errors.add("Expected '" + PaintConstants.SQUARES_CSV + "' file was not found.");
-                return Result.failure(errors);
-            }
-            try {
-                squaresTable = Table.read().csv(squaresCsv.toFile());
-            } catch (Exception e) {
-                errors.add("Failed to load squares from '" + PaintConstants.SQUARES_CSV + "': " + ExceptionUtils.friendlyMessage(e));
-                return Result.failure(errors);
-            }
-        }
+        // Read Squares once
+        SquaresTable squaresTable = new SquaresTable(experimentPath.resolve(SQUARES_CSV));
+        experiment.setSquaresTable(squaresTable);
 
-        // Filter and delegate parsing to loaders
-        for (Recording rec : recordings) {
-            String recordingName = rec.getRecordingName();
-
-            try {
-                Table filteredTracks = filterByRecording(tracksTable, recordingName);
-                List<Track> tracksForRecording = TracksLoader.fromTable(filteredTracks);
-                rec.setTracks(tracksForRecording);
-            } catch (Exception e) {
-                errors.add("Failed to build tracks for recording '" + recordingName + "': " + ExceptionUtils.friendlyMessage(e));
-            }
-
-            if (matureProject && squaresTable != null) {
-                try {
-                    Table filteredSquares = filterByRecording(squaresTable, recordingName);
-                    List<Square> squaresForRecording = SquaresLoader.fromTable(filteredSquares);
-                    rec.setSquares(squaresForRecording);
-                } catch (Exception e) {
-                    errors.add("Failed to build squares for recording '" + recordingName + "': " + ExceptionUtils.friendlyMessage(e));
-                }
-            }
-
-            experiment.addRecording(rec);
-        }
 
         if (!errors.isEmpty()) {
             return Result.failure(errors);
@@ -229,9 +193,6 @@ public final class ExperimentLoader {
             recordings.add(rec);
         }
 
-
-
-
         // If no rows, create a placeholder
         if (recordings.isEmpty()) {
             Recording placeholder = new Recording();
@@ -295,6 +256,4 @@ public final class ExperimentLoader {
         System.exit(-1);
         return null; // Unreachable, but needed for compiler
     }
-
-
 }

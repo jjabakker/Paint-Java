@@ -29,6 +29,8 @@ public class Experiment {
     private String caseName;
 
     private ArrayList<Recording> recordings;
+    public TracksTable tracksTable;
+    private SquaresTable  squaresTable;
 
     public static void main(String[] args) {
         Experiment p = new Experiment(Paths.get("/Users/hans/Downloads/221012/Experiment Info.csv"));
@@ -84,6 +86,15 @@ public class Experiment {
         this.experimentName = experimentName;
     }
 
+    public void setTracksTable(TracksTable tracksTable) {
+        this.tracksTable = tracksTable;
+    }
+
+    public void setSquaresTable(SquaresTable squaresTable) {
+        this.squaresTable = squaresTable;
+    }
+
+
     public List<Recording> getRecordings() {
         return recordings;
     }
@@ -99,8 +110,8 @@ public class Experiment {
         sb.append("----------------------------------------------------------------------\n");
         sb.append("Experiment: ").append(experimentName).append("\n");
         sb.append("----------------------------------------------------------------------\n");
-
-        sb.append(String.format("%nExperiment data%n"));
+        sb.append("\n");
+        sb.append(String.format("Experiment data%n"));
         sb.append(String.format("\tMax Allowable Variability    : %.2f%n", maxAllowableVariability));
         sb.append(String.format("\tMin Required Density Ratio   : %.2f%n", minRequiredDensityRatio));
         sb.append(String.format("\tMin Required R Squared       : %.2f%n", minRequiredRSquared));
@@ -112,6 +123,21 @@ public class Experiment {
         sb.append(String.format("\tMin Number of Spots in Track : %d%n", minNumberOfSpotsInTrack));
         sb.append(String.format("\tNeighbour Mode               : %s%n", neighbourMode));
         sb.append(String.format("\tCase Name                    : %s%n", caseName));
+
+        sb.append("\n");
+        if (tracksTable != null) {
+            sb.append(String.format("Experiments has %d squares loaded%n", squaresTable.rowCount()));
+        }
+        else {
+            sb.append(String.format("Experiments has no squares loaded%n"));
+        }
+
+        if (tracksTable != null) {
+            sb.append(String.format("Experiments has %d tracks loaded%n", tracksTable.rowCount()));
+        }
+        else {
+            sb.append(String.format("Experiments has no tracks loaded%n"));
+        }
 
         sb.append(String.format("%nExperiment %s has %d recordings%n",  experimentName,  recordings.size()));
         for (Recording recording : recordings) {

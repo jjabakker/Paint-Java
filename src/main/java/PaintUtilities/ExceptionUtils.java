@@ -5,7 +5,8 @@ public final class ExceptionUtils {
 
     // Message from the given throwable (trimmed to text after the last ':', if any)
     public static String friendlyMessage(Throwable t) {
-        if (t == null) return "";
+        if (t == null)
+            return "";
         String m = t.toString();
         int colon = m.lastIndexOf(':');
         return (colon != -1) ? m.substring(colon + 1).trim() : m;
