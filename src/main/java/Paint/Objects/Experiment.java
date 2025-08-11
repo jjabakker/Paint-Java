@@ -1,5 +1,7 @@
 package Paint.Objects;
 
+import static Paint.Constants.PaintConstants.*;
+
 import tech.tablesaw.api.Table;
 import tech.tablesaw.api.Row;
 import tech.tablesaw.api.ColumnType;
@@ -33,46 +35,54 @@ public class Experiment {
     private SquaresTable  squaresTable;
 
     public static void main(String[] args) {
-        Experiment p = new Experiment(Paths.get("/Users/hans/Downloads/221012/Experiment Info.csv"));
+        //Experiment exp = new Experiment("221012", Paths.get("/Users/hans/Downloads/221012/Experiment Info.csv"));
+        //System.out.println(exp);
     }
 
-    public Experiment(Path experimentPath) {
-
+    public Experiment(String experimentName) {
+        this.experimentName = experimentName;
         this.recordings = new ArrayList<>();
-
-        // Read first line to get columns count
-        String headerLine;
-        try {
-            // Ensure stream is closed promptly
-            try (java.util.stream.Stream<String> lines = Files.lines(experimentPath)) {
-                headerLine = lines.findFirst().orElseThrow(() -> new RuntimeException("Empty file"));
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        String[] columns = headerLine.split(",");
-        int nrColumns = columns.length;
-
-        // Create ColumnType array with all STRING, so that everything is read in as String
-        // Then read the data into a table
-        ColumnType[] colTypes = new ColumnType[columns.length];
-        Arrays.fill(colTypes, ColumnType.STRING);
-        CsvReadOptions options = CsvReadOptions.builder(experimentPath.toFile())
-                .columnTypes(colTypes)
-                .build();
-        Table table = Table.read().csv(options);
-
-        // Create a fresh list per row to avoid accumulating across rows
-        for (Row row : table) {
-            List<ColumnValue> data = new ArrayList<>();
-            for (int i = 0; i < nrColumns; i++) {
-                Object cell = row.getObject(i);
-                data.add(new ColumnValue(columns[i], cell == null ? "" : cell.toString()));
-            }
-            Recording recording = new Recording(data);
-            this.recordings.add(recording);
-        }
     }
+
+//    public Experiment(String experimentName, Path projectPath) {
+//
+//        Path experimentPath = projectPath.resolve(experimentName).resolve(RECORDINGS_CSV);
+//        this.experimentName = experimentName;
+//        this.recordings = new ArrayList<>();
+//
+//        // Read first line to get columns count
+//        String headerLine;
+//        try {
+//            // Ensure stream is closed promptly
+//            try (java.util.stream.Stream<String> lines = Files.lines(experimentPath)) {
+//                headerLine = lines.findFirst().orElseThrow(() -> new RuntimeException("Empty file"));
+//            }
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//        String[] columns = headerLine.split(",");
+//        int nrColumns = columns.length;
+//
+//        // Create ColumnType array with all STRING, so that everything is read in as String
+//        // Then read the data into a table
+//        ColumnType[] colTypes = new ColumnType[columns.length];
+//        Arrays.fill(colTypes, ColumnType.STRING);
+//        CsvReadOptions options = CsvReadOptions.builder(experimentPath.toFile())
+//                .columnTypes(colTypes)
+//                .build();
+//        Table table = Table.read().csv(options);
+//
+//        // Create a fresh list per row to avoid accumulating across rows
+//        for (Row row : table) {
+//            List<ColumnValue> data = new ArrayList<>();
+//            for (int i = 0; i < nrColumns; i++) {
+//                Object cell = row.getObject(i);
+//                data.add(new ColumnValue(columns[i], cell == null ? "" : cell.toString()));
+//            }
+//            Recording recording = new Recording(data);
+//            this.recordings.add(recording);
+//        }
+//    }
 
     public Experiment() {
         this.recordings = new ArrayList<>();

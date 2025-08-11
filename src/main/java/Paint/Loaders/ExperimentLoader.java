@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.util.*;
 
 import PaintUtilities.ExceptionUtils;
-import static PaintUtilities.ExceptionUtils.friendlyMessage;
 import Paint.Objects.TracksTable;
 import Paint.Objects.SquaresTable;
 
@@ -61,7 +60,9 @@ public final class ExperimentLoader {
         // utility
     }
 
-    public static Result loadExperiment(Path experimentPath, String experimentName, boolean matureProject) {
+    public static Result loadExperiment(Path projectPath, String experimentName, boolean matureProject) {
+
+        Path experimentPath = projectPath.resolve(experimentName);
 
         // Validate structure
         List<String> errors = validateExperimentLayout(experimentPath, experimentName, matureProject);
@@ -94,7 +95,6 @@ public final class ExperimentLoader {
         // Read Squares once
         SquaresTable squaresTable = new SquaresTable(experimentPath.resolve(SQUARES_CSV));
         experiment.setSquaresTable(squaresTable);
-
 
         if (!errors.isEmpty()) {
             return Result.failure(errors);
