@@ -9,6 +9,7 @@ import PaintUtilities.ColumnValue;
 import tech.tablesaw.api.ColumnType;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
+import tech.tablesaw.columns.Column;
 import tech.tablesaw.io.csv.CsvReadOptions;
 import tech.tablesaw.api.Row;
 
@@ -80,6 +81,9 @@ public final class PaintExperimentLoader {
             errors.add("Failed to read '" + PaintConstants.RECORDINGS_CSV + "': " + ExceptionUtils.friendlyMessage(e));
             return Result.failure(errors);
         }
+
+        // Get Experiment Attributes from old style data
+        experiment =  getExperimentAttributes(experiment, experimentPath, experimentName);
 
         // Read once
         Table tracksTable;
@@ -224,14 +228,11 @@ public final class PaintExperimentLoader {
 
             // Create a new PaintRecording with the values from the table passed as an List of ColumnValue objects
             PaintRecording rec = new PaintRecording(colValues);
-
-            // Process flag (truthy values like y/yes/true/1)
-            //            String processStr = getString(row, "Process");
-            //            boolean process = processStr != null && Boolean.TRUE.equals(PaintRecording.checkBooleanValue(processStr));
-            //            rec.setProcessFlag(process);
-
             recordings.add(rec);
         }
+
+
+
 
         // If no rows, create a placeholder
         if (recordings.isEmpty()) {
@@ -242,5 +243,60 @@ public final class PaintExperimentLoader {
 
         return recordings;
     }
+
+    private static PaintExperiment getExperimentAttributes(PaintExperiment experiment, Path experimentPath, String experimentName) {
+        Table table;
+
+        try {
+            experimentPath = experimentPath.resolve(PaintConstants.RECORDINGS_CSV);
+            Table probe = Table.read().csv(experimentPath.toFile());
+            ColumnType[] allString = new ColumnType[probe.columnCount()];
+            Arrays.fill(allString, ColumnType.STRING);
+
+            CsvReadOptions options = CsvReadOptions.builder(experimentPath.toFile())
+                    .columnTypes(allString)
+                    .build();
+
+            table = Table.read().csv(options);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        // Retrieve values from the file that are experiment rather than recording attributes
+        String caseName = (String) getUniqueColumnValueOrExit(table, "Case");
+        String maxFrameGap = (String) getUniqueColumnValueOrExit(table, "Max Frame Gap");
+        String gapClosingMaxDistance = (String) getUniqueColumnValueOrExit(table, "Gap Closing Max Distance");
+        String linkingMaxDistance = (String) getUniqueColumnValueOrExit(table, "Linking Max Distance");
+        String medianFiltering = (String) getUniqueColumnValueOrExit(table, "Median Filtering");
+        String minNumberOfSpotsInTrack = (String) getUniqueColumnValueOrExit(table, "Min Spots in Track");
+        String minTracksForTau = (String) getUniqueColumnValueOrExit(table, "Min Tracks for Tau");
+        String neighbourMode = (String) getUniqueColumnValueOrExit(table, "Neighbour Mode");
+
+        // Update the Experiment toDo
+
+        return experiment;
+    }
+
+
+    private static Object getUniqueColumnValueOrExit(Table table, String columnName) {
+        Column<?> column = table.column(columnName);
+
+        // If the column is empty
+        if (column.isEmpty()) {
+            System.err.println("Column '" + columnName + "' is empty.");
+            System.exit(-1);
+        }
+
+        // Check if all values are identical
+        if (column.unique().size() == 1) {
+            return column.get(0); // return as Object (caller can cast)
+        }
+
+        // If values differ
+        System.err.println("Not all rows have the same value in column: " + columnName);
+        System.exit(-1);
+        return null; // Unreachable, but needed for compiler
+    }
+
 
 }

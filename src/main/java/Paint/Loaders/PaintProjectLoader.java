@@ -3,6 +3,7 @@ package Paint.Loaders;
 import Paint.Constants.PaintConstants;
 import Paint.Objects.PaintExperiment;
 import Paint.Objects.PaintProject;
+import Paint.Objects.PaintRecording;
 import tech.tablesaw.api.ColumnType;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvReadOptions;
@@ -18,6 +19,8 @@ import PaintUtilities.ExceptionUtils;
 public class PaintProjectLoader {
 
     public static void main(String[] args) {
+        PaintProject project = null;
+
         try {
             Path projectPath;
 
@@ -49,12 +52,22 @@ public class PaintProjectLoader {
 
 
             System.out.println("Project: " + projectPath.getFileName().toString());
-            PaintProject project = loadProject(projectPath, matureProject);
+            project = loadProject(projectPath, matureProject);
             System.out.println("Processed experiments count: " + project.getExperiments().size());
 
         } catch (Exception e) {
             System.err.println("Failed to load project: " + e.getMessage());
             System.exit(1);
+        }
+
+        if (project != null) {
+            List <PaintExperiment> experiments = project.getExperiments();
+            for (PaintExperiment experiment : experiments) {
+                System.out.println(experiment);
+                for (PaintRecording rec : experiment.getRecordings()) {
+                    System.out.println(rec);
+                }
+            }
         }
     }
 

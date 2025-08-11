@@ -31,6 +31,15 @@ public class PaintProject {
         return experiments;
     }
 
+    public PaintExperiment getExperiment(String experimentName) {
+        for (PaintExperiment experiment : experiments) {
+            if (experiment.getExperimentName().equals(experimentName)) {
+                return experiment;
+            }
+        }
+        return null; // not found
+    }
+
     public void setExperiments(List<PaintExperiment> experiments) {
         this.experiments = experiments;
     }
