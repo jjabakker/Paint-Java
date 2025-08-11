@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.util.*;
 
 import PaintUtilities.ExceptionUtils;
-import static PaintUtilities.ExceptionUtils.friendlyMessage;
 import Paint.Objects.TracksTable;
 import Paint.Objects.SquaresTable;
 
@@ -61,7 +60,9 @@ public final class ExperimentLoader {
         // utility
     }
 
-    public static Result loadExperiment(Path experimentPath, String experimentName, boolean matureProject) {
+    public static Result loadExperiment(Path projectPath, String experimentName, boolean matureProject) {
+
+        Path experimentPath = projectPath.resolve(experimentName);
 
         // Validate structure
         List<String> errors = validateExperimentLayout(experimentPath, experimentName, matureProject);
@@ -87,14 +88,54 @@ public final class ExperimentLoader {
         // Get Experiment Attributes from old style data
         experiment =  getExperimentAttributes(experiment, experimentPath, experimentName);
 
-        // Read Tracks once
-        TracksTable tracksTable = new TracksTable(experimentPath.resolve(TRACKS_CSV));
-        experiment.setTracksTable(tracksTable);
 
         // Read Squares once
         SquaresTable squaresTable = new SquaresTable(experimentPath.resolve(SQUARES_CSV));
-        experiment.setSquaresTable(squaresTable);
+        for (Recording recording : recordings) {
+            String recordingName = recording.getRecordingName();
+            String recordingNameColumn = "Recording Name";
 
+            // The Code is a bit more complex because there is ambiguity in which column the name is to be found.
+            // Later on when 'Ext Recording Name' is fully phased out, this code can be simplified.
+            if (!squaresTable.containsColumn("Recording Name") && squaresTable.containsColumn("Ext Recording Name")) {
+                recordingNameColumn = "Ext Recording Name";
+            }
+            else {
+                System.err.println("No column named 'Recording Name' or 'Ext Recording Name' found in '" + SQUARES_CSV + "'.");
+                System.exit(-1);
+            }
+            // End
+
+            SquaresTable recordingSquares = squaresTable.where(
+                    squaresTable.stringColumn(recordingNameColumn)
+                            .matchesRegex("^" + recordingName + "(?:-threshold-\\d{1,3})?$")
+            );
+            recording.setSquaresTable(recordingSquares);
+        }
+
+        // Read the experiment All Tracks and assign the tracks to each recording.
+        TracksTable tracksTable = new TracksTable(experimentPath.resolve(TRACKS_CSV));
+        for (Recording recording : recordings) {
+            String recordingName = recording.getRecordingName();
+            String recordingNameColumn = "Recording Name";
+
+            // The Code is a bit more complex because there is ambiguity in which column the name is to be found.
+            // Later on when 'Ext Recording Name' is fully phased out, this code can be simplified.
+            if (!tracksTable.containsColumn("Recording Name") && tracksTable.containsColumn("Ext Recording Name")) {
+                recordingNameColumn = "Ext Recording Name";
+            }
+            else {
+                System.err.println("No column named 'Recording Name' or 'Ext Recording Name' found in '" + TRACKS_CSV + "'.");
+                System.exit(-1);
+            }
+            // End
+
+            TracksTable recordingTracks = tracksTable.where(
+                    tracksTable.stringColumn(recordingNameColumn)
+                            .matchesRegex("^" + recordingName + "(?:-threshold-\\d{1,3})?$")
+            );
+            recording.setTracksTable(recordingTracks);
+        }
 
         if (!errors.isEmpty()) {
             return Result.failure(errors);
@@ -230,6 +271,22 @@ public final class ExperimentLoader {
         String minNumberOfSpotsInTrack = (String) getUniqueColumnValueOrExit(table, "Min Spots in Track");
         String minTracksForTau = (String) getUniqueColumnValueOrExit(table, "Min Tracks for Tau");
         String neighbourMode = (String) getUniqueColumnValueOrExit(table, "Neighbour Mode");
+        String maxAllowableVariability = (String) getUniqueColumnValueOrExit(table, "Max Allowable Variability");
+        String minRequiredDensityRatio = (String) getUniqueColumnValueOrExit(table, "Min Required Density Ratio");
+        String minRequiredRSquared = (String) getUniqueColumnValueOrExit(table, "Min Required R Squared");
+
+        experiment.setCaseName(caseName);
+        experiment.setMaxFrameGap(maxFrameGap);
+        experiment.setGapClosingMaxDistance(gapClosingMaxDistance);
+        experiment.setLinkingMaxDistance(linkingMaxDistance);
+        experiment.setMedianFiltering(medianFiltering);
+        experiment.setMinNumberOfSpotsInTrack(minNumberOfSpotsInTrack);
+        experiment.setMinTracksForTau(minTracksForTau);
+        experiment.setNeighbourMode(neighbourMode);
+        experiment.setMaxAllowableVariability(maxAllowableVariability);
+        experiment.setMinRequiredDensityRatio(minRequiredDensityRatio);
+        experiment.setMinRequiredRSquared(minRequiredRSquared);
+
 
         // Update the Experiment toDo
 

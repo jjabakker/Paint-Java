@@ -1,17 +1,6 @@
 package Paint.Objects;
 
-import tech.tablesaw.api.Table;
-import tech.tablesaw.api.Row;
-import tech.tablesaw.api.ColumnType;
-import tech.tablesaw.io.csv.CsvReadOptions;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
-
-import PaintUtilities.ColumnValue;
 
 public class Experiment {
 
@@ -21,57 +10,19 @@ public class Experiment {
     private double minRequiredDensityRatio;
     private int minTracksForTau;
     private int maxFrameGap;
-    private int gapClosingMaxDistance;
-    private int linkingMaxDistance;
+    private double gapClosingMaxDistance;
+    private double linkingMaxDistance;
     private boolean medianFiltering;
     private int minNumberOfSpotsInTrack;
     private String neighbourMode;
     private String caseName;
 
     private ArrayList<Recording> recordings;
-    public TracksTable tracksTable;
-    private SquaresTable  squaresTable;
 
-    public static void main(String[] args) {
-        Experiment p = new Experiment(Paths.get("/Users/hans/Downloads/221012/Experiment Info.csv"));
-    }
 
-    public Experiment(Path experimentPath) {
-
+    public Experiment(String experimentName) {
+        this.experimentName = experimentName;
         this.recordings = new ArrayList<>();
-
-        // Read first line to get columns count
-        String headerLine;
-        try {
-            // Ensure stream is closed promptly
-            try (java.util.stream.Stream<String> lines = Files.lines(experimentPath)) {
-                headerLine = lines.findFirst().orElseThrow(() -> new RuntimeException("Empty file"));
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        String[] columns = headerLine.split(",");
-        int nrColumns = columns.length;
-
-        // Create ColumnType array with all STRING, so that everything is read in as String
-        // Then read the data into a table
-        ColumnType[] colTypes = new ColumnType[columns.length];
-        Arrays.fill(colTypes, ColumnType.STRING);
-        CsvReadOptions options = CsvReadOptions.builder(experimentPath.toFile())
-                .columnTypes(colTypes)
-                .build();
-        Table table = Table.read().csv(options);
-
-        // Create a fresh list per row to avoid accumulating across rows
-        for (Row row : table) {
-            List<ColumnValue> data = new ArrayList<>();
-            for (int i = 0; i < nrColumns; i++) {
-                Object cell = row.getObject(i);
-                data.add(new ColumnValue(columns[i], cell == null ? "" : cell.toString()));
-            }
-            Recording recording = new Recording(data);
-            this.recordings.add(recording);
-        }
     }
 
     public Experiment() {
@@ -86,21 +37,62 @@ public class Experiment {
         this.experimentName = experimentName;
     }
 
-    public void setTracksTable(TracksTable tracksTable) {
-        this.tracksTable = tracksTable;
-    }
-
-    public void setSquaresTable(SquaresTable squaresTable) {
-        this.squaresTable = squaresTable;
-    }
-
-
     public List<Recording> getRecordings() {
         return recordings;
     }
 
     public void addRecording(Recording recording) {
         this.recordings.add(recording);
+    }
+
+    public void setCaseName(String caseName) {
+        this.caseName = caseName;
+    }
+
+    public void setMaxFrameGap(String maxFrameGap) {
+        this.maxFrameGap = Integer.parseInt(maxFrameGap);
+    }
+
+    public void setGapClosingMaxDistance(String gapClosingMaxDistance) {
+        this.gapClosingMaxDistance = Double.parseDouble(gapClosingMaxDistance);
+    }
+
+    public void setLinkingMaxDistance(String linkingMaxDistance) {
+        this.linkingMaxDistance = Double.parseDouble(linkingMaxDistance);
+    }
+
+    public void setMedianFiltering(String medianFiltering) {
+        this.medianFiltering = checkBooleanValue(medianFiltering);
+    }
+
+    public void setMinNumberOfSpotsInTrack(String minNumberOfSpotsInTrack) {
+        this.minNumberOfSpotsInTrack = Integer.parseInt(minNumberOfSpotsInTrack);
+    }
+
+    public void setMinTracksForTau(String minTracksForTau) {
+        //this.minTracksForTau = Integer.parseInt(minTracksForTau);
+        this.minTracksForTau = (int) Double.parseDouble(minTracksForTau);
+    }
+
+    public void setNeighbourMode(String neighbourMode) {
+        this.neighbourMode = neighbourMode;
+    }
+
+    public void setMaxAllowableVariability(String maxAllowableVariability) {
+        this.maxAllowableVariability = Double.parseDouble(maxAllowableVariability);
+    }
+
+    public void setMinRequiredDensityRatio(String minRequiredDensityRatio) {
+        this.minRequiredDensityRatio = Double.parseDouble(minRequiredDensityRatio);
+    }
+
+    public void setMinRequiredRSquared(String minRequiredRSquared) {
+        this.minRequiredRSquared = Double.parseDouble(minRequiredRSquared);
+    }
+
+    private static Boolean checkBooleanValue(String string) {
+        Set<String> yesValues = new HashSet<>(Arrays.asList("y", "ye", "yes", "ok", "true", "t"));
+        return yesValues.contains(string.trim().toLowerCase());
     }
 
     public String toString() {
@@ -117,27 +109,14 @@ public class Experiment {
         sb.append(String.format("\tMin Required R Squared       : %.2f%n", minRequiredRSquared));
         sb.append(String.format("\tMin Tracks to Calculate Tau  : %d%n", minTracksForTau));
         sb.append(String.format("\tMax Frame Gap                : %d%n", maxFrameGap));
-        sb.append(String.format("\tGap Closing Max Distance     : %d%n", gapClosingMaxDistance));
-        sb.append(String.format("\tLinking Max Distance         : %d%n", linkingMaxDistance));
+        sb.append(String.format("\tGap Closing Max Distance     : %.2f%n", gapClosingMaxDistance));
+        sb.append(String.format("\tLinking Max Distance         : %.2f%n", linkingMaxDistance));
         sb.append(String.format("\tMedian Filtering             : %b%n", medianFiltering));
         sb.append(String.format("\tMin Number of Spots in Track : %d%n", minNumberOfSpotsInTrack));
         sb.append(String.format("\tNeighbour Mode               : %s%n", neighbourMode));
         sb.append(String.format("\tCase Name                    : %s%n", caseName));
 
-        sb.append("\n");
-        if (tracksTable != null) {
-            sb.append(String.format("Experiments has %d squares loaded%n", squaresTable.rowCount()));
-        }
-        else {
-            sb.append(String.format("Experiments has no squares loaded%n"));
-        }
 
-        if (tracksTable != null) {
-            sb.append(String.format("Experiments has %d tracks loaded%n", tracksTable.rowCount()));
-        }
-        else {
-            sb.append(String.format("Experiments has no tracks loaded%n"));
-        }
 
         sb.append(String.format("%nExperiment %s has %d recordings%n",  experimentName,  recordings.size()));
         for (Recording recording : recordings) {

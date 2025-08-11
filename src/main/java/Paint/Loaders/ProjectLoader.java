@@ -70,6 +70,14 @@ public class ProjectLoader {
         }
     }
 
+    /**
+     * Reads a project into memory by creating the experiments that are indicated in the Project Info.csv file.
+     * For each experiment, the recordings are created.
+     * @param  projectPath  a directory specifying the base location of the project
+     * @param  matureProject a boolean indicating whether squares informationnhas been generated or not
+     * @return A Project object
+     */
+
     public static Project loadProject(Path projectPath, boolean matureProject) {
         Path filePath = projectPath.resolve(PROJECT_INFO_CSV);
         Table table;
@@ -100,24 +108,24 @@ public class ProjectLoader {
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
 
-        // If PROJECT_INFO has a 'Process' column, only include experiments
-        // for which the Process flag is set (truthy).
-        // Otherwise, include all.
+        // Only include experiments for which the Process flag is set (truthy).
+        // Create a list of experiments to load and a list of experiments skipped.
         List<String> experimentsToLoad = new ArrayList<>();
         List<String> experimentsSkipped = new ArrayList<>();
 
         boolean hasProcessColumn = table.columnNames().contains("Process");
         if (hasProcessColumn) {
             Set<String> yesValues = new HashSet<>(Arrays.asList("y", "ye", "yes", "ok", "true", "t", "1"));
-            // Build a set of experiments that have Process set
+
             Set<String> allowed = new HashSet<>();
-            List<String> expCol = table.stringColumn("Experiment Name").asList();
-            List<String> procCol = table.stringColumn("Process").asList();
+            List<String> experimentNameColumn = table.stringColumn("Experiment Name").asList();
+            List<String> processColumn = table.stringColumn("Process").asList();
 
             for (int i = 0; i < table.rowCount(); i++) {
-                String exp = expCol.get(i);
-                String p = procCol.get(i);
-                if (exp == null) continue;
+                String exp = experimentNameColumn.get(i);
+                String p = processColumn.get(i);
+                if (exp == null)
+                    continue;
                 if (p != null && yesValues.contains(p.trim().toLowerCase())) {
                     allowed.add(exp.trim());
                 }
@@ -134,14 +142,14 @@ public class ProjectLoader {
             experimentsToLoad.addAll(allExperimentNames);
         }
 
+        // Create the Project object
         Project project = new Project(projectPath);
 
         List<String> allErrors = new ArrayList<>();
         for (String experimentName : experimentsToLoad) {
-            Path experimentPath = projectPath.resolve(experimentName);
 
             ExperimentLoader.Result result =
-                    ExperimentLoader.loadExperiment(experimentPath, experimentName, matureProject);
+                    ExperimentLoader.loadExperiment(projectPath, experimentName, matureProject);
 
             if (result.isSuccess()) {
                 Experiment experiment = result.experiment().get();
@@ -203,6 +211,4 @@ public class ProjectLoader {
             return types;
         }
     }
-
-
 }

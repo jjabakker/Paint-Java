@@ -1,5 +1,7 @@
 package Paint.Constants;
 
+import Table.Squares;
+
 public final class PaintConstants {
 
     // Filenames
@@ -17,4 +19,8 @@ public final class PaintConstants {
     // Column names
     public static final String COL_EXT_RECORDING_NAME = "Ext Recording Name";
     public static final String COL_RECORDING_NAME = "Recording Name";
+
+    // Squares
+    public static final double IMAGE_WIDTH = 82.0864;
+    public static final double IMAGE_HEIGHT = 82.0864;
 }

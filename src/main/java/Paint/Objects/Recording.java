@@ -56,6 +56,9 @@ public class Recording {
     private List<Square> squares = new ArrayList<>();
     private List<Track> tracks = new ArrayList<>();
 
+    private TracksTable tracksTable;
+    private SquaresTable squaresTable;
+
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
     public Recording() {
@@ -281,7 +284,15 @@ public class Recording {
         this.tracks.add(track);
     }
 
-    public static Boolean checkBooleanValue(String string) {
+    public void setTracksTable(TracksTable tracksTable) {
+        this.tracksTable = tracksTable;
+    }
+
+    public void setSquaresTable(SquaresTable squaresTable) {
+        this.squaresTable = squaresTable;
+    }
+
+    private static Boolean checkBooleanValue(String string) {
         Set<String> yesValues = new HashSet<>(Arrays.asList("y", "ye", "yes", "ok", "true", "t"));
         return yesValues.contains(string.trim().toLowerCase());
     }
@@ -321,6 +332,13 @@ public class Recording {
         }
         if (squares != null) {
             sb.append(String.format("%nRecording %s has %d squares%n", recordingName, squares.size()));
+        }
+
+        if (tracksTable != null) {
+            sb.append(String.format("%nRecording %s has %d tracks", recordingName, tracksTable.rowCount()));
+        }
+        if (squaresTable != null) {
+            sb.append(String.format("%nRecording %s has %d squares%n", recordingName, squaresTable.rowCount()));
         }
 
         return sb.toString();
