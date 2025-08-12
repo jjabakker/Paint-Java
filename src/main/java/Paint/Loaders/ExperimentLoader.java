@@ -1,6 +1,7 @@
 package Paint.Loaders;
 
 import static Paint.Constants.PaintConstants.*;
+import static PaintUtilities.CSVHandling.readCSV;
 
 import Paint.Objects.*;
 import PaintUtilities.ColumnValue;
@@ -16,8 +17,8 @@ import java.nio.file.Path;
 import java.util.*;
 
 import PaintUtilities.ExceptionUtils;
-import Paint.Objects.TracksTable;
-import Paint.Objects.SquaresTable;
+
+
 
 
 /**
@@ -60,7 +61,7 @@ public final class ExperimentLoader {
         }
 
         // Read the experiment 'All Squares' and assign the squares to each recording.
-        SquaresTable squaresTable = new SquaresTable(experimentPath.resolve(SQUARES_CSV));
+        Table squaresTable = readCSV(experimentPath.resolve(SQUARES_CSV));
         for (Recording recording : recordings) {
             String recordingName = recording.getRecordingName();
             String recordingNameColumn = "Recording Name";
@@ -76,18 +77,18 @@ public final class ExperimentLoader {
             }
             // End
 
-            SquaresTable squaresOfRecording = squaresTable.where(
+            Table squaresOfRecording = squaresTable.where(
                     squaresTable.stringColumn(recordingNameColumn)
                             .matchesRegex("^" + recordingName + "(?:-threshold-\\d{1,3})?$")
             );
 
             // Create the Square objects for this recording
-            for (Row row : squaresOfRecording.toTable()) {
+            for (Row row : squaresOfRecording) {
                 List<ColumnValue> colValues = new ArrayList<>();
                 ColumnValue colValuePair;
 
-                for (int colIndex = 0; colIndex < squaresOfRecording.toTable().columnCount(); colIndex++) {
-                    String columnName = squaresOfRecording.toTable().column(colIndex).name();
+                for (int colIndex = 0; colIndex < squaresOfRecording.columnCount(); colIndex++) {
+                    String columnName = squaresOfRecording.column(colIndex).name();
                     Object value = row.getObject(colIndex);
                     colValues.add(new ColumnValue(columnName, (String) value));
                 }
@@ -98,7 +99,7 @@ public final class ExperimentLoader {
         }
 
         // Read the experiment tracks and assign the tracks to each recording.
-        TracksTable tracksTable = new TracksTable(experimentPath.resolve(TRACKS_CSV));
+        Table tracksTable = readCSV(experimentPath.resolve(TRACKS_CSV));
         for (Recording recording : recordings) {
             String recordingName = recording.getRecordingName();
             String recordingNameColumn = COL_RECORDING_NAME;
@@ -114,7 +115,7 @@ public final class ExperimentLoader {
             }
             // End
 
-            TracksTable tracksOfRecording = tracksTable.where(
+            Table tracksOfRecording = tracksTable.where(
                     tracksTable.stringColumn(recordingNameColumn)
                             .matchesRegex("^" + recordingName + "(?:-threshold-\\d{1,3})?$")
             );
@@ -123,12 +124,12 @@ public final class ExperimentLoader {
             recording.setTracksTable(tracksOfRecording);
 
             // Here the proper Track objects are added
-            for (Row row : tracksOfRecording.toTable()) {
+            for (Row row : tracksOfRecording) {
                 List<ColumnValue> colValues = new ArrayList<>();
                 ColumnValue colValuePair;
 
-                for (int colIndex = 0; colIndex < tracksOfRecording.toTable().columnCount(); colIndex++) {
-                    String columnName = tracksOfRecording.toTable().column(colIndex).name();
+                for (int colIndex = 0; colIndex < tracksOfRecording.columnCount(); colIndex++) {
+                    String columnName = tracksOfRecording.column(colIndex).name();
                     Object value = row.getObject(colIndex);
                     colValues.add(new ColumnValue(columnName, (String) value));
                 }

@@ -3,7 +3,10 @@ package Paint.Objects;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import tech.tablesaw.api.Table;
+
 import PaintUtilities.ColumnValue;
+
 
 public class Recording {
 
@@ -56,8 +59,8 @@ public class Recording {
     private List<Square> squares = new ArrayList<>();
     private List<Track> tracks = new ArrayList<>();
 
-    private TracksTable tracksTable;
-    private SquaresTable squaresTable;
+    private Table tracksTable;
+    private Table squaresTable;
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
@@ -283,15 +286,15 @@ public class Recording {
         this.tracks.add(track);
     }
 
-    public void setTracksTable(TracksTable tracksTable) {
+    public void setTracksTable(Table tracksTable) {
         this.tracksTable = tracksTable;
     }
 
-    public void setSquaresTable(SquaresTable squaresTable) {
+    public void setSquaresTable(Table squaresTable) {
         this.squaresTable = squaresTable;
     }
 
-    public SquaresTable getSquaresTable() {
+    public Table getSquaresTable() {
         return squaresTable;
     }
 
