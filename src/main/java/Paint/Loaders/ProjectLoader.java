@@ -18,8 +18,10 @@ import PaintUtilities.ExceptionUtils;
 
 public class ProjectLoader {
 
+
     public static void main(String[] args) {
         Project project = null;
+
 
         try {
             Path projectPath;
@@ -98,7 +100,7 @@ public class ProjectLoader {
             throw new IllegalStateException("Column 'Experiment Name' is missing in " + PROJECT_INFO_CSV + ".");
         }
 
-        // Unique experiment names listed in PROJECT_INFO
+        // Retrieve the unique experiment names listed in PROJECT_INFO
         List<String> allExperimentNames = table.stringColumn("Experiment Name")
                 .unique()
                 .asList()
@@ -142,14 +144,18 @@ public class ProjectLoader {
             experimentsToLoad.addAll(allExperimentNames);
         }
 
-        // Create the Project object
-        Project project = new Project(projectPath);
 
+        // ------------------------------------------------------
+        // Load the experiment and report errors if they occurred
+        // In this loop is where the loading of the experiment happens
+        // ------------------------------------------------------
+
+        Project project = new Project(projectPath);
         List<String> allErrors = new ArrayList<>();
         for (String experimentName : experimentsToLoad) {
 
             ExperimentLoader.Result result =
-                    ExperimentLoader.loadExperiment(projectPath, experimentName, matureProject);
+                    ExperimentLoader.loadExperiments(projectPath, experimentName, matureProject);
 
             if (result.isSuccess()) {
                 Experiment experiment = result.experiment().get();
@@ -161,7 +167,7 @@ public class ProjectLoader {
             }
         }
 
-        // Notify the user about experiments processed due to a positive  Process flag
+        // Notify the user about experiments processed
         if (!experimentsToLoad.isEmpty()) {
             System.out.println(String.format("\nProcessed %d experiment%s", experimentsToLoad.size(), experimentsToLoad.size() == 1 ? "" : "s"));
             for (String name : experimentsToLoad) {

@@ -1,10 +1,17 @@
 package Paint.Objects;
 
-import tech.tablesaw.api.StringColumn;
+
 import tech.tablesaw.api.Table;
+import tech.tablesaw.api.ColumnType;
+import tech.tablesaw.api.StringColumn;
+import tech.tablesaw.io.csv.CsvReadOptions;
 
+import java.io.BufferedReader;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 
+import static PaintUtilities.CSVHandling.readCSV;
 import static PaintUtilities.ExceptionUtils.friendlyMessage;
 
 /**
@@ -18,34 +25,8 @@ public final class SquaresTable {
 
 
     public SquaresTable(Path csvPath) {
-        try {
-            table = Table.read().csv(csvPath.toFile());
-        } catch (Exception e) {
-            System.err.println("Failed to read tracks file: " + friendlyMessage(e));
-            System.exit(-1);
-        }
+        this.table = readCSV(csvPath);
     }
-
-//    TracksTable (Path csvPath, String recordingName) {
-//        Table table;
-//
-//        try {
-//            table = Table.read().csv(csvPath.toFile());
-//        } catch (Exception e) {
-//            System.err.println("Failed to read tracks file: " + friendlyMessage(e));
-//            System.exit(-1);
-//        }
-//
-//        // Optional filtering by recordingName
-//        if (recordingName != null && !recordingName.isEmpty() && table.containsColumn("Ext Recording Name")) {
-//            if (table.column("Ext Recording Name") instanceof StringColumn) {
-//                StringColumn recordingCol = table.stringColumn("Ext Recording Name");
-//                table = table.where(recordingCol.isEqualTo(recordingName));
-//            }
-//        }
-//
-//    }
-
 
     private SquaresTable(Table table) {
         if (table == null) {

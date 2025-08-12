@@ -67,7 +67,7 @@ public class TracksLoader {
         try {
             for (Row row : table) {
                 Track track = new Track(
-                        String.valueOf(row.getInt("Track Id")),
+                        row.getInt("Track Id"),
                         row.getString("Track Label"),
                         row.getInt("Nr Spots"),
                         row.getInt("Nr Gaps"),

@@ -26,54 +26,28 @@ import Paint.Objects.SquaresTable;
  */
 public final class ExperimentLoader {
 
-    public static final class Result {
-        private final Experiment experiment;
-        private final List<String> errors;
+    /*
+    Loads the complete experiment information and is called once for each experiment in a project.
+     */
 
-        private Result(Experiment experiment, List<String> errors) {
-            this.experiment = experiment;
-            this.errors = errors;
-        }
-
-        public static Result success(Experiment experiment) {
-            return new Result(experiment, Collections.emptyList());
-        }
-
-        public static Result failure(List<String> errors) {
-            return new Result(null, new ArrayList<>(errors));
-        }
-
-        public Optional<Experiment> experiment() {
-            return Optional.ofNullable(experiment);
-        }
-
-        public List<String> errors() {
-            return Collections.unmodifiableList(errors);
-        }
-
-        public boolean isSuccess() {
-            return experiment != null && errors.isEmpty();
-        }
-    }
-
-    private ExperimentLoader() {
-        // utility
-    }
-
-    public static Result loadExperiment(Path projectPath, String experimentName, boolean matureProject) {
+    public static Result loadExperiments(Path projectPath, String experimentName, boolean matureProject) {
 
         Path experimentPath = projectPath.resolve(experimentName);
 
-        // Validate structure
+        // Validate the structure
         List<String> errors = validateExperimentLayout(experimentPath, experimentName, matureProject);
         if (!errors.isEmpty()) {
             return Result.failure(errors);
         }
 
+        // Crate the Experiment object so that it is available for populating
         Experiment experiment = new Experiment();
         experiment.setExperimentName(experimentName);
 
-        // Load recordings
+        // Get Experiment Attributes from old style data
+        experiment =  getExperimentAttributes(experiment, experimentPath, experimentName);
+
+        // Load recordings, but do not bother with their squares and tracks yet.
         List<Recording> recordings;
         try {
             recordings = loadRecordings(experimentPath);
@@ -85,11 +59,7 @@ public final class ExperimentLoader {
             return Result.failure(errors);
         }
 
-        // Get Experiment Attributes from old style data
-        experiment =  getExperimentAttributes(experiment, experimentPath, experimentName);
-
-
-        // Read Squares once
+        // Read the experiment 'All Squares' and assign the squares to each recording.
         SquaresTable squaresTable = new SquaresTable(experimentPath.resolve(SQUARES_CSV));
         for (Recording recording : recordings) {
             String recordingName = recording.getRecordingName();
@@ -97,8 +67,8 @@ public final class ExperimentLoader {
 
             // The Code is a bit more complex because there is ambiguity in which column the name is to be found.
             // Later on when 'Ext Recording Name' is fully phased out, this code can be simplified.
-            if (!squaresTable.containsColumn("Recording Name") && squaresTable.containsColumn("Ext Recording Name")) {
-                recordingNameColumn = "Ext Recording Name";
+            if (!squaresTable.containsColumn(COL_RECORDING_NAME) && squaresTable.containsColumn(COL_EXT_RECORDING_NAME)) {
+                recordingNameColumn = COL_EXT_RECORDING_NAME;
             }
             else {
                 System.err.println("No column named 'Recording Name' or 'Ext Recording Name' found in '" + SQUARES_CSV + "'.");
@@ -106,23 +76,37 @@ public final class ExperimentLoader {
             }
             // End
 
-            SquaresTable recordingSquares = squaresTable.where(
+            SquaresTable squaresOfRecording = squaresTable.where(
                     squaresTable.stringColumn(recordingNameColumn)
                             .matchesRegex("^" + recordingName + "(?:-threshold-\\d{1,3})?$")
             );
-            recording.setSquaresTable(recordingSquares);
+
+            // Create the Square objects for this recording
+            for (Row row : squaresOfRecording.toTable()) {
+                List<ColumnValue> colValues = new ArrayList<>();
+                ColumnValue colValuePair;
+
+                for (int colIndex = 0; colIndex < squaresOfRecording.toTable().columnCount(); colIndex++) {
+                    String columnName = squaresOfRecording.toTable().column(colIndex).name();
+                    Object value = row.getObject(colIndex);
+                    colValues.add(new ColumnValue(columnName, (String) value));
+                }
+
+                Square square  = new Square(colValues);
+                recording.addSquare(square);
+            }
         }
 
-        // Read the experiment All Tracks and assign the tracks to each recording.
+        // Read the experiment tracks and assign the tracks to each recording.
         TracksTable tracksTable = new TracksTable(experimentPath.resolve(TRACKS_CSV));
         for (Recording recording : recordings) {
             String recordingName = recording.getRecordingName();
-            String recordingNameColumn = "Recording Name";
+            String recordingNameColumn = COL_RECORDING_NAME;
 
             // The Code is a bit more complex because there is ambiguity in which column the name is to be found.
             // Later on when 'Ext Recording Name' is fully phased out, this code can be simplified.
-            if (!tracksTable.containsColumn("Recording Name") && tracksTable.containsColumn("Ext Recording Name")) {
-                recordingNameColumn = "Ext Recording Name";
+            if (!tracksTable.containsColumn(COL_RECORDING_NAME) && tracksTable.containsColumn(COL_EXT_RECORDING_NAME)) {
+                recordingNameColumn = COL_EXT_RECORDING_NAME;
             }
             else {
                 System.err.println("No column named 'Recording Name' or 'Ext Recording Name' found in '" + TRACKS_CSV + "'.");
@@ -130,11 +114,30 @@ public final class ExperimentLoader {
             }
             // End
 
-            TracksTable recordingTracks = tracksTable.where(
+            TracksTable tracksOfRecording = tracksTable.where(
                     tracksTable.stringColumn(recordingNameColumn)
                             .matchesRegex("^" + recordingName + "(?:-threshold-\\d{1,3})?$")
             );
-            recording.setTracksTable(recordingTracks);
+
+
+            recording.setTracksTable(tracksOfRecording);
+
+            // Here the proper Track objects are added
+            for (Row row : tracksOfRecording.toTable()) {
+                List<ColumnValue> colValues = new ArrayList<>();
+                ColumnValue colValuePair;
+
+                for (int colIndex = 0; colIndex < tracksOfRecording.toTable().columnCount(); colIndex++) {
+                    String columnName = tracksOfRecording.toTable().column(colIndex).name();
+                    Object value = row.getObject(colIndex);
+                    colValues.add(new ColumnValue(columnName, (String) value));
+                }
+
+                Track track  = new Track(colValues);
+                recording.addTrack(track);
+            }
+
+
         }
 
         if (!errors.isEmpty()) {
@@ -155,6 +158,9 @@ public final class ExperimentLoader {
         return table.emptyCopy();
     }
 
+    /*
+     * Validates the structure of an experiment directory. Certain files and directories need to be present
+     */
     private static List<String> validateExperimentLayout(Path experimentPath, String experimentName, boolean matureProject) {
         List<String> errors = new ArrayList<>();
 
@@ -287,9 +293,6 @@ public final class ExperimentLoader {
         experiment.setMinRequiredDensityRatio(minRequiredDensityRatio);
         experiment.setMinRequiredRSquared(minRequiredRSquared);
 
-
-        // Update the Experiment toDo
-
         return experiment;
     }
 
@@ -313,4 +316,38 @@ public final class ExperimentLoader {
         System.exit(-1);
         return null; // Unreachable, but needed for compiler
     }
+
+    // This class is used for creating a new Experiment object.
+    // If all works well, the Expriment object will be returned, otherwise errors will be reported.
+
+    public static final class Result {
+        private final Experiment experiment;
+        private final List<String> errors;
+
+        private Result(Experiment experiment, List<String> errors) {
+            this.experiment = experiment;
+            this.errors = errors;
+        }
+
+        public static Result success(Experiment experiment) {
+            return new Result(experiment, Collections.emptyList());
+        }
+
+        public static Result failure(List<String> errors) {
+            return new Result(null, new ArrayList<>(errors));
+        }
+
+        public Optional<Experiment> experiment() {
+            return Optional.ofNullable(experiment);
+        }
+
+        public List<String> errors() {
+            return Collections.unmodifiableList(errors);
+        }
+
+        public boolean isSuccess() {
+            return experiment != null && errors.isEmpty();
+        }
+    }
+
 }
