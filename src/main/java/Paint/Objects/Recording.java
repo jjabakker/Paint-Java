@@ -80,118 +80,117 @@ public class Recording {
                     // String values
 
                     case "Recording Name":
-                        this.recordingName = (String) cv.getValue();
+                        this.recordingName = (String) curValue;
                         break;
                     case "Probe":
-                        this.probeName = (String) cv.getValue();
+                        this.probeName = (String) curValue;
                         break;
                     case "Probe Type":
-                        this.probeType = (String) cv.getValue();
+                        this.probeType = (String) curValue;
                         break;
                     case "Cell Type":
-                        this.cellType = (String) cv.getValue();
+                        this.cellType = (String) curValue;
                         break;
                     case "Adjuvant":
-                        this.adjuvant = (String) cv.getValue();
+                        this.adjuvant = (String) curValue;
                         break;
                     case "Time Stamp":
-                        this.timeStamp = cv.getValue().toString();
+                        this.timeStamp = curValue.toString();
                         break;
 
 
                     // Integer values
 
                     case "Condition Nr":
-                        this.conditionNr = Integer.parseInt(cv.getValue().toString());
+                        this.conditionNr = (int) Double.parseDouble(curValue);
                         break;
                     case "Replicate Nr":
-                        this.replicateNr = Integer.parseInt(cv.getValue().toString());
+                        this.replicateNr = (int) Double.parseDouble(curValue);
                         break;
                     case "Nr Spots":
-                        this.numberSpots = Integer.parseInt(cv.getValue().toString());
+                        this.numberSpots = (int) Double.parseDouble(curValue);
                         break;
                     case "Nr Tracks":
-                        this.numberTracks = Integer.parseInt(cv.getValue().toString());
+                        this.numberTracks = (int) Double.parseDouble(curValue);
                         break;
-
                     case "Nr Spots in All Tracks":
-                        this.numberOfSpotsInAllTracks = Integer.parseInt(cv.getValue().toString());
+                        this.numberOfSpotsInAllTracks = (int) Double.parseDouble(curValue);
                         break;
 
                     // Double values
 
                     case "Concentration":
-                        this.concentration = Double.parseDouble(cv.getValue().toString());;
+                        this.concentration = Double.parseDouble(curValue.toString());;
                         break;
                     case "Threshold":
-                        this.threshold = Double.parseDouble(cv.getValue().toString());
+                        this.threshold = Double.parseDouble(curValue.toString());
                         break;
                     case "Run Time":
-                        this.runTime = Double.parseDouble(cv.getValue().toString());
+                        this.runTime = Double.parseDouble(curValue.toString());
                         break;
                    case "Tau":
-                        this.tau = Double.parseDouble(cv.getValue().toString());
+                        this.tau = Double.parseDouble(curValue.toString());
                         break;
                     case "Density":
-                        this.density = Double.parseDouble(cv.getValue().toString());
+                        this.density = Double.parseDouble(curValue.toString());
                         break;
                     case "R Squared":
-                        this.rSquared = Double.parseDouble(cv.getValue().toString());
+                        this.rSquared = Double.parseDouble(curValue.toString());
                         break;
 
                     // Boolean values
 
                     case "Process":
-                        this.processFlag = checkBooleanValue(cv.getValue().toString());
+                        this.processFlag = checkBooleanValue(curValue.toString());
                         break;
                     case "Exclude":
-                        this.exclude = checkBooleanValue(cv.getValue().toString());
+                        this.exclude = checkBooleanValue(curValue.toString());
                         break;
 
                     // These are values that are not recording, byt experiment attributes
 
                     case "Experiment Name":
-                        // this.probeName = (String) cv.getValue();
+                        // this.probeName = (String) curValue;
                         // break;
                     case "Gap Closing Max Distance":
-                        // this.gapClosingMaxDistance = Double.parseDouble(cv.getValue().toString());
+                        // this.gapClosingMaxDistance = Double.parseDouble(curValue.toString());
                         // break;
                     case "Linking Max Distance":
-                        // this.linkingMaxDistance = Double.parseDouble(cv.getValue().toString());
+                        // this.linkingMaxDistance = Double.parseDouble(curValue.toString());
                         // break;
                     case "Min Required R Squared":
-                        // this.minRequiredRSquared = Double.parseDouble(cv.getValue().toString());
+                        // this.minRequiredRSquared = Double.parseDouble(curValue.toString());
                         // break;
                     case "Max Allowable Variability":
-                        // this.maxAllowableVariability = Double.parseDouble(cv.getValue().toString());
+                        // this.maxAllowableVariability = Double.parseDouble(curValue.toString());
                         // break;
                     case "Min Required Density Ratio":
-                        // this.minRequiredDensityRatio = Double.parseDouble(cv.getValue().toString());
+                        // this.minRequiredDensityRatio = Double.parseDouble(curValue.toString());
                         // break;
                     case "Median Filtering":
-                        // this.medianFiltering = checkBooleanValue(cv.getValue().toString());
+                        // this.medianFiltering = checkBooleanValue(curValue.toString());
                         // break;
                     case "Neighbour Mode":
-                        // this.neighbourMode = (String) cv.getValue();
+                        // this.neighbourMode = (String) curValue;
                         // break;
                     case "Case":
-                        // this.caseName = (String) cv.getValue();
+                        // this.caseName = (String) curValue;
                         // break;
                     case "Max Frame Gap":
-                        // this.maxFrameGap = Integer.parseInt(cv.getValue().toString());
+                        // this.maxFrameGap = Integer.parseInt(curValue.toString());
                         // break;
 
                     // These are values that are not recording, byt experiment attributes
                     // These fields should be int but occur as double in the files
 
                     case "Nr of Squares in Row":
-                        // this.maxFrameGap = (int) Double.parseDouble(cv.getValue().toString());
+                        // this.maxFrameGap = (int) Double.parseDouble(curValue.toString());
                         // break;
                     case "Min Spots in Track":
-                        // this.minNumberOfSpotsInTrack = (int) Double.parseDouble(cv.getValue().toString());
+                        // this.minNumberOfSpotsInTrack = (int) Double.parseDouble(curValue.toString());
                         // break;
                     case "Min Tracks for Tau":
-                        // this.minTracksForTau = (int) Double.parseDouble(cv.getValue().toString());
+                        // this.minTracksForTau = (int) Double.parseDouble(curValue.toString());
                         // break;
                         break;
 
@@ -290,6 +289,10 @@ public class Recording {
 
     public void setSquaresTable(SquaresTable squaresTable) {
         this.squaresTable = squaresTable;
+    }
+
+    public SquaresTable getSquaresTable() {
+        return squaresTable;
     }
 
     private static Boolean checkBooleanValue(String string) {

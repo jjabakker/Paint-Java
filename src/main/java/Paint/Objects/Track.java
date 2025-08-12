@@ -1,11 +1,14 @@
 package Paint.Objects;
 
+import PaintUtilities.ColumnValue;
+import java.util.List;
+
 public class Track {
-    private String trackId;
+    private int trackId;
     private String trackLabel;
-    private int nrSpots;
-    private int nrGaps;
-    private double longestGap;
+    private int numberSpots;
+    private int numberGaps;
+    private int longestGap;
     private double trackDuration;
     private double trackXLocation;
     private double trackYLocation;
@@ -21,15 +24,15 @@ public class Track {
     private double totalDistance;
     private double confinementRatio;
 
-    public Track(String trackId, String trackLabel, int nrSpots, int nrGaps, double longestGap, double trackDuration,
+    public Track(int trackId, String trackLabel, int nrSpots, int nrGaps, int longestGap, double trackDuration,
                  double trackXLocation, double trackYLocation, double trackDisplacement, double trackMaxSpeed,
                  double trackMedianSpeed, double trackMeanSpeed, double trackMaxSpeedCalc, double trackMedianSpeedCalc,
                  double trackMeanSpeedCalc, double diffusionCoefficient, double diffusionCoefficientExt,
                  double totalDistance, double confinementRatio) {
         this.trackId = trackId;
         this.trackLabel = trackLabel;
-        this.nrSpots = nrSpots;
-        this.nrGaps = nrGaps;
+        this.numberSpots = nrSpots;
+        this.numberGaps = nrGaps;
         this.longestGap = longestGap;
         this.trackDuration = trackDuration;
         this.trackXLocation = trackXLocation;
@@ -47,22 +50,118 @@ public class Track {
         this.confinementRatio = confinementRatio;
     }
 
+
+    public Track(List<ColumnValue> columns) {
+
+        String curColumn = "";
+        String curValue = "";
+        try {
+            for (ColumnValue cv : columns) {
+                curColumn = cv.getColumnName();
+                curValue = cv.getValue().toString();
+                if (curValue.equals("")) {
+                    continue;
+                }
+                switch (curColumn) {
+
+                    // Integer values
+
+                    case "Track Id":
+                        this.trackId = (int) Double.parseDouble(curValue);
+                        break;
+                    case "Nr Gaps":
+                        this.numberGaps = (int) Double.parseDouble(curValue);
+                        break;
+                    case "Nr Spots":
+                        this.numberSpots = (int) Double.parseDouble(curValue);
+                        break;
+                    case "Longest Gap":
+                        this.longestGap = (int) Double.parseDouble(curValue);
+                        break;
+
+                    // String values
+                    case "Track Label":
+                        this.trackLabel = curValue;
+                        break;
+
+                    // Double values
+                    case "Track Duration":
+                        this.trackDuration = Double.parseDouble(curValue);
+                        break;
+                    case "Track X Location":
+                        this.trackXLocation = Double.parseDouble(curValue);
+                        break;
+                    case "Track Y Location":
+                        this.trackYLocation = Double.parseDouble(curValue);
+                        break;
+                    case "Track Displacement":
+                        this.trackDisplacement = Double.parseDouble(curValue);
+                        break;
+                    case "Track Max Speed":
+                        this.trackMaxSpeed = Double.parseDouble(curValue);
+                        break;
+                    case "Track Median Speed":
+                        this.trackMedianSpeed = Double.parseDouble(curValue);
+                        break;
+                    case "Track Mean Speed":
+                        this.trackMeanSpeed = Double.parseDouble(curValue);
+                        break;
+                    case "Track Max Speed Calc":
+                        this.trackMaxSpeedCalc = Double.parseDouble(curValue);
+                        break;
+                    case "Track Median Speed Calc":
+                        this.trackMedianSpeedCalc = Double.parseDouble(curValue);
+                        break;
+                    case "Track Mean Speed Calc":
+                        this.trackMeanSpeedCalc = Double.parseDouble(curValue);
+                        break;
+                    case "Diffusion Coefficient":
+                        this.diffusionCoefficient = Double.parseDouble(curValue);
+                        break;
+                    case "Diffusion Coefficient Ext":
+                        this.diffusionCoefficientExt = Double.parseDouble(curValue);
+                        break;
+                    case "Total Distance":
+                        this.totalDistance = Double.parseDouble(curValue);
+                        break;
+                    case "Confinement Ratio":
+                        this.confinementRatio = Double.parseDouble(curValue);
+                        break;
+
+                    // Unused:
+                    case "Unique Key":
+                    case "Square Nr":
+                    case "Ext Recording Name":
+                        break;
+
+                    default:
+                        System.out.println("Warning: Unknown column " + cv.getColumnName());
+                        break;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println(String.format("Error parsing column: %s. Conflicting value is %s.", curColumn, curValue));
+            System.exit(-1);
+        }
+    }
+
+
     // Getters and setters
 
-    public String getTrackId() { return trackId; }
-    public void setTrackId(String trackId) { this.trackId = trackId; }
+    public int getTrackId() { return trackId; }
+    public void setTrackId(int trackId) { this.trackId = trackId; }
 
     public String getTrackLabel() { return trackLabel; }
     public void setTrackLabel(String trackLabel) { this.trackLabel = trackLabel; }
 
-    public int getNrSpots() { return nrSpots; }
-    public void setNrSpots(int nrSpots) { this.nrSpots = nrSpots; }
+    public int getNrSpots() { return numberSpots; }
+    public void setNrSpots(int nrSpots) { this.numberSpots = nrSpots; }
 
-    public int getNrGaps() { return nrGaps; }
-    public void setNrGaps(int nrGaps) { this.nrGaps = nrGaps; }
+    public int getNrGaps() { return numberGaps; }
+    public void setNrGaps(int nrGaps) { this.numberGaps = nrGaps; }
 
     public double getLongestGap() { return longestGap; }
-    public void setLongestGap(double longestGap) { this.longestGap = longestGap; }
+    public void setLongestGap(int longestGap) { this.longestGap = longestGap; }
 
     public double getTrackDuration() { return trackDuration; }
     public void setTrackDuration(double trackDuration) { this.trackDuration = trackDuration; }
@@ -109,10 +208,10 @@ public class Track {
     // CSV serialization (all fields as one comma-separated line)
     public String toCSV() {
         return String.join(",",
-                escape(trackId),
+//                escape(trackId),
                 escape(trackLabel),
-                String.valueOf(nrSpots),
-                String.valueOf(nrGaps),
+                String.valueOf(numberSpots),
+                String.valueOf(numberGaps),
                 String.valueOf(longestGap),
                 String.valueOf(trackDuration),
                 String.valueOf(trackXLocation),
@@ -132,33 +231,33 @@ public class Track {
     }
 
     // CSV deserialization
-    public static Track fromCSV(String csvLine) {
-        String[] parts = csvLine.split(",", -1);
-        if (parts.length != 19) {
-            throw new IllegalArgumentException("CSV line does not have 19 fields: " + csvLine);
-        }
-        return new Track(
-                unescape(parts[0]),
-                unescape(parts[1]),
-                Integer.parseInt(parts[2]),
-                Integer.parseInt(parts[3]),
-                Double.parseDouble(parts[4]),
-                Double.parseDouble(parts[5]),
-                Double.parseDouble(parts[6]),
-                Double.parseDouble(parts[7]),
-                Double.parseDouble(parts[8]),
-                Double.parseDouble(parts[9]),
-                Double.parseDouble(parts[10]),
-                Double.parseDouble(parts[11]),
-                Double.parseDouble(parts[12]),
-                Double.parseDouble(parts[13]),
-                Double.parseDouble(parts[14]),
-                Double.parseDouble(parts[15]),
-                Double.parseDouble(parts[16]),
-                Double.parseDouble(parts[17]),
-                Double.parseDouble(parts[18])
-        );
-    }
+//    public static Track fromCSV(String csvLine) {
+//        String[] parts = csvLine.split(",", -1);
+//        if (parts.length != 19) {
+//            throw new IllegalArgumentException("CSV line does not have 19 fields: " + csvLine);
+//        }
+//        return new Track(
+//                unescape(parts[0]),
+//                unescape(parts[1]),
+//                Integer.parseInt(parts[2]),
+//                Integer.parseInt(parts[3]),
+//                (int) Double.parseDouble(parts[4]),
+//                Double.parseDouble(parts[5]),
+//                Double.parseDouble(parts[6]),
+//                Double.parseDouble(parts[7]),
+//                Double.parseDouble(parts[8]),
+//                Double.parseDouble(parts[9]),
+//                Double.parseDouble(parts[10]),
+//                Double.parseDouble(parts[11]),
+//                Double.parseDouble(parts[12]),
+//                Double.parseDouble(parts[13]),
+//                Double.parseDouble(parts[14]),
+//                Double.parseDouble(parts[15]),
+//                Double.parseDouble(parts[16]),
+//                Double.parseDouble(parts[17]),
+//                Double.parseDouble(parts[18])
+//        );
+//    }
 
     // Simple CSV escaping for commas and quotes
     private static String escape(String input) {

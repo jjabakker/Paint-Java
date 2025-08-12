@@ -1,5 +1,6 @@
 package Paint.Objects;
 
+import PaintUtilities.ColumnValue;
 import Table.Squares;
 
 import java.util.ArrayList;
@@ -87,85 +88,230 @@ public class Square {
 
     }
 
-    public Square(String uniqueKey,
-                  int recordingSequenceNr,
-                  int conditionNumber,
-                  int replicateNumber,
-                  int squareNumber,
-                  int rowNumber,
-                  int colNumber,
-                  int labelNumber,
-                  int cellId,
-                  int numberSpots,
-                  int numberTracks,
-                  double X0,
-                  double Y0,
-                  double X1,
-                  double Y1,
-                  boolean selected,
-                  double variability,
-                  double density,
-                  double densityRatio,
-                  double tau,
-                  double rSquared,
-                  double medianDiffusionCoefficient,
-                  double meanDiffusionCoefficient,
-                  double medianDiffusionCoefficientExt,
-                  double meanDiffusionCoefficientExt,
-                  double medianLongTrackDuration,
-                  double medianShortTrackDuration,
-                  double medianDisplacement,
-                  double maxDisplacement,
-                  double totalDisplacement,
-                  double medianMaxSpeed,
-                  double maxMaxSpeed,
-                  double medianMeanSpeed,
-                  double maxMeanSpeed,
-                  double maxTrackDuration,
-                  double totalTrackDuration,
-                  double medianTrackDuration,
-                  boolean squareManuallyExcluded,
-                  boolean imageExcluded) {
-        this.uniqueKey = uniqueKey;
-//        this.recordingSequenceNr = recordingSequenceNr;
-//        this.conditionNumber = conditionNumber;
-//        thisis.replicateNumber = replicateNumber;
-        this.squareNumber = squareNumber;
-        this.rowNumber = rowNumber;
-        this.colNumber = colNumber;
-        this.labelNumber = labelNumber;
-        this.cellId = cellId;
-        // this.numberSpots = numberSpots;
-        this.numberTracks = numberTracks;
-        this.x0 = x0;
-        this.y0 = y0;
-        this.x1 = x1;
-        this.y1 = y1;
-        this.selected = selected;
-        this.variability = variability;
-        this.density = density;
-        this.densityRatio = densityRatio;
-        this.tau = tau;
-        this.rSquared = rSquared;
-        this.medianDiffusionCoefficient = medianDiffusionCoefficient;
-        this.meanDiffusionCoefficient = meanDiffusionCoefficient;
-        this.medianDiffusionCoefficientExt = medianDiffusionCoefficientExt;
-        this.meanDiffusionCoefficientExt = meanDiffusionCoefficientExt;
-        this.medianLongTrackDuration = medianLongTrackDuration;
-        this.medianShortTrackDuration = medianShortTrackDuration;
-        this.medianDisplacement = medianDisplacement;
-        this.maxDisplacement = maxDisplacement;
-        this.totalDisplacement = totalDisplacement;
-        this.medianMaxSpeed = medianMaxSpeed;
-        this.maxMaxSpeed = maxMaxSpeed;
-        this.medianMeanSpeed = medianMeanSpeed;
-        this.maxMeanSpeed = maxMeanSpeed;
-        this.maxTrackDuration = maxTrackDuration;
-        this.totalTrackDuration = totalTrackDuration;
-        this.medianTrackDuration = medianTrackDuration;
-        this.squareManuallyExcluded = squareManuallyExcluded;
-        this.imageExcluded = imageExcluded;
+    public Square(List<ColumnValue> columns) {
+
+        String curColumn = "";
+        String curValue = "";
+        try {
+            for (ColumnValue cv : columns) {
+                curColumn = cv.getColumnName();
+                curValue  = cv.getValue().toString();
+                if (curValue.equals("")) {
+                    continue;
+                }
+                switch (curColumn) {
+
+                    // Integer values
+
+                    case "Square Nr":
+                        this.squareNumber = (int) Double.parseDouble(curValue);
+                        break;
+                    case "Row Nr":
+                        this.rowNumber = (int) Double.parseDouble(curValue);
+                        break;
+                    case "Col Nr":
+                        this.colNumber = (int) Double.parseDouble(curValue);
+                        break;
+                    case "Label Nr":
+                        this.labelNumber = (int) Double.parseDouble(curValue);
+                        break;
+                    case "Cell Id":
+                        this.cellId = (int) Double.parseDouble(curValue);
+                        break;
+                    case "Nr Tracks":
+                        this.cellId = (int) Double.parseDouble(curValue);
+                        break;
+
+                    // Double values
+
+                    case "X0":
+                        this.x0 = Double.parseDouble(curValue);
+                        break;
+                    case "X1":
+                        this.x1 = Double.parseDouble(curValue);
+                        break;
+                    case "Y0":
+                        this.y0 = Double.parseDouble(curValue);
+                        break;
+                    case "Y1":
+                        this.y1 = Double.parseDouble(curValue);
+                        break;
+                    case "Variability":
+                        this.variability = Double.parseDouble(curValue);
+                        break;
+                    case "Density":
+                        this.density = Double.parseDouble(curValue);
+                        break;
+                    case "Density Ratio":
+                        this.densityRatio = Double.parseDouble(curValue);
+                        break;
+                    case "Tau":
+                        this.tau = Double.parseDouble(curValue);
+                        break;
+                    case "R Squared":
+                        this.rSquared = Double.parseDouble(curValue);
+                        break;
+                    case "Median Diffusion Coefficient":
+                        this.medianDiffusionCoefficient = Double.parseDouble(curValue);
+                        break;
+                    case "Mean Diffusion Coefficient":
+                        this.meanDiffusionCoefficient = Double.parseDouble(curValue);
+                        break;
+                    case "Median Diffusion Coefficient Ext":
+                        this.medianDiffusionCoefficientExt = Double.parseDouble(curValue);
+                        break;
+                    case "Mean Diffusion Coefficient Ext":
+                        this.meanDiffusionCoefficientExt = Double.parseDouble(curValue);
+                        break;
+                    case "Median Long Track Duration":
+                        this.medianLongTrackDuration = Double.parseDouble(curValue);
+                        break;
+                    case "Median Short Track Duration":
+                        this.medianShortTrackDuration = Double.parseDouble(curValue);
+                        break;
+                    case "Median Displacement":
+                        this.medianDisplacement = Double.parseDouble(curValue);
+                        break;
+                    case "Max Displacement":
+                        this.maxDisplacement = Double.parseDouble(curValue);
+                        break;
+                    case "Total Displacement":
+                        this.totalDisplacement = Double.parseDouble(curValue);
+                        break;
+                    case "Median Max Speed":
+                        this.medianMaxSpeed = Double.parseDouble(curValue);
+                        break;
+                    case "Max Max Speed":
+                        this.maxMaxSpeed = Double.parseDouble(curValue);
+                        break;
+                    case "Median Mean Speed":
+                        this.medianMeanSpeed = Double.parseDouble(curValue);
+                        break;
+                    case "Max Mean Speed":
+                        this.maxMeanSpeed = Double.parseDouble(curValue);
+                        break;
+                    case "Max Track Duration":
+                        this.maxTrackDuration = Double.parseDouble(curValue);
+                        break;
+                    case "Total Track Duration":
+                        this.totalTrackDuration = Double.parseDouble(curValue);
+                        break;
+                    case "Median Track Duration":
+                        this.medianTrackDuration = Double.parseDouble(curValue);
+                        break;
+
+                    case "Threshold":
+                    case "Recording Sequence Nr":
+                    case "Condition Nr":
+                    case "Replicate Nr":
+                    case "Cell Type":
+                    case "Probe":
+                    case "Probe Type":
+                    case "Adjuvant":
+                    case "Concentration":
+                    case "Recording Data":
+                    case "Nr Spots":
+                    case "Experiment Date":
+                    case "Experiment Name":
+                    case "Ext Recording Name":
+                    case "Unique Key":
+                    case "Selected":
+                    case "Square Manually Excluded":
+                    case "Image Excluded":
+                        break;
+
+                    default:
+                        System.out.println("Warning: Unknown column " + cv.getColumnName());
+                        break;
+
+                }
+            }
+        } catch (Exception e) {
+            System.err.println(String.format("Error parsing column: %s. Conflicting value is %s.", curColumn, curValue));
+            System.exit(-1);
+        }
     }
+
+
+//    public Square(String uniqueKey,
+//                  int recordingSequenceNr,
+//                  int conditionNumber,
+//                  int replicateNumber,
+//                  int squareNumber,
+//                  int rowNumber,
+//                  int colNumber,
+//                  int labelNumber,
+//                  int cellId,
+//                  int numberSpots,
+//                  int numberTracks,
+//                  double X0,
+//                  double Y0,
+//                  double X1,
+//                  double Y1,
+//                  boolean selected,
+//                  double variability,
+//                  double density,
+//                  double densityRatio,
+//                  double tau,
+//                  double rSquared,
+//                  double medianDiffusionCoefficient,
+//                  double meanDiffusionCoefficient,
+//                  double medianDiffusionCoefficientExt,
+//                  double meanDiffusionCoefficientExt,
+//                  double medianLongTrackDuration,
+//                  double medianShortTrackDuration,
+//                  double medianDisplacement,
+//                  double maxDisplacement,
+//                  double totalDisplacement,
+//                  double medianMaxSpeed,
+//                  double maxMaxSpeed,
+//                  double medianMeanSpeed,
+//                  double maxMeanSpeed,
+//                  double maxTrackDuration,
+//                  double totalTrackDuration,
+//                  double medianTrackDuration,
+//                  boolean squareManuallyExcluded,
+//                  boolean imageExcluded) {
+//        this.uniqueKey = uniqueKey;
+////        this.recordingSequenceNr = recordingSequenceNr;
+////        this.conditionNumber = conditionNumber;
+////        thisis.replicateNumber = replicateNumber;
+//        this.squareNumber = squareNumber;
+//        this.rowNumber = rowNumber;
+//        this.colNumber = colNumber;
+//        this.labelNumber = labelNumber;
+//        this.cellId = cellId;
+//        // this.numberSpots = numberSpots;
+//        this.numberTracks = numberTracks;
+//        this.x0 = x0;
+//        this.y0 = y0;
+//        this.x1 = x1;
+//        this.y1 = y1;
+//        this.selected = selected;
+//        this.variability = variability;
+//        this.density = density;
+//        this.densityRatio = densityRatio;
+//        this.tau = tau;
+//        this.rSquared = rSquared;
+//        this.medianDiffusionCoefficient = medianDiffusionCoefficient;
+//        this.meanDiffusionCoefficient = meanDiffusionCoefficient;
+//        this.medianDiffusionCoefficientExt = medianDiffusionCoefficientExt;
+//        this.meanDiffusionCoefficientExt = meanDiffusionCoefficientExt;
+//        this.medianLongTrackDuration = medianLongTrackDuration;
+//        this.medianShortTrackDuration = medianShortTrackDuration;
+//        this.medianDisplacement = medianDisplacement;
+//        this.maxDisplacement = maxDisplacement;
+//        this.totalDisplacement = totalDisplacement;
+//        this.medianMaxSpeed = medianMaxSpeed;
+//        this.maxMaxSpeed = maxMaxSpeed;
+//        this.medianMeanSpeed = medianMeanSpeed;
+//        this.maxMeanSpeed = maxMeanSpeed;
+//        this.maxTrackDuration = maxTrackDuration;
+//        this.totalTrackDuration = totalTrackDuration;
+//        this.medianTrackDuration = medianTrackDuration;
+//        this.squareManuallyExcluded = squareManuallyExcluded;
+//        this.imageExcluded = imageExcluded;
+//    }
 
     private static double calcSquareAreaOriginal(int nrSquaresInRow)
     {
