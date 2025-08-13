@@ -59,8 +59,8 @@ public class Recording {
     private List<Square> squares = new ArrayList<>();
     private List<Track> tracks = new ArrayList<>();
 
-    private Table tracksTable;
-    private Table squaresTable;
+//    private Table tracksTable;
+//    private Table squaresTable;
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
@@ -286,17 +286,17 @@ public class Recording {
         this.tracks.add(track);
     }
 
-    public void setTracksTable(Table tracksTable) {
-        this.tracksTable = tracksTable;
-    }
-
-    public void setSquaresTable(Table squaresTable) {
-        this.squaresTable = squaresTable;
-    }
-
-    public Table getSquaresTable() {
-        return squaresTable;
-    }
+//    public void setTracksTable(Table tracksTable) {
+//        this.tracksTable = tracksTable;
+//    }
+//
+//    public void setSquaresTable(Table squaresTable) {
+//        this.squaresTable = squaresTable;
+//    }
+//
+//    public Table getSquaresTable() {
+//        return squaresTable;
+//    }
 
     private static Boolean checkBooleanValue(String string) {
         Set<String> yesValues = new HashSet<>(Arrays.asList("y", "ye", "yes", "ok", "true", "t"));
@@ -340,12 +340,12 @@ public class Recording {
             sb.append(String.format("%nRecording %s has %d squares%n", recordingName, squares.size()));
         }
 
-        if (tracksTable != null) {
-            sb.append(String.format("%nRecording %s has %d tracks", recordingName, tracksTable.rowCount()));
-        }
-        if (squaresTable != null) {
-            sb.append(String.format("%nRecording %s has %d squares%n", recordingName, squaresTable.rowCount()));
-        }
+//        if (tracksTable != null) {
+//            sb.append(String.format("%nRecording %s has %d tracks", recordingName, tracksTable.rowCount()));
+//        }
+//        if (squaresTable != null) {
+//            sb.append(String.format("%nRecording %s has %d squares%n", recordingName, squaresTable.rowCount()));
+//        }
 
         return sb.toString();
     }

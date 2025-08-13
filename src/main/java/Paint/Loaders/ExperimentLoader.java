@@ -121,7 +121,7 @@ public final class ExperimentLoader {
             );
 
 
-            recording.setTracksTable(tracksOfRecording);
+            // recording.setTracksTable(tracksOfRecording);
 
             // Here the proper Track objects are added
             for (Row row : tracksOfRecording) {
