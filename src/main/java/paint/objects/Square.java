@@ -1,7 +1,6 @@
 package paint.objects;
 
 import paintUtilities.ColumnValue;
-import table.Squares;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +63,7 @@ public class Square {
     private double totalTrackDuration;
     private double medianTrackDuration;
 
-    private List<Squares> tracks;
+    private List<Track> tracks;
 
 
     // Constructors
