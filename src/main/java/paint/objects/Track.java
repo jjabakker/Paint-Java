@@ -4,6 +4,7 @@ import paint.utilities.ColumnValue;
 import java.util.List;
 
 public class Track {
+    private String uniqueKey;
     private int trackId;
     private String trackLabel;
     private int numberSpots;
@@ -23,6 +24,8 @@ public class Track {
     private double diffusionCoefficientExt;
     private double totalDistance;
     private double confinementRatio;
+
+    public Track() { }
 
     public Track(int trackId, String trackLabel, int nrSpots, int nrGaps, int longestGap, double trackDuration,
                  double trackXLocation, double trackYLocation, double trackDisplacement, double trackMaxSpeed,
@@ -148,17 +151,21 @@ public class Track {
 
     // Getters and setters
 
+
+    public String getUniqueKey() { return uniqueKey; }
+    public void setUniqueKey(String uniqueKey) { this.uniqueKey = uniqueKey;}
+
     public int getTrackId() { return trackId; }
     public void setTrackId(int trackId) { this.trackId = trackId; }
 
     public String getTrackLabel() { return trackLabel; }
     public void setTrackLabel(String trackLabel) { this.trackLabel = trackLabel; }
 
-    public int getNrSpots() { return numberSpots; }
-    public void setNrSpots(int nrSpots) { this.numberSpots = nrSpots; }
+    public int getNumberSpots() { return numberSpots; }
+    public void setNumberSpots(int nrSpots) { this.numberSpots = nrSpots; }
 
-    public int getNrGaps() { return numberGaps; }
-    public void setNrGaps(int nrGaps) { this.numberGaps = nrGaps; }
+    public int getNumberGaps() { return numberGaps; }
+    public void setNumberGaps(int nrGaps) { this.numberGaps = nrGaps; }
 
     public double getLongestGap() { return longestGap; }
     public void setLongestGap(int longestGap) { this.longestGap = longestGap; }

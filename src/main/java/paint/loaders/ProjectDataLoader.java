@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static paint.constants.PaintConstants.*;
-import paint.utilities.TablesawUtils;
 
 public final class ProjectDataLoader {
 
@@ -24,7 +23,7 @@ public final class ProjectDataLoader {
 
     public static void main(String[] args) {
         Project project = null;
-        List<Experiment> experiments = null;
+        List<Experiment> experiments;
 
         try {
             Path projectPath;
@@ -62,7 +61,7 @@ public final class ProjectDataLoader {
             System.err.println("Failed to load project: " + e.getMessage());
             System.exit(1);
         }
-        
+
         experiments = project.getExperiments();
         for (Experiment experiment : experiments) {
             System.out.println(experiment);
@@ -182,7 +181,6 @@ public final class ProjectDataLoader {
             // Create the Square objects for this recording
             for (Row row : squaresOfRecording) {
                 List<ColumnValue> colValues = new ArrayList<>();
-                ColumnValue colValuePair;
 
                 for (int colIndex = 0; colIndex < squaresOfRecording.columnCount(); colIndex++) {
                     String columnName = squaresOfRecording.column(colIndex).name();
@@ -196,56 +194,38 @@ public final class ProjectDataLoader {
         }
 
         // Read the experiment tracks and assign the tracks to each recording.
-        Table tracksTable = readTableAsStrings(experimentPath.resolve(TRACKS_CSV));
+        Table exprimentTracksTable = loadTracks(experimentPath);
+        int numberOfTracksInExperiment = exprimentTracksTable.rowCount();
+
         for (Recording recording : recordings) {
             String recordingName = recording.getRecordingName();
-            String recordingNameColumn = COL_RECORDING_NAME;
+            String recordingNameColumn = COL_EXT_RECORDING_NAME;
 
-            // The Code is a bit more complex because there is ambiguity in which column the name is to be found.
-            // Later on when 'Ext Recording Name' is fully phased out, this code can be simplified.
-            if (!tracksTable.containsColumn(COL_RECORDING_NAME) && tracksTable.containsColumn(COL_EXT_RECORDING_NAME)) {
-                recordingNameColumn = COL_EXT_RECORDING_NAME;
-            }
-            else {
-                System.err.println("No column named 'Recording Name' or 'Ext Recording Name' found in '" + TRACKS_CSV + "'.");
-                System.exit(-1);
-            }
-            // End
-
-            Table tracksOfRecording = tracksTable.where(
-                    tracksTable.stringColumn(recordingNameColumn)
-                            .matchesRegex("^" + recordingName + "(?:-threshold-\\d{1,3})?$")
-            );
+            Table recordingTracksTable = exprimentTracksTable.where(
+                    exprimentTracksTable.stringColumn(recordingNameColumn)
+                            .matchesRegex("^" + recordingName + "(?:-threshold-\\d{1,3})?$"));
+            int numberOfTracksInRecording = recordingTracksTable.rowCount();
 
             // Save the table
-            recording.setTracksTable(tracksOfRecording);
+            if (recordingTracksTable.rowCount() == 0) {
+                continue;
+            }
+            recording.setTracksTable(recordingTracksTable);
 
             // Here the Track objects are added (arguably you do one or the other)
-            for (Row row : tracksOfRecording) {
-                List<ColumnValue> colValues = new ArrayList<>();
-                ColumnValue colValuePair;
-
-                for (int colIndex = 0; colIndex < tracksOfRecording.columnCount(); colIndex++) {
-                    String columnName = tracksOfRecording.column(colIndex).name();
-                    Object value = row.getObject(colIndex);
-                    colValues.add(new ColumnValue(columnName, (String) value));
-                }
-
-                Track track  = new Track(colValues);
+            for (Row row1 : recordingTracksTable) {
+                Track track = createTrackFromRow(row1);
                 recording.addTrack(track);
             }
 
             // Now assign tracks to squares in each recording
-            List<Square> squares = recording.getSquares();
-            int nrOfTracksInSquares = 0;
+            int cumulativeNumberOfTracksInSquares = 0;
             int colIndex;
             int rowIndex;
             int lastColIndex = 19;   // Todo
             int lastRowIndex = 19;
 
-
             for (Square square : recording.getSquares()) {
-                int squareNr = square.getSquareNumber();
                 double x0 = square.getX0();
                 double y0 = square.getY0();
                 double x1 = square.getX1();
@@ -253,28 +233,19 @@ public final class ProjectDataLoader {
                 colIndex = square.getColNumber();
                 rowIndex = square.getRowNumber();
 
-                Table tracksInSquare = filterTracksInSquare(tracksOfRecording, x0, y0, x1, y1, colIndex == lastColIndex,
-                         rowIndex == lastRowIndex);
-                if (tracksInSquare.rowCount() > 0) {
-                    nrOfTracksInSquares += tracksInSquare.rowCount();
-                    for (Row row : tracksInSquare) {
-                        String name = row.getString("Unique Key");
-                        // System.out.println(name);    // Todo add the Tracks
-
-                        List<ColumnValue> colValues = new ArrayList<>();
-                        ColumnValue colValuePair;
-                        for (colIndex = 0; colIndex < tracksInSquare.columnCount(); colIndex++) {
-                            String columnName = tracksInSquare.column(colIndex).name();
-                            Object value = row.getObject(colIndex);
-                            colValues.add(new ColumnValue(columnName, (String) value));
-                        }
-
-                        Track track  = new Track(colValues);
+                Table squareTracksTable = filterTracksInSquare(recordingTracksTable, x0, y0, x1, y1, colIndex == lastColIndex,
+                        rowIndex == lastRowIndex);
+                // DEBUG int numberOfTracksInSquare = squareTracksTable.rowCount();
+                // DEBUG System.out.printf("Recording %s - Square %3d: %5d cumulative %5d\n", recordingName, squareNr, numberOfTracksInSquare, cumulativeNumberOfTracksInSquares);
+                if (squareTracksTable.rowCount() > 0) {
+                    cumulativeNumberOfTracksInSquares += squareTracksTable.rowCount();
+                    for (Row row : squareTracksTable) {
+                        Track track = createTrackFromRow(row);
                         recording.addTrack(track);
                     }
                 }
             }
-            System.out.println("tracksInRecording: " + tracksOfRecording.rowCount() + " --- -" + " tracksInSquare " + nrOfTracksInSquares);
+            System.out.println("RecordingTracksTable size: " + recordingTracksTable.rowCount() + " --- " + " Cumulative Number of Tracks In Squares " + cumulativeNumberOfTracksInSquares);
         }
 
         return errors.isEmpty() ? Result.success(experiment) : Result.failure(errors);
@@ -293,6 +264,11 @@ public final class ProjectDataLoader {
     /** Squares CSV (all STRING columns). */
     public static Table loadSquares(Path experimentPath) throws Exception {
         return readTableAsStrings(experimentPath.resolve(SQUARES_CSV));
+    }
+
+    /** Tracks CSV (original columns). */
+    public static Table loadTracks(Path experimentPath) throws Exception {
+        return readTable(experimentPath.resolve(TRACKS_CSV));
     }
 
     /** Recordings CSV (all STRING columns). */
@@ -333,6 +309,12 @@ public final class ProjectDataLoader {
     }
 
     // ---------- Implementation ----------
+
+
+    /** A regular read, safe dor csv files that have been system-generated */
+    private static Table readTable(Path csvPath) throws Exception {
+        return Table.read().csv(csvPath.toFile());
+    }
 
     /** Always read CSV with ALL columns forced to STRING. */
     private static Table readTableAsStrings(Path csvPath) throws Exception {
@@ -420,6 +402,7 @@ public final class ProjectDataLoader {
     }
 
     private static void setExperimentAttributes(Experiment experiment, Path experimentPath, String experimentName) {
+
         Table table;
         try {
             table = loadRecordingsTable(experimentPath);
@@ -450,18 +433,7 @@ public final class ProjectDataLoader {
         }
         System.err.println("Not all rows have the same value in column: " + columnName);
         System.exit(-1);
-        return null; // Unreachable, but needed for compiler
-    }
-
-    // Convenience helper you were using earlier
-    public static Table filterByRecording(Table table, String recordingName) {
-        if (recordingName == null || recordingName.isEmpty()) return table;
-        if (table.containsColumn(COL_EXT_RECORDING_NAME)
-                && table.column(COL_EXT_RECORDING_NAME) instanceof StringColumn) {
-            StringColumn col = table.stringColumn(COL_EXT_RECORDING_NAME);
-            return table.where(col.isEqualTo(recordingName));
-        }
-        return table.emptyCopy();
+        return null; // Unreachable but needed for compiler
     }
 
     private static Set<String> readExperimentsToProcess(Path projectPath) {
@@ -473,7 +445,6 @@ public final class ProjectDataLoader {
         }
 
         try {
-            // Tablesaw-style read; adjust if your CSV loader differs
             Table t = readTableAsStrings(csvPath);
 
             if (!t.columnNames().contains("Experiment Name")) {
@@ -510,36 +481,56 @@ public final class ProjectDataLoader {
     }
 
 
-    public static Table filterTracksInSquare(Table tracks,
-                                             double x0, double x1, double y0, double y1,
-                                             boolean isLastColumn, boolean isLastRow) {
 
-        // Normalize bounds
-        double left = Math.min(x0, x1);
-        double right = Math.max(x0, x1);
-        double top = Math.min(y0, y1);
+    public static Table filterTracksInSquare(Table tracks, double x0, double y0, double x1, double y1,
+                                             boolean isLastColumn, boolean isLastRow) {
+        double left   = Math.min(x0, x1);
+        double right  = Math.max(x0, x1);
+        double top    = Math.min(y0, y1);
         double bottom = Math.max(y0, y1);
 
-        // Get numeric columns (convert if needed)
-        DoubleColumn x = TablesawUtils.ensureDoubleColumn(tracks, "Track X Location");
-        DoubleColumn y = TablesawUtils.ensureDoubleColumn(tracks, "Track Y Location");
+        DoubleColumn x = tracks.doubleColumn("Track X Location");
+        DoubleColumn y = tracks.doubleColumn("Track Y Location");
 
-        // Start with [left, +inf)
         Selection sel = x.isGreaterThanOrEqualTo(left);
-        // Intersect with (-inf, right) or (-inf, right] for the last column
         if (isLastColumn)
             sel.and(x.isLessThanOrEqualTo(right));
         else
             sel.and(x.isLessThan(right));
 
-        // Intersect with [top, +inf)
         sel.and(y.isGreaterThanOrEqualTo(top));
-        // Intersect with (-inf, bottom) or (-inf, bottom] for the last row
         if (isLastRow)
             sel.and(y.isLessThanOrEqualTo(bottom));
         else
             sel.and(y.isLessThan(bottom));
 
         return tracks.where(sel);
+    }
+
+    private static Track createTrackFromRow(Row row) {
+
+        Track track = new Track();
+        track.setTrackLabel(row.getString("Track Label"));
+        track.setTrackId(row.getInt("Track Id"));
+        track.setTrackLabel(row.getString("Track Label"));
+        track.setNumberSpots(row.getInt("Nr Spots"));
+        track.setNumberGaps(row.getInt("Nr Gaps"));
+        track.setLongestGap(row.getInt("Longest Gap"));
+        track.setTrackDuration(row.getDouble("Track Duration"));
+        track.setTrackXLocation(row.getDouble("Track X Location"));
+        track.setTrackYLocation(row.getDouble("Track Y Location"));
+        track.setTrackDisplacement(row.getDouble("Track Displacement"));
+        track.setTrackMaxSpeed(row.getDouble("Track Max Speed"));
+        track.setTrackMedianSpeed(row.getDouble("Track Median Speed"));
+        track.setTrackMeanSpeed(row.getDouble("Track Mean Speed"));
+        track.setTrackMaxSpeedCalc(row.getDouble("Track Max Speed Calc"));
+        track.setTrackMedianSpeedCalc(row.getDouble("Track Median Speed Calc"));
+        track.setTrackMeanSpeedCalc(row.getDouble("Track Mean Speed Calc"));
+        track.setDiffusionCoefficient(row.getDouble("Diffusion Coefficient"));
+        track.setDiffusionCoefficientExt(row.getDouble("Diffusion Coefficient Ext"));
+        track.setTotalDistance(row.getDouble("Total Distance"));
+        track.setConfinementRatio(row.getDouble("Confinement Ratio"));
+
+        return track;
     }
 }
