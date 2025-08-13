@@ -15,11 +15,11 @@ import java.util.logging.Logger;
 import java.time.Duration;
 import java.time.Instant;
 
-import paintUtilities.AppLogger;
+import paint.utilities.AppLogger;
 import com.opencsv.CSVReaderHeaderAware;
 import com.opencsv.exceptions.CsvValidationException;
 
-// import paintUtilities.DurationFormatter.formatDuration;
+// import paint.utilities.DurationFormatter.formatDuration;
 
 public class TrackMateBatch {
 

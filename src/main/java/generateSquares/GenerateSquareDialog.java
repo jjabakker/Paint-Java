@@ -11,8 +11,8 @@ import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-import paintUtilities.JsonConfig;
-import paintUtilities.DirectoryClassifier;
+import paint.utilities.JsonConfig;
+import paint.utilities.DirectoryClassifier;
 
 public class GenerateSquareDialog {
 
@@ -140,7 +140,7 @@ public class GenerateSquareDialog {
                 System.out.println("Feedback: " + result.feedback);
 
                 if (result.type == DirectoryClassifier.DirectoryType.UNKNOWN) {
-                    ImageIcon customIcon = new ImageIcon("/Users/hans/IdeaProjects/paintUtilities/src/main/resources/paint.png");
+                    ImageIcon customIcon = new ImageIcon("/Users/hans/IdeaProjects/utilities/src/main/resources/paint.png");
                     String message = "<html><body style='width: 200px;'>" + result.feedback + "</body></html>";
                     JOptionPane.showMessageDialog(
                             null,                 // parent component (null centers on screen)

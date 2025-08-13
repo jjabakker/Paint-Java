@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream; // <-- add this import
 
 import static org.junit.jupiter.api.Assertions.*;
-import paintUtilities.DirectoryClassifier;
+import paint.utilities.DirectoryClassifier;
 
 public class DirectoryClassifierTest {
 

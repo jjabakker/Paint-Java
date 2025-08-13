@@ -1,4 +1,4 @@
-package paintUtilities;
+package paint.utilities;
 
 public class ColumnValue {
     private String columnName;

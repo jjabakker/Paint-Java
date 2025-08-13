@@ -1,6 +1,6 @@
 package trackMatePaint;
 
-import paintUtilities.AppLogger;
+import paint.utilities.AppLogger;
 
 import java.nio.file.Path;
 import java.util.logging.Logger;

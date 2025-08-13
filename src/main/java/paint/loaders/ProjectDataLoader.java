@@ -1,9 +1,9 @@
 package paint.loaders;
 
 import paint.objects.*;
-import paintUtilities.ColumnValue;
+import paint.utilities.ColumnValue;
 
-import paintUtilities.ExceptionUtils;
+import paint.utilities.ExceptionUtils;
 import tech.tablesaw.api.ColumnType;
 import tech.tablesaw.api.Row;
 import tech.tablesaw.api.StringColumn;

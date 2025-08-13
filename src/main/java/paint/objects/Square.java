@@ -1,6 +1,6 @@
 package paint.objects;
 
-import paintUtilities.ColumnValue;
+import paint.utilities.ColumnValue;
 
 import java.util.ArrayList;
 import java.util.List;

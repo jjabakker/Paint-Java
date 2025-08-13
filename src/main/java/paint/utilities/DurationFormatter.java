@@ -1,4 +1,4 @@
-package paintUtilities;
+package paint.utilities;
 
 import java.time.Duration;
 

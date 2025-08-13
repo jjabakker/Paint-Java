@@ -1,4 +1,4 @@
-package paintUtilities;
+package paint.utilities;
 
 public final class ExceptionUtils {
     private ExceptionUtils() {}

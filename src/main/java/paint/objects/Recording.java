@@ -2,7 +2,7 @@ package paint.objects;
 
 import java.util.*;
 
-import paintUtilities.ColumnValue;
+import paint.utilities.ColumnValue;
 
 
 public class Recording {
