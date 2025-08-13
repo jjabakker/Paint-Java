@@ -110,7 +110,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>TrackMateTest.TrackMateBatchRunner</mainClass>
+                            <mainClass>trackMateTest.TrackMateBatchRunner</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
