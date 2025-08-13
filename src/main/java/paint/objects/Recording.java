@@ -3,31 +3,10 @@ package paint.objects;
 import java.util.*;
 
 import paint.utilities.ColumnValue;
+import tech.tablesaw.api.Table;
 
 
 public class Recording {
-
-    // Not used anywhere for now, but needed for integrity check
-    static final String[] columnsToCheckAllRecordings = {
-            "Recording Sequence Nr",
-            "Recording Name",
-            "Experiment Date",
-            "Experiment Name",
-            "Condition Nr",
-            "Replicate Nr",
-            "Probe",
-            "Probe Type",
-            "Cell Type",
-            "Adjuvant",
-            "Concentration",
-            "Threshold",
-            "Process",
-            "Ext Recording Name",
-            "Nr Spots",
-            "Nr Tracks",
-            "Recording Size",
-            "Run Time",
-            "Time Stamp" };
 
     // The first set exists in both Experiment Info and All Recordings Experiment Info
     private String recordingName;
@@ -55,6 +34,7 @@ public class Recording {
 
     private List<Square> squares = new ArrayList<>();
     private List<Track> tracks = new ArrayList<>();
+    private Table tracksTable;
 
     public Recording() {
         this.squares = new ArrayList<>();
@@ -237,6 +217,10 @@ public class Recording {
     public void addSquare(Square square) {
         this.squares.add(square);
     }
+
+    public Table getTracksTable() { return tracksTable; }
+    public void setTracksTable(Table tracksTable) { this.tracksTable = tracksTable; }
+
 
     public List<Track> getTracks() {
         return tracks;

@@ -9,7 +9,6 @@ import static paint.constants.PaintConstants.*;
 
 public class Square {
 
-
     // Attributes
 
     private String uniqueKey;
@@ -50,16 +49,15 @@ public class Square {
 
     private double medianDisplacement;
     private double maxDisplacement;
-
     private double totalDisplacement;
+
     private double medianMaxSpeed;
-
     private double maxMaxSpeed;
+
     private double medianMeanSpeed;
-
     private double maxMeanSpeed;
-    private double maxTrackDuration;
 
+    private double maxTrackDuration;
     private double totalTrackDuration;
     private double medianTrackDuration;
 
@@ -237,205 +235,116 @@ public class Square {
 
     // --- Getters and Setters ---
 
-    public String getUniqueKey() {
-        return uniqueKey;
-    }
+    public String getUniqueKey() { return uniqueKey; }
+    public void setUniqueKey(String uniqueKey) { this.uniqueKey = uniqueKey;}
 
-    public void setUniqueKey(String uniqueKey) {
-        this.uniqueKey = uniqueKey;
-    }
+    public int getSquareNumber() { return squareNumber; }
+    public void setSquareNumber(int squareNumber) { this.squareNumber = squareNumber; }
 
-    public int getSquareNumber() {
-        return squareNumber;
-    }
+    public int getRowNumber() { return rowNumber; }
+    public void setRowNumber(int rowNumber) { this.rowNumber = rowNumber; }
 
-    public void setSquareNumber(int squareNumber) {
-        this.squareNumber = squareNumber;
-    }
+    public int getColNumber() { return colNumber; }
+    public void setColNumber(int colNumber) { this.colNumber = colNumber; }
 
-    public int getRowNumber() {
-        return rowNumber;
-    }
+    public int getLabelNumber() { return labelNumber; }
+    public void setLabelNumber(int labelNumber) { this.labelNumber = labelNumber; }
 
-    public void setRowNumber(int rowNumber) {
-        this.rowNumber = rowNumber;
-    }
+    public int getCellId() { return cellId; }
+    public void setCellId(int cellId) { this.cellId = cellId; }
 
-    public int getColNumber() {
-        return colNumber;
-    }
+    public boolean isSelected() { return selected; }
+    public void setSelected(boolean selected) { this.selected = selected; }
 
-    public void setColNumber(int colNumber) {
-        this.colNumber = colNumber;
-    }
+    public boolean isSquareManuallyExcluded() { return squareManuallyExcluded; }
+    public void setSquareManuallyExcluded(boolean squareManuallyExcluded) { this.squareManuallyExcluded = squareManuallyExcluded; }
 
-    public int getLabelNumber() {
-        return labelNumber;
-    }
+    public boolean isImageExcluded() { return imageExcluded; }
+    public void setImageExcluded(boolean imageExcluded) { this.imageExcluded = imageExcluded; }
 
-    public void setLabelNumber(int labelNumber) {
-        this.labelNumber = labelNumber;
-    }
+    public double getX0() { return x0; }
+    public void setX0(double x0) { this.x0 = x0; }
 
-    public int getCellId() {
-        return cellId;
-    }
+    public double getY0() { return y0; }
+    public void setY0(double y0) { this.y0 = y0; }
+  
+    public double getX1() { return x1; }
+    public void setX1(double x1) { this.x1 = x1; }
 
-    public void setCellId(int cellId) {
-        this.cellId = cellId;
-    }
+    public double getY1() { return y1; }
+    public void setY1(double y1) { this.y1 = y1; }
 
-    public boolean isSelected() {
-        return selected;
-    }
+    public int getNumberTracks() { return numberTracks; }
+    public void setNumberTracks(int numberTracks) { this.numberTracks = numberTracks; }
 
-    public void setSelected(boolean selected) {
-        this.selected = selected;
-    }
+    public double getVariability() { return variability; }
+    public void setVariability(double variability) { this.variability = variability; }
 
-    public boolean isSquareManuallyExcluded() {
-        return squareManuallyExcluded;
-    }
+    public double getDensity() { return density; }
+    public void setDensity(double density) { this.density = density; }
 
-    public void setSquareManuallyExcluded(boolean squareManuallyExcluded) {
-        this.squareManuallyExcluded = squareManuallyExcluded;
-    }
+    public double getDensityRatio() { return densityRatio; }
+    public void setDensityRatio(double densityRatio) { this.densityRatio = densityRatio; }
 
-    public boolean isImageExcluded() {
-        return imageExcluded;
-    }
+    public double getTau() { return tau; }
+    public void setTau(double tau) { this.tau = tau; }
 
-    public void setImageExcluded(boolean imageExcluded) {
-        this.imageExcluded = imageExcluded;
-    }
+    public double getRSquared() { return rSquared; }
+    public void setRSquared(double rSquared) { this.rSquared = rSquared; }
 
-    public double getX0() {
-        return x0;
-    }
+    public double getMedianDiffusionCoefficient() { return medianDiffusionCoefficient; }   
+    public void setMedianDiffusionCoefficient(double medianDiffusionCoefficient) { this.medianDiffusionCoefficient = medianDiffusionCoefficient; }
 
-    public void setX0(double x0) {
-        this.x0 = x0;
-    }
+    public double getMeanDiffusionCoefficient() { return meanDiffusionCoefficient; }
+    public void setMeanDiffusionCoefficient(double meanDiffusionCoefficient) { this.meanDiffusionCoefficient = meanDiffusionCoefficient; }
 
-    public double getY0() {
-        return y0;
-    }
+    public double getMedianDiffusionCoefficientExt() { return medianDiffusionCoefficientExt; }
+    public void setMedianDiffusionCoefficientExt(double medianDiffusionCoefficientExt) { this.medianDiffusionCoefficientExt = medianDiffusionCoefficientExt; }
 
-    public void setY0(double y0) {
-        this.y0 = y0;
-    }
+    public double getMeanDiffusionCoefficientExt() { return meanDiffusionCoefficientExt; }  
+    public void setMeanDiffusionCoefficientExt(double meanDiffusionCoefficientExt) { this.meanDiffusionCoefficientExt = meanDiffusionCoefficientExt; }
 
-    public double getX1() {
-        return x1;
-    }
+    public double getMedianLongTrackDuration() { return medianLongTrackDuration; }
+    public void setMedianLongTrackDuration(double medianLongTrackDuration) { this.medianLongTrackDuration = medianLongTrackDuration; }
 
-    public void setX1(double x1) {
-        this.x1 = x1;
-    }
+    public double getMeanLongTrackDuration() { return meanLongTrackDuration; }
+    public void setMeanLongTrackDuration(double meanLongTrackDuration) { this.meanLongTrackDuration = meanLongTrackDuration; }
 
-    public double getY1() {
-        return y1;
-    }
+    public double getMeanShortTrackDuration() { return meanShortTrackDuration; }
+    public void setMeanShortTrackDuration(double meanShortTrackDuration) { this.meanShortTrackDuration = meanShortTrackDuration;  }
 
-    public void setY1(double y1) {
-        this.y1 = y1;
-    }
+    public double getMedianShortTrackDuration() { return medianShortTrackDuration; }
+    public void setMedianShortTrackDuration(double medianShortTrackDuration) { this.medianShortTrackDuration = medianShortTrackDuration;  }
 
-    public int getNumberTracks() {
-        return numberTracks;
-    }
+    public double getTotalTrackDuration() { return totalTrackDuration; }
+    public void setTotalTrackDuration(double totalTrackDuration) { this.totalTrackDuration = totalTrackDuration;  }
 
-    public void setNumberTracks(int numberTracks) {
-        this.numberTracks = numberTracks;
-    }
+    public double getMedianTrackDuration() { return medianTrackDuration; }
+    public void setMedianTrackDuration(double medianTrackDuration) { this.medianTrackDuration = medianTrackDuration;  }
 
-    public double getVariability() {
-        return variability;
-    }
+    public double getMaxTrackDuration() { return maxTrackDuration; }
+    public void setMaxTrackDuration(double maxTrackDuration) { this.maxTrackDuration = maxTrackDuration;  }
 
-    public void setVariability(double variability) {
-        this.variability = variability;
-    }
+    public double getMedianMeanSpeed() { return medianMeanSpeed; }
+    public void setMedianMeanSpeed(double medianMeanSpeed) { this.medianMeanSpeed = medianMeanSpeed;  }
 
-    public double getDensity() {
-        return density;
-    }
+    public double getMaxMeanSpeed() { return maxMeanSpeed; }
+    public void setMaxMeanSpeed(double maxMeanSpeed) { this.maxMeanSpeed = maxMeanSpeed;  }
 
-    public void setDensity(double density) {
-        this.density = density;
-    }
+    public double getMedianMaxSpeed() { return medianMaxSpeed; }
+    public void setMedianMaxSpeed(double medianMaxSpeed) { this.medianMaxSpeed = medianMaxSpeed;  }
 
-    public double getDensityRatio() {
-        return densityRatio;
-    }
+    public double getMaxMaxSpeed() { return maxMaxSpeed; }
+    public void setMaxMaxSpeed(double maxMaxSpeed) { this.maxMaxSpeed = maxMaxSpeed;  }
 
-    public void setDensityRatio(double densityRatio) {
-        this.densityRatio = densityRatio;
-    }
+    public double getMedianDisplacement() { return medianDisplacement; }
+    public void setMedianDisplacement(double medianDisplacement) { this.medianDisplacement = medianDisplacement;  }
 
-    public double getTau() {
-        return tau;
-    }
+    public double getMaxDisplacement() { return maxDisplacement; }
+    public void setMaxDisplacement(double maxDisplacement) { this.maxDisplacement = maxDisplacement;  }
 
-    public void setTau(double tau) {
-        this.tau = tau;
-    }
-
-    public double getRSquared() {
-        return rSquared;
-    }
-
-    public void setRSquared(double rSquared) {
-        this.rSquared = rSquared;
-    }
-
-    public double getMedianDiffusionCoefficient() {
-        return medianDiffusionCoefficient;
-    }
-
-    public void setMedianDiffusionCoefficient(double medianDiffusionCoefficient) {
-        this.medianDiffusionCoefficient = medianDiffusionCoefficient;
-    }
-
-    public double getMeanDiffusionCoefficient() {
-        return meanDiffusionCoefficient;
-    }
-
-    public void setMeanDiffusionCoefficient(double meanDiffusionCoefficient) {
-        this.meanDiffusionCoefficient = meanDiffusionCoefficient;
-    }
-
-    public double getMedianDiffusionCoefficientExt() {
-        return medianDiffusionCoefficientExt;
-    }
-
-    public void setMedianDiffusionCoefficientExt(double medianDiffusionCoefficientExt) {
-        this.medianDiffusionCoefficientExt = medianDiffusionCoefficientExt;
-    }
-
-    public double getMeanDiffusionCoefficientExt() {
-        return meanDiffusionCoefficientExt;
-    }
-
-    public void setMeanDiffusionCoefficientExt(double meanDiffusionCoefficientExt) {
-        this.meanDiffusionCoefficientExt = meanDiffusionCoefficientExt;
-    }
-
-    public double getMedianLongTrackDuration() {
-        return medianLongTrackDuration;
-    }
-
-    public void setMedianLongTrackDiffusionCoefficient(double medianLongTrackDuration) {
-        this.medianLongTrackDuration = medianLongTrackDuration;
-    }
-
-    public double getMeanLongTrackDuration() {
-        return meanLongTrackDuration;
-    }
-
-    public void setMeanLongTrackDiffusionCoefficient(double meanLongTrackDuration) {
-        this.meanLongTrackDuration = meanLongTrackDuration;
-    }
+    public double getTotalDisplacement() { return totalDisplacement; }
+    public void setTotalDisplacement(double totalDisplacement) { this.totalDisplacement = totalDisplacement;  }
 
     private static double calcSquareAreaOriginal(int nrSquaresInRow)
     {

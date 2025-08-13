@@ -4,11 +4,9 @@ import paint.objects.*;
 import paint.utilities.ColumnValue;
 
 import paint.utilities.ExceptionUtils;
-import tech.tablesaw.api.ColumnType;
-import tech.tablesaw.api.Row;
-import tech.tablesaw.api.StringColumn;
-import tech.tablesaw.api.Table;
+import tech.tablesaw.api.*;
 import tech.tablesaw.io.csv.CsvReadOptions;
+import tech.tablesaw.selection.Selection;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,6 +16,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static paint.constants.PaintConstants.*;
+import paint.utilities.TablesawUtils;
 
 public final class ProjectDataLoader {
 
@@ -218,10 +217,10 @@ public final class ProjectDataLoader {
                             .matchesRegex("^" + recordingName + "(?:-threshold-\\d{1,3})?$")
             );
 
+            // Save the table
+            recording.setTracksTable(tracksOfRecording);
 
-            // recording.setTracksTable(tracksOfRecording);
-
-            // Here the proper Track objects are added
+            // Here the Track objects are added (arguably you do one or the other)
             for (Row row : tracksOfRecording) {
                 List<ColumnValue> colValues = new ArrayList<>();
                 ColumnValue colValuePair;
@@ -235,6 +234,47 @@ public final class ProjectDataLoader {
                 Track track  = new Track(colValues);
                 recording.addTrack(track);
             }
+
+            // Now assign tracks to squares in each recording
+            List<Square> squares = recording.getSquares();
+            int nrOfTracksInSquares = 0;
+            int colIndex;
+            int rowIndex;
+            int lastColIndex = 19;   // Todo
+            int lastRowIndex = 19;
+
+
+            for (Square square : recording.getSquares()) {
+                int squareNr = square.getSquareNumber();
+                double x0 = square.getX0();
+                double y0 = square.getY0();
+                double x1 = square.getX1();
+                double y1 = square.getY1();
+                colIndex = square.getColNumber();
+                rowIndex = square.getRowNumber();
+
+                Table tracksInSquare = filterTracksInSquare(tracksOfRecording, x0, y0, x1, y1, colIndex == lastColIndex,
+                         rowIndex == lastRowIndex);
+                if (tracksInSquare.rowCount() > 0) {
+                    nrOfTracksInSquares += tracksInSquare.rowCount();
+                    for (Row row : tracksInSquare) {
+                        String name = row.getString("Unique Key");
+                        // System.out.println(name);    // Todo add the Tracks
+
+                        List<ColumnValue> colValues = new ArrayList<>();
+                        ColumnValue colValuePair;
+                        for (colIndex = 0; colIndex < tracksInSquare.columnCount(); colIndex++) {
+                            String columnName = tracksInSquare.column(colIndex).name();
+                            Object value = row.getObject(colIndex);
+                            colValues.add(new ColumnValue(columnName, (String) value));
+                        }
+
+                        Track track  = new Track(colValues);
+                        recording.addTrack(track);
+                    }
+                }
+            }
+            System.out.println("tracksInRecording: " + tracksOfRecording.rowCount() + " --- -" + " tracksInSquare " + nrOfTracksInSquares);
         }
 
         return errors.isEmpty() ? Result.success(experiment) : Result.failure(errors);
@@ -410,7 +450,7 @@ public final class ProjectDataLoader {
         }
         System.err.println("Not all rows have the same value in column: " + columnName);
         System.exit(-1);
-        return null; // unreachable
+        return null; // Unreachable, but needed for compiler
     }
 
     // Convenience helper you were using earlier
@@ -467,5 +507,39 @@ public final class ProjectDataLoader {
         return s.equalsIgnoreCase("true") || s.equalsIgnoreCase("t")
                 || s.equalsIgnoreCase("yes") || s.equalsIgnoreCase("y")
                 || s.equals("1");
+    }
+
+
+    public static Table filterTracksInSquare(Table tracks,
+                                             double x0, double x1, double y0, double y1,
+                                             boolean isLastColumn, boolean isLastRow) {
+
+        // Normalize bounds
+        double left = Math.min(x0, x1);
+        double right = Math.max(x0, x1);
+        double top = Math.min(y0, y1);
+        double bottom = Math.max(y0, y1);
+
+        // Get numeric columns (convert if needed)
+        DoubleColumn x = TablesawUtils.ensureDoubleColumn(tracks, "Track X Location");
+        DoubleColumn y = TablesawUtils.ensureDoubleColumn(tracks, "Track Y Location");
+
+        // Start with [left, +inf)
+        Selection sel = x.isGreaterThanOrEqualTo(left);
+        // Intersect with (-inf, right) or (-inf, right] for the last column
+        if (isLastColumn)
+            sel.and(x.isLessThanOrEqualTo(right));
+        else
+            sel.and(x.isLessThan(right));
+
+        // Intersect with [top, +inf)
+        sel.and(y.isGreaterThanOrEqualTo(top));
+        // Intersect with (-inf, bottom) or (-inf, bottom] for the last row
+        if (isLastRow)
+            sel.and(y.isLessThanOrEqualTo(bottom));
+        else
+            sel.and(y.isLessThan(bottom));
+
+        return tracks.where(sel);
     }
 }
