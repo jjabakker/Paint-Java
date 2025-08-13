@@ -238,6 +238,9 @@ public class Square {
     public String getUniqueKey() { return uniqueKey; }
     public void setUniqueKey(String uniqueKey) { this.uniqueKey = uniqueKey;}
 
+    public int getLabelNumber() { return labelNumber; }
+    public void setLabelNumber(int squareNumber) { this.labelNumber = labelNumber; }
+
     public int getSquareNumber() { return squareNumber; }
     public void setSquareNumber(int squareNumber) { this.squareNumber = squareNumber; }
 
@@ -246,9 +249,6 @@ public class Square {
 
     public int getColNumber() { return colNumber; }
     public void setColNumber(int colNumber) { this.colNumber = colNumber; }
-
-    public int getLabelNumber() { return labelNumber; }
-    public void setLabelNumber(int labelNumber) { this.labelNumber = labelNumber; }
 
     public int getCellId() { return cellId; }
     public void setCellId(int cellId) { this.cellId = cellId; }
@@ -345,6 +345,55 @@ public class Square {
 
     public double getTotalDisplacement() { return totalDisplacement; }
     public void setTotalDisplacement(double totalDisplacement) { this.totalDisplacement = totalDisplacement;  }
+
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        String recordingName = "Test";
+
+        sb.append("\n\n");
+        sb.append("----------------------------------------------------------------------\n");
+        sb.append("Square: ").append(recordingName).append("\n");
+        sb.append("----------------------------------------------------------------------\n");
+        sb.append("\n");
+        sb.append(String.format("Square data%n"));
+        sb.append(String.format("\tSquare Number                    : %d%n", squareNumber));
+        sb.append(String.format("\tRecording Name                   : %s%n", recordingName));
+        sb.append(String.format("\tRow Number                       : %d%n", rowNumber));
+        sb.append(String.format("\tColumn Number                    : %d%n", colNumber));
+        sb.append(String.format("\tX0                               : %.2f%n", x0));
+        sb.append(String.format("\tY0                               : %.2f%n", y0));
+        sb.append(String.format("\tX1                               : %.2f%n", x1));
+        sb.append(String.format("\tY1                               : %.2f%n", y1));
+        sb.append(String.format("\tNumber of Tracks                 : %d%n", numberTracks));
+        sb.append(String.format("\tVariability                      : %.2f%n", variability));
+        sb.append(String.format("\tDensity                          : %.2f%n", density));
+        sb.append(String.format("\tDensity Ratio                    : %.2f%n", densityRatio));
+        sb.append(String.format("\tTau                              : %.2f%n", tau));
+        sb.append(String.format("\tR Squared                        : %.2f%n", rSquared));
+        sb.append(String.format("\tMedian Diffusion Coefficient     : %.2f%n", medianDiffusionCoefficient));
+        sb.append(String.format("\tMean Diffusion Coefficient       : %.2f%n", meanDiffusionCoefficient));
+        sb.append(String.format("\tMedian Diffusion Coefficient Ext : %.2f%n", medianDiffusionCoefficientExt));
+        sb.append(String.format("\tMean Diffusion Coefficient Ext   : %.2f%n", meanDiffusionCoefficient));
+        sb.append(String.format("\tMedian Long Track Duration       : %.2f%n", medianLongTrackDuration));
+        sb.append(String.format("\tMean Long Track Duration         : %.2f%n", meanLongTrackDuration));
+        sb.append(String.format("\tMedian Short Track Duration      : %.2f%n", medianShortTrackDuration));
+        sb.append(String.format("\tMean Short Track Duration        : %.2f%n", meanShortTrackDuration));
+        sb.append(String.format("\tMedian Displacement              : %.2f%n", medianDisplacement));
+        sb.append(String.format("\tMax Displacement                 : %.2f%n", maxDisplacement));
+        sb.append(String.format("\tTotal Displacement               : %.2f%n", totalDisplacement));
+        sb.append(String.format("\tMedian Max Speed                 : %.2f%n", medianMaxSpeed));
+        sb.append(String.format("\tMax Max Speed                    : %.2f%n", maxMaxSpeed));
+        sb.append(String.format("\tMedian Mean Speed                : %.2f%n", medianMeanSpeed));
+        sb.append(String.format("\tMax Mean Speed                   : %.2f%n", maxMeanSpeed));
+        sb.append(String.format("\tMedian Max Speed                 : %.2f%n", medianMaxSpeed));
+        sb.append(String.format("\tMax Track Duration               : %.2f%n", maxTrackDuration));
+        sb.append(String.format("\tTotal Track Duration             : %.2f%n", totalTrackDuration));
+        sb.append(String.format("\tMedian Track Duration            : %.2f%n", medianTrackDuration));
+        return sb.toString();
+    }
+
 
     private static double calcSquareAreaOriginal(int nrSquaresInRow)
     {
