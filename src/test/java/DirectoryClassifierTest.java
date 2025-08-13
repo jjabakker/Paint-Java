@@ -2,6 +2,7 @@ import org.junit.jupiter.api.*;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream; // <-- add this import
 
 import static org.junit.jupiter.api.Assertions.*;
 import paintUtilities.DirectoryClassifier;
@@ -24,7 +25,7 @@ public class DirectoryClassifierTest {
 
     private void deleteRecursively(Path path) throws IOException {
         if (Files.isDirectory(path)) {
-            try (var stream = Files.list(path)) {
+            try (Stream<Path> stream = Files.list(path)) { // <-- no 'var' in Java 8
                 for (Path entry : stream.collect(Collectors.toList())) {
                     deleteRecursively(entry);
                 }
