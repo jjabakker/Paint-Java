@@ -175,13 +175,11 @@ public class GenerateSquareDialog {
                         "Please enter valid numeric values in all fields.",
                         "Input Error",
                         JOptionPane.ERROR_MESSAGE);
-                return;
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(frame,
                         "Failed to classify directory: " + ex.getMessage(),
                         "IO Error",
                         JOptionPane.ERROR_MESSAGE);
-                return;
             }
         });
 
@@ -213,22 +211,7 @@ public class GenerateSquareDialog {
         return textField;
     }
 
-    static class GenerateSquaresConfig {
-        @SerializedName("Nr of Squares in Row")
-        int nrSquares = 5;
 
-        @SerializedName("Min Tracks to Calculate Tau")
-        int minTracks = 11;
-
-        @SerializedName("Min Required R Squared")
-        double minRSquared = 0.1;
-
-        @SerializedName("Min Required Density Ratio")
-        double minDensityRatio = 2.0;
-
-        @SerializedName("Max Allowable Variability")
-        double maxVariability = 10.0;
-    }
 
     static class IntegerDocumentFilter extends DocumentFilter {
 

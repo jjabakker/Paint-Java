@@ -144,7 +144,7 @@ public final class ProjectDataLoader {
         experiment.setExperimentName(experimentName);
 
         // Get Experiment Attributes from old style data
-        experiment =  getExperimentAttributes(experiment, experimentPath, experimentName);
+        setExperimentAttributes(experiment, experimentPath, experimentName);
 
         // Load recordings, but do not bother with their squares and tracks yet.
         List<Recording> recordings;
@@ -379,7 +379,7 @@ public final class ProjectDataLoader {
         return recordings;
     }
 
-    private static Experiment getExperimentAttributes(Experiment experiment, Path experimentPath, String experimentName) {
+    private static void setExperimentAttributes(Experiment experiment, Path experimentPath, String experimentName) {
         Table table;
         try {
             table = loadRecordingsTable(experimentPath);
@@ -396,8 +396,6 @@ public final class ProjectDataLoader {
         experiment.setMinNumberOfSpotsInTrack(String.valueOf(getUniqueColumnValueOrExit(table, "Min Spots in Track")));
         experiment.setMinTracksForTau(String.valueOf(getUniqueColumnValueOrExit(table, "Min Tracks for Tau")));
         experiment.setNeighbourMode(String.valueOf(getUniqueColumnValueOrExit(table, "Neighbour Mode")));
-
-        return experiment;
     }
 
     private static Object getUniqueColumnValueOrExit(Table table, String columnName) {

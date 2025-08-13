@@ -436,14 +436,14 @@ public class Square {
     public void setMeanLongTrackDiffusionCoefficient(double meanLongTrackDuration) {
         this.meanLongTrackDuration = meanLongTrackDuration;
     }
+
     private static double calcSquareAreaOriginal(int nrSquaresInRow)
     {
         double micrometer_per_pixel = 0.1602804;
         int pixel_per_image = 512;
         double micrometer_per_image_axis = micrometer_per_pixel * pixel_per_image;
         double micrometer_per_square_axis = micrometer_per_image_axis / nrSquaresInRow;
-        double area = micrometer_per_square_axis * micrometer_per_square_axis;
-        return area;
+        return micrometer_per_square_axis * micrometer_per_square_axis;
     }
 
     /**
@@ -455,8 +455,7 @@ public class Square {
 
     public static double calcSquareArea(int nrSquaresInRecording)
     {
-        double area = IMAGE_WIDTH * IMAGE_HEIGHT / nrSquaresInRecording;
-        return area;
+        return IMAGE_WIDTH * IMAGE_HEIGHT / nrSquaresInRecording;
     }
 
     public static void main(String[] args) {
