@@ -57,17 +57,18 @@ public final class ProjectDataLoader {
             }
 
             System.out.println("Project: " + projectPath.getFileName().toString());
-            experiments = loadProject(projectPath, matureProject);
+            project = loadProject(projectPath, matureProject);
 
         } catch (Exception e) {
             System.err.println("Failed to load project: " + e.getMessage());
             System.exit(1);
         }
         
-        //List <Experiment> experiments = project.getExperiments();
+        experiments = project.getExperiments();
         for (Experiment experiment : experiments) {
             System.out.println(experiment);
-            for (Recording rec : experiment.getRecordings()) {
+            List <Recording> recordings = experiment.getRecordings();
+            for (Recording rec : recordings) {
                 System.out.println(rec);
             }
         }
@@ -77,11 +78,12 @@ public final class ProjectDataLoader {
     // ---------- Public API ----------
 
 
-    public static List<Experiment> loadProject(Path projectPath, boolean matureProject) {
+    public static Project loadProject(Path projectPath, boolean matureProject) {
         List<Experiment> experiments = new ArrayList<>();
-        Set<String> allow = readExperimentsToInclude(projectPath);
+        Set<String> experimentsToProcess = readExperimentsToProcess(projectPath);
+        Project project;
 
-        if (allow == null) {
+        if (experimentsToProcess == null) {
             System.err.println("Warning: No Project_info.csv filter applied; loading all experiments.");
             try (DirectoryStream<Path> dirs = Files.newDirectoryStream(projectPath)) {
                 for (Path expDir : dirs) {
@@ -93,7 +95,7 @@ public final class ProjectDataLoader {
                 throw new RuntimeException("Error loading project: " + e.getMessage(), e);
             }
         } else {
-            for (String experimentName : allow) {
+            for (String experimentName : experimentsToProcess) {
                 Path expDir = projectPath.resolve(experimentName);
                 if (!Files.isDirectory(expDir)) {
                     System.err.println("Warning: experiment folder not found: " + experimentName);
@@ -103,7 +105,11 @@ public final class ProjectDataLoader {
             }
         }
 
-        return experiments;
+        project = new Project(projectPath);
+        project.setExperiments(experiments);
+        project.setProjectName(projectPath.getFileName().toString());
+
+        return project;
     }
 
     private static void loadAndAddExperiment(List<Experiment> experiments, Path projectPath,
@@ -420,7 +426,7 @@ public final class ProjectDataLoader {
         return table.emptyCopy();
     }
 
-    private static Set<String> readExperimentsToInclude(Path projectPath) {
+    private static Set<String> readExperimentsToProcess(Path projectPath) {
         Set<String> include = new HashSet<>();
         Path csvPath = projectPath.resolve(PROJECT_INFO_CSV);
         if (!Files.exists(csvPath)) {

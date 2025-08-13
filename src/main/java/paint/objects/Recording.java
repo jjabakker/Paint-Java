@@ -88,7 +88,7 @@ public class Recording {
                         this.adjuvant = curValue;
                         break;
                     case "Time Stamp":
-                        this.timeStamp = toString();
+                        this.timeStamp = curValue;
                         break;
 
 
