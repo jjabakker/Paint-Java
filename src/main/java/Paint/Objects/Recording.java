@@ -1,9 +1,6 @@
 package Paint.Objects;
 
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-
-import tech.tablesaw.api.Table;
 
 import PaintUtilities.ColumnValue;
 
@@ -59,16 +56,9 @@ public class Recording {
     private List<Square> squares = new ArrayList<>();
     private List<Track> tracks = new ArrayList<>();
 
-//    private Table tracksTable;
-//    private Table squaresTable;
-
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
-
     public Recording() {
         this.squares = new ArrayList<>();
-        // this.tracks = new ArrayList<>();
     }
-
 
     public Recording(List<ColumnValue> columns) {
 
@@ -83,22 +73,22 @@ public class Recording {
                     // String values
 
                     case "Recording Name":
-                        this.recordingName = (String) curValue;
+                        this.recordingName = curValue;
                         break;
                     case "Probe":
-                        this.probeName = (String) curValue;
+                        this.probeName = curValue;
                         break;
                     case "Probe Type":
-                        this.probeType = (String) curValue;
+                        this.probeType = curValue;
                         break;
                     case "Cell Type":
-                        this.cellType = (String) curValue;
+                        this.cellType = curValue;
                         break;
                     case "Adjuvant":
-                        this.adjuvant = (String) curValue;
+                        this.adjuvant = curValue;
                         break;
                     case "Time Stamp":
-                        this.timeStamp = curValue.toString();
+                        this.timeStamp = toString();
                         break;
 
 
@@ -119,88 +109,60 @@ public class Recording {
                     case "Nr Spots in All Tracks":
                         this.numberOfSpotsInAllTracks = (int) Double.parseDouble(curValue);
                         break;
+                    case "Recording Size":
+                        this.recordingSize = (int) Double.parseDouble(curValue);
+                        break;
 
                     // Double values
 
                     case "Concentration":
-                        this.concentration = Double.parseDouble(curValue.toString());;
+                        this.concentration = Double.parseDouble(curValue);
                         break;
                     case "Threshold":
-                        this.threshold = Double.parseDouble(curValue.toString());
+                        this.threshold = Double.parseDouble(curValue);
                         break;
                     case "Run Time":
-                        this.runTime = Double.parseDouble(curValue.toString());
+                        this.runTime = Double.parseDouble(curValue);
                         break;
                    case "Tau":
-                        this.tau = Double.parseDouble(curValue.toString());
+                        this.tau = Double.parseDouble(curValue);
                         break;
                     case "Density":
-                        this.density = Double.parseDouble(curValue.toString());
+                        this.density = Double.parseDouble(curValue);
                         break;
                     case "R Squared":
-                        this.rSquared = Double.parseDouble(curValue.toString());
+                        this.rSquared = Double.parseDouble(curValue);
                         break;
 
                     // Boolean values
 
                     case "Process":
-                        this.processFlag = checkBooleanValue(curValue.toString());
+                        this.processFlag = checkBooleanValue(curValue);
                         break;
                     case "Exclude":
-                        this.exclude = checkBooleanValue(curValue.toString());
+                        this.exclude = checkBooleanValue(curValue);
                         break;
 
                     // These are values that are not recording, byt experiment attributes
 
                     case "Experiment Name":
-                        // this.probeName = (String) curValue;
-                        // break;
                     case "Gap Closing Max Distance":
-                        // this.gapClosingMaxDistance = Double.parseDouble(curValue.toString());
-                        // break;
                     case "Linking Max Distance":
-                        // this.linkingMaxDistance = Double.parseDouble(curValue.toString());
-                        // break;
                     case "Min Required R Squared":
-                        // this.minRequiredRSquared = Double.parseDouble(curValue.toString());
-                        // break;
                     case "Max Allowable Variability":
-                        // this.maxAllowableVariability = Double.parseDouble(curValue.toString());
-                        // break;
                     case "Min Required Density Ratio":
-                        // this.minRequiredDensityRatio = Double.parseDouble(curValue.toString());
-                        // break;
                     case "Median Filtering":
-                        // this.medianFiltering = checkBooleanValue(curValue.toString());
-                        // break;
                     case "Neighbour Mode":
-                        // this.neighbourMode = (String) curValue;
-                        // break;
                     case "Case":
-                        // this.caseName = (String) curValue;
-                        // break;
                     case "Max Frame Gap":
-                        // this.maxFrameGap = Integer.parseInt(curValue.toString());
-                        // break;
-
-                    // These are values that are not recording, byt experiment attributes
-                    // These fields should be int but occur as double in the files
-
                     case "Nr of Squares in Row":
-                        // this.maxFrameGap = (int) Double.parseDouble(curValue.toString());
-                        // break;
                     case "Min Spots in Track":
-                        // this.minNumberOfSpotsInTrack = (int) Double.parseDouble(curValue.toString());
-                        // break;
                     case "Min Tracks for Tau":
-                        // this.minTracksForTau = (int) Double.parseDouble(curValue.toString());
-                        // break;
                         break;
 
                     // These are legacy values. They exist, but we don't use them. No reason to complain.
                     case "Experiment Date":
                     case "Ext Recording Name":
-                    case "Recording Size":
                     case "Recording Sequence Nr":
                         break;
 
@@ -210,7 +172,7 @@ public class Recording {
                 }
             }
         } catch (Exception e) {
-            System.err.println(String.format("Error parsing column: %s. Conflicting value is %s.", curColumn, curValue));
+            System.err.printf("Error parsing column: %s. Conflicting value is %s.%n", curColumn, curValue);
             System.exit(-1);
         }
     }
@@ -286,18 +248,6 @@ public class Recording {
         this.tracks.add(track);
     }
 
-//    public void setTracksTable(Table tracksTable) {
-//        this.tracksTable = tracksTable;
-//    }
-//
-//    public void setSquaresTable(Table squaresTable) {
-//        this.squaresTable = squaresTable;
-//    }
-//
-//    public Table getSquaresTable() {
-//        return squaresTable;
-//    }
-
     private static Boolean checkBooleanValue(String string) {
         Set<String> yesValues = new HashSet<>(Arrays.asList("y", "ye", "yes", "ok", "true", "t"));
         return yesValues.contains(string.trim().toLowerCase());
@@ -339,13 +289,6 @@ public class Recording {
         if (squares != null) {
             sb.append(String.format("%nRecording %s has %d squares%n", recordingName, squares.size()));
         }
-
-//        if (tracksTable != null) {
-//            sb.append(String.format("%nRecording %s has %d tracks", recordingName, tracksTable.rowCount()));
-//        }
-//        if (squaresTable != null) {
-//            sb.append(String.format("%nRecording %s has %d squares%n", recordingName, squaresTable.rowCount()));
-//        }
 
         return sb.toString();
     }

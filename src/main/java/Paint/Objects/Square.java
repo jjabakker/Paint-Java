@@ -96,7 +96,7 @@ public class Square {
             for (ColumnValue cv : columns) {
                 curColumn = cv.getColumnName();
                 curValue  = cv.getValue().toString();
-                if (curValue.equals("")) {
+                if (curValue.isEmpty()) {
                     continue;
                 }
                 switch (curColumn) {
@@ -119,7 +119,7 @@ public class Square {
                         this.cellId = (int) Double.parseDouble(curValue);
                         break;
                     case "Nr Tracks":
-                        this.cellId = (int) Double.parseDouble(curValue);
+                        this.numberTracks = (int) Double.parseDouble(curValue);
                         break;
 
                     // Double values
@@ -227,91 +227,10 @@ public class Square {
                 }
             }
         } catch (Exception e) {
-            System.err.println(String.format("Error parsing column: %s. Conflicting value is %s.", curColumn, curValue));
+            System.err.printf("Error parsing column: %s. Conflicting value is %s.", curColumn, curValue);
             System.exit(-1);
         }
     }
-
-
-//    public Square(String uniqueKey,
-//                  int recordingSequenceNr,
-//                  int conditionNumber,
-//                  int replicateNumber,
-//                  int squareNumber,
-//                  int rowNumber,
-//                  int colNumber,
-//                  int labelNumber,
-//                  int cellId,
-//                  int numberSpots,
-//                  int numberTracks,
-//                  double X0,
-//                  double Y0,
-//                  double X1,
-//                  double Y1,
-//                  boolean selected,
-//                  double variability,
-//                  double density,
-//                  double densityRatio,
-//                  double tau,
-//                  double rSquared,
-//                  double medianDiffusionCoefficient,
-//                  double meanDiffusionCoefficient,
-//                  double medianDiffusionCoefficientExt,
-//                  double meanDiffusionCoefficientExt,
-//                  double medianLongTrackDuration,
-//                  double medianShortTrackDuration,
-//                  double medianDisplacement,
-//                  double maxDisplacement,
-//                  double totalDisplacement,
-//                  double medianMaxSpeed,
-//                  double maxMaxSpeed,
-//                  double medianMeanSpeed,
-//                  double maxMeanSpeed,
-//                  double maxTrackDuration,
-//                  double totalTrackDuration,
-//                  double medianTrackDuration,
-//                  boolean squareManuallyExcluded,
-//                  boolean imageExcluded) {
-//        this.uniqueKey = uniqueKey;
-////        this.recordingSequenceNr = recordingSequenceNr;
-////        this.conditionNumber = conditionNumber;
-////        thisis.replicateNumber = replicateNumber;
-//        this.squareNumber = squareNumber;
-//        this.rowNumber = rowNumber;
-//        this.colNumber = colNumber;
-//        this.labelNumber = labelNumber;
-//        this.cellId = cellId;
-//        // this.numberSpots = numberSpots;
-//        this.numberTracks = numberTracks;
-//        this.x0 = x0;
-//        this.y0 = y0;
-//        this.x1 = x1;
-//        this.y1 = y1;
-//        this.selected = selected;
-//        this.variability = variability;
-//        this.density = density;
-//        this.densityRatio = densityRatio;
-//        this.tau = tau;
-//        this.rSquared = rSquared;
-//        this.medianDiffusionCoefficient = medianDiffusionCoefficient;
-//        this.meanDiffusionCoefficient = meanDiffusionCoefficient;
-//        this.medianDiffusionCoefficientExt = medianDiffusionCoefficientExt;
-//        this.meanDiffusionCoefficientExt = meanDiffusionCoefficientExt;
-//        this.medianLongTrackDuration = medianLongTrackDuration;
-//        this.medianShortTrackDuration = medianShortTrackDuration;
-//        this.medianDisplacement = medianDisplacement;
-//        this.maxDisplacement = maxDisplacement;
-//        this.totalDisplacement = totalDisplacement;
-//        this.medianMaxSpeed = medianMaxSpeed;
-//        this.maxMaxSpeed = maxMaxSpeed;
-//        this.medianMeanSpeed = medianMeanSpeed;
-//        this.maxMeanSpeed = maxMeanSpeed;
-//        this.maxTrackDuration = maxTrackDuration;
-//        this.totalTrackDuration = totalTrackDuration;
-//        this.medianTrackDuration = medianTrackDuration;
-//        this.squareManuallyExcluded = squareManuallyExcluded;
-//        this.imageExcluded = imageExcluded;
-//    }
 
     private static double calcSquareAreaOriginal(int nrSquaresInRow)
     {
@@ -350,16 +269,7 @@ public class Square {
         double percentualDifference = (areaNew - areaOriginal)/areaOriginal * 100;
         System.out.println("Area original: " + areaOriginal);
         System.out.println("Area new: " + areaNew);
-        System.out.println(String.format("Difference: %.6f", difference));
-        System.out.println(String.format("Percentual difference: %.4f%%", percentualDifference));
+        System.out.printf("Difference: %.6f%n", difference);
+        System.out.printf("Percentual difference: %.4f%%%n", percentualDifference);
     }
-
-
-    public boolean assignTracksToSquare(int squareNumber) {
-        return false;
-    }
-
-
-
-    // getters and setters here ...
 }

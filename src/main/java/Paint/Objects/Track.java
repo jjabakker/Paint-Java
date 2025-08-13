@@ -59,7 +59,7 @@ public class Track {
             for (ColumnValue cv : columns) {
                 curColumn = cv.getColumnName();
                 curValue = cv.getValue().toString();
-                if (curValue.equals("")) {
+                if (curValue.isEmpty() || curValue.equals("NaN")) {
                     continue;
                 }
                 switch (curColumn) {
@@ -140,7 +140,7 @@ public class Track {
                 }
             }
         } catch (Exception e) {
-            System.err.println(String.format("Error parsing column: %s. Conflicting value is %s.", curColumn, curValue));
+            System.err.printf("Error parsing column: %s. Conflicting value is %s.", curColumn, curValue);
             System.exit(-1);
         }
     }
@@ -205,76 +205,4 @@ public class Track {
     public double getConfinementRatio() { return confinementRatio; }
     public void setConfinementRatio(double confinementRatio) { this.confinementRatio = confinementRatio; }
 
-    // CSV serialization (all fields as one comma-separated line)
-    public String toCSV() {
-        return String.join(",",
-//                escape(trackId),
-                escape(trackLabel),
-                String.valueOf(numberSpots),
-                String.valueOf(numberGaps),
-                String.valueOf(longestGap),
-                String.valueOf(trackDuration),
-                String.valueOf(trackXLocation),
-                String.valueOf(trackYLocation),
-                String.valueOf(trackDisplacement),
-                String.valueOf(trackMaxSpeed),
-                String.valueOf(trackMedianSpeed),
-                String.valueOf(trackMeanSpeed),
-                String.valueOf(trackMaxSpeedCalc),
-                String.valueOf(trackMedianSpeedCalc),
-                String.valueOf(trackMeanSpeedCalc),
-                String.valueOf(diffusionCoefficient),
-                String.valueOf(diffusionCoefficientExt),
-                String.valueOf(totalDistance),
-                String.valueOf(confinementRatio)
-        );
-    }
-
-    // CSV deserialization
-//    public static Track fromCSV(String csvLine) {
-//        String[] parts = csvLine.split(",", -1);
-//        if (parts.length != 19) {
-//            throw new IllegalArgumentException("CSV line does not have 19 fields: " + csvLine);
-//        }
-//        return new Track(
-//                unescape(parts[0]),
-//                unescape(parts[1]),
-//                Integer.parseInt(parts[2]),
-//                Integer.parseInt(parts[3]),
-//                (int) Double.parseDouble(parts[4]),
-//                Double.parseDouble(parts[5]),
-//                Double.parseDouble(parts[6]),
-//                Double.parseDouble(parts[7]),
-//                Double.parseDouble(parts[8]),
-//                Double.parseDouble(parts[9]),
-//                Double.parseDouble(parts[10]),
-//                Double.parseDouble(parts[11]),
-//                Double.parseDouble(parts[12]),
-//                Double.parseDouble(parts[13]),
-//                Double.parseDouble(parts[14]),
-//                Double.parseDouble(parts[15]),
-//                Double.parseDouble(parts[16]),
-//                Double.parseDouble(parts[17]),
-//                Double.parseDouble(parts[18])
-//        );
-//    }
-
-    // Simple CSV escaping for commas and quotes
-    private static String escape(String input) {
-        if (input == null) return "";
-        if (input.contains(",") || input.contains("\"")) {
-            input = input.replace("\"", "\"\"");
-            return "\"" + input + "\"";
-        }
-        return input;
-    }
-
-    private static String unescape(String input) {
-        if (input == null) return "";
-        input = input.trim();
-        if (input.startsWith("\"") && input.endsWith("\"")) {
-            input = input.substring(1, input.length() - 1).replace("\"\"", "\"");
-        }
-        return input;
-    }
 }

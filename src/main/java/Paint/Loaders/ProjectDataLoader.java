@@ -18,7 +18,6 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static Paint.Constants.PaintConstants.*;
-import static PaintUtilities.ExceptionUtils.friendlyMessage;
 
 public final class ProjectDataLoader {
 
@@ -392,11 +391,6 @@ public final class ProjectDataLoader {
         experiment.setMinTracksForTau(String.valueOf(getUniqueColumnValueOrExit(table, "Min Tracks for Tau")));
         experiment.setNeighbourMode(String.valueOf(getUniqueColumnValueOrExit(table, "Neighbour Mode")));
 
-        // TODO: assign onto Experiment fields if present, e.g.:
-        // experiment.setCaseName(caseName);
-        // experiment.setMaxFrameGap(Integer.parseInt(maxFrameGap));
-        // ...
-
         return experiment;
     }
 
@@ -458,7 +452,7 @@ public final class ProjectDataLoader {
 
             return include;
         } catch (Exception e) {
-            System.err.println(String.format("Warning: Failed to read %s: %s", PROJECT_INFO_CSV,e.getMessage() ));
+            System.err.printf("Warning: Failed to read %s: %s", PROJECT_INFO_CSV,e.getMessage());
             return null;
         }
     }
