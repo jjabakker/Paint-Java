@@ -1,9 +1,6 @@
 package paint.calculations;
 
-import java.util.Map;
-import java.util.TreeMap;
-
-public class TauCalcResult {
+public class CalculateTauResult {
     private  double tau;
     private  double rsquared;
     private  Status status;
@@ -15,7 +12,7 @@ public class TauCalcResult {
         TAU_NO_FIT
     }
 
-    public TauCalcResult(double tau, double rsquared, Status status) {
+    public CalculateTauResult(double tau, double rsquared, Status status) {
         this.tau = tau;
         this.rsquared = rsquared;
         this.status = status;

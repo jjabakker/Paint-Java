@@ -1,7 +1,6 @@
 package paint.loaders;
 
-import loci.poi.hssf.record.Record;
-import paint.calculations.TauCalcResult;
+import paint.calculations.CalculateTauResult;
 import paint.objects.*;
 import paint.utilities.ColumnValue;
 
@@ -18,7 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-import static paint.calculations.Calculations.calculateTau;
+import static paint.calculations.CalculateTau.calculateTau;
 import static paint.constants.PaintConstants.*;
 import paint.utilities.JsonConfig;
 
@@ -72,13 +71,21 @@ public final class ProjectDataLoader {
         // Get the first recording from the first experiment and look for the squares that have more than 20n tracks
         Experiment exp = project.getExperiments().get(0);                                                 // Get the experiment in the project
         Recording rec = exp.getRecordings().get(0);                                                       // Get the first recording in the expriment
-        List<Square> squares = rec.getSquares();                                                          // Get a list of all the squares in the recording
+        List<Square> squares = rec.getSquares();
+        int minNumberOfTracksForTau = 0;// Get a list of all the squares in the recor
+        double minRequiredSQuared  = 0.9; // ding
+        int index = 0;
         for (Square sq : squares) {                                                                       // Iterate through that list
-            if (sq.getNumberTracks() > 20) {                                                              // Only if the square has more than 20 tracks
-                List <Track> tracks = sq.getTracks();                                                     // Get a list of all the tracks in the square
-                TauCalcResult result = calculateTau(tracks, 20, 0.1);    // and calculate the tau for the tracks
+            if (sq.getNumberTracks() >= minNumberOfTracksForTau ) {                                       // Only if the square has more than 20 tracks
+                List<Track> tracks = sq.getTracks();                                                      // Get a list of all the tracks in the square
+                CalculateTauResult result = calculateTau(tracks, minNumberOfTracksForTau, minRequiredSQuared);
+                if (result.getStatus() == CalculateTauResult.Status.TAU_SUCCESS) {
+                    System.out.printf("Status: %-30s Tau: %6.1f  R_Squared : %3.6f%n", result.getStatus(), result.getTau(), result.getRSquared());
+                }
+                index += 1;
             }
         }
+        System.out.println("Number of squares with more than or equal to " + minNumberOfTracksForTau + " tracks: " + index);
     }
 
     // ---------- Public API ----------

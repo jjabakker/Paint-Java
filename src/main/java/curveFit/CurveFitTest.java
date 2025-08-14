@@ -1,6 +1,6 @@
 package curveFit;
 
-import paint.calculations.ExpDecayFitter;
+import paint.calculations.CalculateTauExpDecayFitter;
 
 class ExpDecayTest {
 
@@ -10,7 +10,7 @@ class ExpDecayTest {
         double[] y = new double[] {2000, 1200, 750, 500, 300, 200, 150, 100, 70, 50};
 
         // Call the fitting function#if
-        ExpDecayFitter.FitResult result = ExpDecayFitter.fit(x, y);
+        CalculateTauExpDecayFitter.FitResult result = CalculateTauExpDecayFitter.fit(x, y);
 
         // Print results
         System.out.printf("Tau (ms): %f%n", result.tauMs);
