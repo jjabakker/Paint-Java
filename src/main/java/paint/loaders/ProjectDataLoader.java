@@ -25,7 +25,6 @@ public final class ProjectDataLoader {
 
     public static void main(String[] args) {
         Project project = null;
-        List<Experiment> experiments;
 
         try {
             Path projectPath;
@@ -610,7 +609,7 @@ public final class ProjectDataLoader {
             context.setNumberOfSquaresInRecording(numberOfSquaresInRecording);
             context.setMinRequiredRSquared(minRequiredRSquared);
             context.setMaxAllowableVariability(maxAllowableVariability);
-            context.setMinRequiredRSquared(minRequiredRSquared);
+            context.setMinRequiredDensityRatio(minRequiredDensityRatio);
             context.setMinTracksForTau(minTracksForTau);
             context.setMaxFrameGap(maxFrameGap);
             context.setGapClosingMaxDistance(gapClosingMaxDistance);

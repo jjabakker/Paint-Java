@@ -82,8 +82,8 @@ public class Context {
         this.maxAllowableVariability = maxAllowableVariability;
     }
 
-    public void setMinRequiredDensityRatio(String minRequiredDensityRatio) {
-        this.minRequiredDensityRatio = Double.parseDouble(minRequiredDensityRatio);
+    public void setMinRequiredDensityRatio(double minRequiredDensityRatio) {
+        this.minRequiredDensityRatio = minRequiredDensityRatio;
     }
 
     public void setMinRequiredRSquared(double minRequiredRSquared) {

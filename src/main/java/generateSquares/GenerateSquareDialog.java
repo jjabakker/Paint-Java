@@ -1,7 +1,5 @@
 package generateSquares;
 
-import com.google.gson.annotations.SerializedName;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.AbstractDocument;
