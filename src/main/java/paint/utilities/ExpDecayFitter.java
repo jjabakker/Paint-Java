@@ -52,7 +52,6 @@ public class ExpDecayFitter {
                     .target(points.stream().mapToDouble(WeightedObservedPoint::getY).toArray())
                     .maxEvaluations(1000)
                     .maxIterations(1000)
-                    // No .optimizer() call here
                     .build();
         }
     }

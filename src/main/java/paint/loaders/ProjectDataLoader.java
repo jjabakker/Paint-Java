@@ -5,6 +5,7 @@ import paint.utilities.ColumnValue;
 
 import paint.utilities.ExceptionUtils;
 import tech.tablesaw.api.*;
+import tech.tablesaw.columns.Column;
 import tech.tablesaw.io.csv.CsvReadOptions;
 import tech.tablesaw.selection.Selection;
 
@@ -62,14 +63,16 @@ public final class ProjectDataLoader {
             System.exit(1);
         }
 
-        experiments = project.getExperiments();
-        for (Experiment experiment : experiments) {
-            System.out.println(experiment);
-            List <Recording> recordings = experiment.getRecordings();
-            for (Recording rec : recordings) {
-                System.out.println(rec);
-            }
-        }
+        System.out.println(project);
+
+//        experiments = project.getExperiments();
+//        for (Experiment experiment : experiments) {
+//            System.out.println(experiment);
+//            List <Recording> recordings = experiment.getRecordings();
+//            for (Recording rec : recordings) {
+//                System.out.println(rec);
+//            }
+//        }
 
     }
 
@@ -142,7 +145,7 @@ public final class ProjectDataLoader {
         experiment.setExperimentName(experimentName);
 
         // Get Experiment Attributes from old style data
-        setExperimentAttributes(experiment, experimentPath, experimentName);
+        Context context = getProjectContext(experiment, experimentPath, experimentName);
 
         // Load recordings, but do not bother with their squares and tracks yet.
         List<Recording> recordings;
@@ -222,7 +225,7 @@ public final class ProjectDataLoader {
             int cumulativeNumberOfTracksInSquares = 0;
             int colIndex;
             int rowIndex;
-            int lastColIndex = 19;   // Todo
+            int lastColIndex = 19;   // ToDo
             int lastRowIndex = 19;
 
             for (Square square : recording.getSquares()) {
@@ -401,7 +404,7 @@ public final class ProjectDataLoader {
         return recordings;
     }
 
-    private static void setExperimentAttributes(Experiment experiment, Path experimentPath, String experimentName) {
+    private static Context getProjectContext(Experiment experiment, Path experimentPath, String experimentName) {
 
         Table table;
         try {
@@ -411,29 +414,62 @@ public final class ProjectDataLoader {
         }
 
         // Pull unique values; exit if they vary
-        experiment.setCaseName(String.valueOf(getUniqueColumnValueOrExit(table, "Case")));
-        experiment.setMaxFrameGap(String.valueOf(getUniqueColumnValueOrExit(table, "Max Frame Gap")));
-        experiment.setGapClosingMaxDistance(String.valueOf(getUniqueColumnValueOrExit(table, "Gap Closing Max Distance")));
-        experiment.setLinkingMaxDistance(String.valueOf(getUniqueColumnValueOrExit(table, "Linking Max Distance")));
-        experiment.setMedianFiltering(String.valueOf(getUniqueColumnValueOrExit(table, "Median Filtering")));
-        experiment.setMinNumberOfSpotsInTrack(String.valueOf(getUniqueColumnValueOrExit(table, "Min Spots in Track")));
-        experiment.setMinTracksForTau(String.valueOf(getUniqueColumnValueOrExit(table, "Min Tracks for Tau")));
-        experiment.setNeighbourMode(String.valueOf(getUniqueColumnValueOrExit(table, "Neighbour Mode")));
+        Context context = new Context();
+        // context.setCaseName(String.valueOf(getUniqueColumnValueOrExit(table, "Case")));
+        context.setNumberOfSquaresInRecordingSpecifiedByRow(String.valueOf(getUniqueColumnValueOrExit(table, "Nr of Squares in Row")));
+        context.setMaxFrameGap(String.valueOf(getUniqueColumnValueOrExit(table, "Max Frame Gap")));
+        context.setGapClosingMaxDistance(String.valueOf(getUniqueColumnValueOrExit(table, "Gap Closing Max Distance")));
+        context.setLinkingMaxDistance(String.valueOf(getUniqueColumnValueOrExit(table, "Linking Max Distance")));
+        context.setMedianFiltering(String.valueOf(getUniqueColumnValueOrExit(table, "Median Filtering")));
+        context.setMinNumberOfSpotsInTrack(String.valueOf(getUniqueColumnValueOrExit(table, "Min Spots in Track")));
+        context.setMinTracksForTau(String.valueOf(getUniqueColumnValueOrExit(table, "Min Tracks for Tau")));
+        context.setNeighbourMode(String.valueOf(getUniqueColumnValueOrExit(table, "Neighbour Mode")));
+        context.setMaxAllowableVariability(String.valueOf(getUniqueColumnValueOrExit(table, "Max Allowable Variability")));
+        context.setMinRequiredDensityRatio(String.valueOf(getUniqueColumnValueOrExit(table, "Min Required Density Ratio")));
+        context.setMinRequiredRSquared(String.valueOf(getUniqueColumnValueOrExit(table, "Min Required R Squared")));
+        return context;
     }
 
     private static Object getUniqueColumnValueOrExit(Table table, String columnName) {
-        tech.tablesaw.columns.Column<?> column = table.column(columnName);
+        // 1) Existence check BEFORE calling table.column(...)
+        if (!table.columnNames().contains(columnName)) {
+            System.err.println("Column '" + columnName + "' does not exist.");
+            System.err.println("Available columns: " + table.columnNames());
+            System.exit(-1);
+        }
 
-        if (column.isEmpty()) {
+        // 2) Now it's safe to fetch the column
+        Column col = table.column(columnName);
+
+        if (col.size() == 0) {
             System.err.println("Column '" + columnName + "' is empty.");
             System.exit(-1);
         }
-        if (column.unique().size() == 1) {
-            return column.get(0);
+
+        // 3) Verify all rows hold the same value
+        Object first = col.get(0);
+        if (col instanceof NumberColumn) {
+            NumberColumn nc = (NumberColumn) col;
+            double d0 = nc.getDouble(0);
+            for (int i = 1; i < nc.size(); i++) {
+                double di = nc.getDouble(i);
+                // Treat NaN == NaN as equal; else use exact double compare
+                if (!(Double.isNaN(d0) && Double.isNaN(di)) && Double.compare(d0, di) != 0) {
+                    System.err.println("Not all rows have the same value in numeric column: " + columnName);
+                    System.exit(-1);
+                }
+            }
+            return first; // same as col.get(0)
+        } else {
+            for (int i = 1; i < col.size(); i++) {
+                Object v = col.get(i);
+                if (!equalsNullSafe(first, v)) {
+                    System.err.println("Not all rows have the same value in column: " + columnName);
+                    System.exit(-1);
+                }
+            }
+            return first;
         }
-        System.err.println("Not all rows have the same value in column: " + columnName);
-        System.exit(-1);
-        return null; // Unreachable but needed for compiler
     }
 
     private static Set<String> readExperimentsToProcess(Path projectPath) {
@@ -472,6 +508,12 @@ public final class ProjectDataLoader {
         }
     }
 
+    // Null-safe equality with String trimming option if you want it
+    private static boolean equalsNullSafe(Object a, Object b) {
+        if (a == b) return true;
+        if (a == null || b == null) return false;
+        return a.equals(b);
+    }
     private static boolean isTruthy(String v) {
         if (v == null) return false;
         String s = v.trim();

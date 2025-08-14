@@ -5,10 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Project {
+
+    // Attributes
+
     private String projectName;
     private Path projectPath;
+    private Context context;
     private List<Experiment> experiments;
 
+    // Constructors
     public Project() {
         this.experiments = new ArrayList<>();
     }
@@ -18,6 +23,8 @@ public class Project {
         this.projectPath = projectPath;
         this.experiments = new ArrayList<>();
     }
+
+    // Getters and setters
 
     public String getProjectName() {
         return projectName;
@@ -29,6 +36,14 @@ public class Project {
 
     public List<Experiment> getExperiments() {
         return experiments;
+    }
+
+    public void setContext(Context context) {  // ToDo Should maybe make a deep copy
+        this.context = context;
+    }
+
+    public Context getContext() {  // ToDo Should maybe make a deep copy
+        return context;
     }
 
     public Experiment getExperiment(String experimentName) {
@@ -48,5 +63,35 @@ public class Project {
         this.experiments.add(experiment);
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+
+        sb.append("\n\n");
+        sb.append("----------------------------------------------------------------------\n");
+        sb.append("Project: ").append(projectName).append("\n");
+        sb.append("----------------------------------------------------------------------\n");
+        sb.append("\n");
+        if (context == null) {
+            sb.append("No context set yet.");
+        }
+        else {
+            sb.append(context.toString());
+        }
+        sb.append("\n");
+        sb.append(String.format("%nExperiment %s has %d experiment%n",  projectName,  experiments.size()));
+        for (Experiment experiment : experiments) {
+            sb.append(String.format("\t%s%n", experiment.getExperimentName()));
+        }
+
+        for (Experiment experiment : experiments) {
+            sb.append(experiment);
+            List <Recording> recordings = experiment.getRecordings();
+            for (Recording rec : recordings) {
+                sb.append(rec);
+            }
+        }
+        return sb.toString();
+    }
 
 }

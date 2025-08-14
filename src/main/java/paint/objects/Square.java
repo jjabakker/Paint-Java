@@ -350,7 +350,7 @@ public class Square {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        String recordingName = "Test";
+        String recordingName = "Test";   //ToDo
 
         sb.append("\n\n");
         sb.append("----------------------------------------------------------------------\n");
