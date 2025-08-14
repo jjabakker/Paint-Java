@@ -1,5 +1,7 @@
 package paint.loaders;
 
+import loci.poi.hssf.record.Record;
+import paint.calculations.TauCalcResult;
 import paint.objects.*;
 import paint.utilities.ColumnValue;
 
@@ -16,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+import static paint.calculations.Calculations.calculateTau;
 import static paint.constants.PaintConstants.*;
 import paint.utilities.JsonConfig;
 
@@ -64,6 +67,20 @@ public final class ProjectDataLoader {
         }
 
         System.out.println(project);
+
+
+        // Get the first recording fromthe first experiment
+        Experiment exp = project.getExperiments().get(0);
+        Recording rec = exp.getRecordings().get(0);
+        List<Square> squares = rec.getSquares();
+        for (Square sq : squares) {
+            int numberTracks = sq.getNumberTracks();
+            if (numberTracks > 20) {
+                List <Track> tracks = sq.getTracks();
+                TauCalcResult reesult = calculateTau(tracks, 20, 0.1);
+
+            }
+        }
     }
 
     // ---------- Public API ----------
@@ -189,15 +206,15 @@ public final class ProjectDataLoader {
         }
 
         // Read the experiment tracks and assign the tracks to each recording.
-        Table exprimentTracksTable = loadTracks(experimentPath);
-        int numberOfTracksInExperiment = exprimentTracksTable.rowCount();
+        Table experimentTracksTable = loadTracks(experimentPath);
+        int numberOfTracksInExperiment = experimentTracksTable.rowCount();
 
         for (Recording recording : recordings) {
             String recordingName = recording.getRecordingName();
             String recordingNameColumn = COL_EXT_RECORDING_NAME;
 
-            Table recordingTracksTable = exprimentTracksTable.where(
-                    exprimentTracksTable.stringColumn(recordingNameColumn)
+            Table recordingTracksTable = experimentTracksTable.where(
+                    experimentTracksTable.stringColumn(recordingNameColumn)
                             .matchesRegex("^" + recordingName + "(?:-threshold-\\d{1,3})?$"));
             int numberOfTracksInRecording = recordingTracksTable.rowCount();
 
@@ -236,7 +253,7 @@ public final class ProjectDataLoader {
                     cumulativeNumberOfTracksInSquares += squareTracksTable.rowCount();
                     for (Row row : squareTracksTable) {
                         Track track = createTrackFromRow(row);
-                        recording.addTrack(track);
+                        square.addTrack(track);
                     }
                 }
             }

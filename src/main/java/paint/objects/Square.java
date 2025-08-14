@@ -61,7 +61,7 @@ public class Square {
     private double totalTrackDuration;
     private double medianTrackDuration;
 
-    private List<Track> tracks;
+    private List<Track> tracks = new ArrayList<>();
 
 
     // Constructors
@@ -346,6 +346,13 @@ public class Square {
     public double getTotalDisplacement() { return totalDisplacement; }
     public void setTotalDisplacement(double totalDisplacement) { this.totalDisplacement = totalDisplacement;  }
 
+    public List<Track> getTracks() { return tracks; }
+    public void setTracks(List<Track> tracks) { this.tracks = tracks;  }
+
+    public void addTrack(Track track) {
+        this.tracks.add(track);
+    }
+
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -415,6 +422,9 @@ public class Square {
     {
         return IMAGE_WIDTH * IMAGE_HEIGHT / nrSquaresInRecording;
     }
+
+
+
 
     public static void main(String[] args) {
         List<Square> squares = new ArrayList<>();

@@ -7,8 +7,8 @@ public final class PaintConstants {
     public static final String TRACKS_CSV = "All Tracks.csv";
     public static final String SQUARES_CSV = "All Squares.csv";
     public static final String EXPERIMENT_INFO_CSV = "Experiment Info.csv";
-    public static final String PAINT_JSON = "Paint.json";
-    public static final String PROJECT_INFO_CSV = "Project Info.csv";
+    public static final String PAINT_JSON = "Paint Configuration.json";
+    public static final String PROJECT_INFO_CSV = "Paint Project Info.csv";
 
     // Directories
     public static final String DIR_TRACKMATE_IMAGES = "TrackMate Images";

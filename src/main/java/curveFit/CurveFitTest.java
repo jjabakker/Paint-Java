@@ -1,6 +1,6 @@
 package curveFit;
 
-import paint.utilities.ExpDecayFitter;
+import paint.calculations.ExpDecayFitter;
 
 class ExpDecayTest {
 
