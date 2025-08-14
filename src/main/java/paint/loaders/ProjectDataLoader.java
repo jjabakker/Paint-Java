@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static paint.constants.PaintConstants.*;
+import paint.utilities.JsonConfig;
 
 public final class ProjectDataLoader {
 
@@ -64,16 +65,6 @@ public final class ProjectDataLoader {
         }
 
         System.out.println(project);
-
-//        experiments = project.getExperiments();
-//        for (Experiment experiment : experiments) {
-//            System.out.println(experiment);
-//            List <Recording> recordings = experiment.getRecordings();
-//            for (Recording rec : recordings) {
-//                System.out.println(rec);
-//            }
-//        }
-
     }
 
     // ---------- Public API ----------
@@ -84,6 +75,7 @@ public final class ProjectDataLoader {
         Set<String> experimentsToProcess = readExperimentsToProcess(projectPath);
         Project project;
 
+        Context context = loadContext(projectPath);
         if (experimentsToProcess == null) {
             System.err.println("Warning: No Project_info.csv filter applied; loading all experiments.");
             try (DirectoryStream<Path> dirs = Files.newDirectoryStream(projectPath)) {
@@ -108,6 +100,7 @@ public final class ProjectDataLoader {
 
         project = new Project(projectPath);
         project.setExperiments(experiments);
+        project.setContext(context);
         project.setProjectName(projectPath.getFileName().toString());
 
         return project;
@@ -407,26 +400,26 @@ public final class ProjectDataLoader {
     private static Context getProjectContext(Experiment experiment, Path experimentPath, String experimentName) {
 
         Table table;
-        try {
-            table = loadRecordingsTable(experimentPath);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        // Pull unique values; exit if they vary
-        Context context = new Context();
-        // context.setCaseName(String.valueOf(getUniqueColumnValueOrExit(table, "Case")));
-        context.setNumberOfSquaresInRecordingSpecifiedByRow(String.valueOf(getUniqueColumnValueOrExit(table, "Nr of Squares in Row")));
-        context.setMaxFrameGap(String.valueOf(getUniqueColumnValueOrExit(table, "Max Frame Gap")));
-        context.setGapClosingMaxDistance(String.valueOf(getUniqueColumnValueOrExit(table, "Gap Closing Max Distance")));
-        context.setLinkingMaxDistance(String.valueOf(getUniqueColumnValueOrExit(table, "Linking Max Distance")));
-        context.setMedianFiltering(String.valueOf(getUniqueColumnValueOrExit(table, "Median Filtering")));
-        context.setMinNumberOfSpotsInTrack(String.valueOf(getUniqueColumnValueOrExit(table, "Min Spots in Track")));
-        context.setMinTracksForTau(String.valueOf(getUniqueColumnValueOrExit(table, "Min Tracks for Tau")));
-        context.setNeighbourMode(String.valueOf(getUniqueColumnValueOrExit(table, "Neighbour Mode")));
-        context.setMaxAllowableVariability(String.valueOf(getUniqueColumnValueOrExit(table, "Max Allowable Variability")));
-        context.setMinRequiredDensityRatio(String.valueOf(getUniqueColumnValueOrExit(table, "Min Required Density Ratio")));
-        context.setMinRequiredRSquared(String.valueOf(getUniqueColumnValueOrExit(table, "Min Required R Squared")));
+//        try {
+//            table = loadRecordingsTable(experimentPath);
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//        // Pull unique values; exit if they vary
+          Context context = new Context();
+//        // context.setCaseName(String.valueOf(getUniqueColumnValueOrExit(table, "Case")));
+//        context.setNumberOfSquaresInRecordingSpecifiedByRow(String.valueOf(getUniqueColumnValueOrExit(table, "Nr of Squares in Row")));
+//        context.setMaxFrameGap(String.valueOf(getUniqueColumnValueOrExit(table, "Max Frame Gap")));
+//        context.setGapClosingMaxDistance(String.valueOf(getUniqueColumnValueOrExit(table, "Gap Closing Max Distance")));
+//        context.setLinkingMaxDistance(String.valueOf(getUniqueColumnValueOrExit(table, "Linking Max Distance")));
+//        context.setMedianFiltering(String.valueOf(getUniqueColumnValueOrExit(table, "Median Filtering")));
+//        context.setMinNumberOfSpotsInTrack(String.valueOf(getUniqueColumnValueOrExit(table, "Min Spots in Track")));
+//        context.setMinTracksForTau(String.valueOf(getUniqueColumnValueOrExit(table, "Min Tracks for Tau")));
+//        context.setNeighbourMode(String.valueOf(getUniqueColumnValueOrExit(table, "Neighbour Mode")));
+//        context.setMaxAllowableVariability(String.valueOf(getUniqueColumnValueOrExit(table, "Max Allowable Variability")));
+//        context.setMinRequiredDensityRatio(String.valueOf(getUniqueColumnValueOrExit(table, "Min Required Density Ratio")));
+//        context.setMinRequiredRSquared(String.valueOf(getUniqueColumnValueOrExit(table, "Min Required R Squared")));
         return context;
     }
 
@@ -574,5 +567,62 @@ public final class ProjectDataLoader {
         track.setConfinementRatio(row.getDouble("Confinement Ratio"));
 
         return track;
+    }
+
+    private static Context loadContext(Path projectPath) {
+
+        Context context = new Context();
+
+        int numberOfSquaresInRecording = 3;
+        double minRequiredRSquared = 0.1;
+        double maxAllowableVariability = 10;
+        double minRequiredDensityRatio = 0.1;
+        int minTracksForTau = 20;
+        int maxFrameGap = 3;
+        double gapClosingMaxDistance = 1.2;
+        double linkingMaxDistance = 0.6;
+        boolean medianFiltering = false;
+        int minNumberOfSpotsInTrack = 3;
+        String neighbourMode = "Free";
+
+        // Create the config reader and fetch the values
+        JsonConfig config = new JsonConfig(projectPath.resolve(PAINT_JSON));
+
+        try {
+            numberOfSquaresInRecording = config.getInt("Generate Squares", "Nr of Squares in Recording", 400);
+            minRequiredRSquared = config.getDouble("Generate Squares", "Min Required R Squared", 0.1);
+            maxAllowableVariability = config.getDouble("Generate Squares", "Max Allowable Variability", 10.0);
+            minRequiredDensityRatio = config.getDouble("Generate Squares", "Min Required Density Ratio", 2.0);
+            minTracksForTau = config.getInt("Generate Squares", "Min Tracks to Calculate Tau", 20);
+            maxFrameGap = config.getInt("TrackMate", "MAX_FRAME_GAP", 3);
+            gapClosingMaxDistance = config.getDouble("TrackMate", "GAP_CLOSING_MAX_DISTANCE", 1.2);
+            linkingMaxDistance = config.getDouble("TrackMate", "LINKING_MAX_DISTANCE", 0.6);
+            medianFiltering = config.getBoolean("TrackMate", "DO_MEDIAN_FILTERING", false);
+            minNumberOfSpotsInTrack = config.getInt("TrackMate", "MIN_NR_SPOTS_IN_TRACK", 3);
+            neighbourMode = config.getString("Generate Squares", "NEIGHBOUR_MODE", "Free");
+
+        }
+        catch (Exception e) {
+            System.err.println("Failed to read config file: " + e.getMessage());
+            System.exit(-1);
+        }
+        try {
+            context.setNumberOfSquaresInRecording(numberOfSquaresInRecording);
+            context.setMinRequiredRSquared(minRequiredRSquared);
+            context.setMaxAllowableVariability(maxAllowableVariability);
+            context.setMinRequiredRSquared(minRequiredRSquared);
+            context.setMinTracksForTau(minTracksForTau);
+            context.setMaxFrameGap(maxFrameGap);
+            context.setGapClosingMaxDistance(gapClosingMaxDistance);
+            context.setLinkingMaxDistance(linkingMaxDistance);
+            context.setMedianFiltering(medianFiltering);
+            context.setMinNumberOfSpotsInTrack(minNumberOfSpotsInTrack);
+            context.setNeighbourMode(neighbourMode);
+        }
+        catch (Exception e) {
+            System.err.println("Failed set context values.");
+            System.exit(-1);
+        }
+        return context;
     }
 }

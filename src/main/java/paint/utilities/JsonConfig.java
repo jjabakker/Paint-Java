@@ -13,9 +13,9 @@ public class JsonConfig {
     private JsonObject root;
     private Path jsonFilePath;  // store path for saving
 
-    public JsonConfig(String jsonFilePath) {
-        this.jsonFilePath = Paths.get(jsonFilePath);
-        try (FileReader reader = new FileReader(jsonFilePath)) {
+    public JsonConfig(Path jsonFilePath) {
+        this.jsonFilePath = jsonFilePath;
+        try (FileReader reader = new FileReader(jsonFilePath.toString())) {
             root = JsonParser.parseReader(reader).getAsJsonObject();
         } catch (IOException e) {
             System.err.println("Failed to load config: " + e.getMessage());

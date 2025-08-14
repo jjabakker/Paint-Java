@@ -18,6 +18,15 @@ public class Context {
     private int minNumberOfSpotsInTrack;
     private String neighbourMode;
 
+
+    // Constructors
+    public Context() { }
+
+    public Context(int numberOfSquaresInRecording) {
+        setNumberOfSquaresInRecording(numberOfSquaresInRecording);
+    }
+    // Getters and setters
+
     public void setNumberOfSquaresInRecording(String numberOfSquaresInRecording) {
         int nr = (int) Double.parseDouble(numberOfSquaresInRecording);
         setNumberOfSquaresInRecording(nr);
@@ -41,44 +50,44 @@ public class Context {
         return this.numberOfSquaresInRecording;
     }
 
-    public void setMaxFrameGap(String maxFrameGap) {
-        this.maxFrameGap = Integer.parseInt(maxFrameGap);
+    public void setMaxFrameGap(int maxFrameGap) {
+        this.maxFrameGap = maxFrameGap;
     }
 
-    public void setGapClosingMaxDistance(String gapClosingMaxDistance) {
-        this.gapClosingMaxDistance = Double.parseDouble(gapClosingMaxDistance);
+    public void setGapClosingMaxDistance(double gapClosingMaxDistance) {
+        this.gapClosingMaxDistance = gapClosingMaxDistance;
     }
 
-    public void setLinkingMaxDistance(String linkingMaxDistance) {
-        this.linkingMaxDistance = Double.parseDouble(linkingMaxDistance);
+    public void setLinkingMaxDistance(double linkingMaxDistance) {
+        this.linkingMaxDistance = linkingMaxDistance;
     }
 
-    public void setMedianFiltering(String medianFiltering) {
-        this.medianFiltering = checkBooleanValue(medianFiltering);
+    public void setMedianFiltering(boolean medianFiltering) {
+        this.medianFiltering = medianFiltering;
     }
 
-    public void setMinNumberOfSpotsInTrack(String minNumberOfSpotsInTrack) {
-        this.minNumberOfSpotsInTrack = Integer.parseInt(minNumberOfSpotsInTrack);
+    public void setMinNumberOfSpotsInTrack(int minNumberOfSpotsInTrack) {
+        this.minNumberOfSpotsInTrack = minNumberOfSpotsInTrack;
     }
 
-    public void setMinTracksForTau(String minTracksForTau) {
-        this.minTracksForTau = (int) Double.parseDouble(minTracksForTau);
+    public void setMinTracksForTau(int minTracksForTau) {
+        this.minTracksForTau = minTracksForTau;
     }
 
     public void setNeighbourMode(String neighbourMode) {
         this.neighbourMode = neighbourMode;
     }
 
-    public void setMaxAllowableVariability(String maxAllowableVariability) {
-        this.maxAllowableVariability = Double.parseDouble(maxAllowableVariability);
+    public void setMaxAllowableVariability(double maxAllowableVariability) {
+        this.maxAllowableVariability = maxAllowableVariability;
     }
 
     public void setMinRequiredDensityRatio(String minRequiredDensityRatio) {
         this.minRequiredDensityRatio = Double.parseDouble(minRequiredDensityRatio);
     }
 
-    public void setMinRequiredRSquared(String minRequiredRSquared) {
-        this.minRequiredRSquared = Double.parseDouble(minRequiredRSquared);
+    public void setMinRequiredRSquared(double minRequiredRSquared) {
+        this.minRequiredRSquared = minRequiredRSquared;
     }
 
     private static Boolean checkBooleanValue(String string) {

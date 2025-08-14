@@ -34,7 +34,7 @@ public class GenerateSquareDialog {
     void go() {
 
         // Create the config reader and fetch the values
-        JsonConfig config = new JsonConfig("src/main/resources/paint.json");
+        JsonConfig config = new JsonConfig(Paths.get("src/main/resources/paint.json"));
 
         int nrSquares = config.getInt("Generate Squares", "Nr of Squares in Row", 5);
         int minTracks = config.getInt("Generate Squares", "Min Tracks to Calculate Tau", 11);
