@@ -46,8 +46,7 @@ public class Calculations {
 
         // Then do the fit
         ExpDecayFitter.FitResult result = ExpDecayFitter.fit(x, y);
-        System.out.println(result.tauMs);
-        System.out.println(result.rSquared);
+        System.out.printf("Tau: %5.1f  R Squared: %.4f%n", result.tauMs, result.rSquared);
 
         // If the fit failed or is poor, do not claim success
         if (!Double.isFinite(result.tauMs) || result.rSquared < minRequireRSquared) {
