@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static paint.calculations.TauCalcResult.Status.TAU_INSUFFICIENT_POINTS;
-import static paint.calculations.TauCalcResult.Status.TAU_SUCCESS;
+import static paint.calculations.TauCalcResult.Status.*;
 
 public class Calculations {
 
@@ -29,6 +28,10 @@ public class Calculations {
         }
         Map<Double, Integer> frequencyDistribution = createFrequencyDistribution(trackDurations);
 
+        // Not enough distinct points for a stable fit
+        if (frequencyDistribution.size() < 3) {
+            return new TauCalcResult(0.0, 0.0, TAU_INSUFFICIENT_POINTS);
+        }
 
         // Unpack it into two double arrays.
         int numberItems = frequencyDistribution.size();
@@ -46,10 +49,14 @@ public class Calculations {
         System.out.println(result.tauMs);
         System.out.println(result.rSquared);
 
+        // If the fit failed or is poor, do not claim success
+        if (!Double.isFinite(result.tauMs) || result.rSquared < minRequireRSquared) {
+            return new TauCalcResult(0.0, result.rSquared, TAU_NO_FIT);
+        }
 
-        return new TauCalcResult(0.0, 0.0, TAU_SUCCESS);
+        // Return the fitted tau and r-squared
+        return new TauCalcResult(result.tauMs, result.rSquared, TAU_SUCCESS);
     }
-
 
     /**
      * Build a frequency distribution (histogram) of exact durations.

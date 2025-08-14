@@ -69,16 +69,14 @@ public final class ProjectDataLoader {
         System.out.println(project);
 
 
-        // Get the first recording fromthe first experiment
-        Experiment exp = project.getExperiments().get(0);
-        Recording rec = exp.getRecordings().get(0);
-        List<Square> squares = rec.getSquares();
-        for (Square sq : squares) {
-            int numberTracks = sq.getNumberTracks();
-            if (numberTracks > 20) {
-                List <Track> tracks = sq.getTracks();
-                TauCalcResult reesult = calculateTau(tracks, 20, 0.1);
-
+        // Get the first recording from the first experiment and look for the squares that have more than 20n tracks
+        Experiment exp = project.getExperiments().get(0);                                                 // Get the experiment in the project
+        Recording rec = exp.getRecordings().get(0);                                                       // Get the first recording in the expriment
+        List<Square> squares = rec.getSquares();                                                          // Get a list of all the squares in the recording
+        for (Square sq : squares) {                                                                       // Iterate through that list
+            if (sq.getNumberTracks() > 20) {                                                              // Only if the square has more than 20 tracks
+                List <Track> tracks = sq.getTracks();                                                     // Get a list of all the tracks in the square
+                TauCalcResult result = calculateTau(tracks, 20, 0.1);    // and calculate the tau for the tracks
             }
         }
     }
