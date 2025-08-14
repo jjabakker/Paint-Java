@@ -55,12 +55,13 @@ public class CalculateTau {
 
         // 4) Fit and evaluate quality
         CalculateTauExpDecayFitter.FitResult fr = CalculateTauExpDecayFitter.fit(x, y);
-        // 1) Reject non-finite results
+
+        // 5) Reject non-finite results
         if (!Double.isFinite(fr.rSquared) || !Double.isFinite(fr.tauMs)) {
             return new CalculateTauResult(fr.tauMs, fr.rSquared, CalculateTauResult.Status.TAU_NO_FIT);
         }
 
-        // 2) Apply threshold
+        // 6) Apply threshold
         if (fr.rSquared < minRequiredRSquared) {
             return new CalculateTauResult(fr.tauMs, fr.rSquared, CalculateTauResult.Status.TAU_RSQUARED_TOO_LOW);
         }
@@ -76,8 +77,6 @@ public class CalculateTau {
         for (double duration : trackDurations) {
             Integer prev = frequencyDistribution.get(duration);
             frequencyDistribution.put(duration, (prev == null ? 1 : prev + 1));
-            // (On Java 8 you can also use getOrDefault if preferred.)
-            // frequencyDistribution.put(duration, frequencyDistribution.getOrDefault(duration, 0) + 1);
         }
         return frequencyDistribution;
     }
