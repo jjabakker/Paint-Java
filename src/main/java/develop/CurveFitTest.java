@@ -1,4 +1,4 @@
-package curveFit;
+package develop;
 
 import paint.calculations.CalculateTauExpDecayFitter;
 
