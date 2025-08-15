@@ -1,6 +1,5 @@
-package paint.csv;
+package paint.io;
 
-import org.checkerframework.checker.units.qual.C;
 import paint.objects.Track;
 import tech.tablesaw.api.*;
 import tech.tablesaw.columns.Column;
@@ -20,8 +19,13 @@ public class TrackTableIO extends BaseTableIO<Track> {
     /** All Track-specific mapping lives here. */
     private static class TrackAdapter implements EntityTableAdapter<Track> {
 
-        public String tableName() { return "tracks"; }
-        public String[] columns() { return TRACK_COLS; }
+        public String tableName() {
+            return "tracks";
+        }
+
+        public String[] columns() {
+            return TRACK_COLS;
+        }
 
         public ColumnType[] columnTypes() {
             // Map 1:1 to TRACK_COLS (adjust if your Track getters differ)

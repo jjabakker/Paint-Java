@@ -1,4 +1,4 @@
-package paint.csv;
+package paint.io;
 
 import tech.tablesaw.api.Table;
 import tech.tablesaw.api.ColumnType;

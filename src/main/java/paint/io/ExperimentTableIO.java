@@ -1,4 +1,4 @@
-package paint.csv;
+package paint.io;
 
 import paint.objects.Experiment;
 import tech.tablesaw.api.*;

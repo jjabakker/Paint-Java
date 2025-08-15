@@ -1,9 +1,7 @@
 package paint.loaders;
 
-import net.imglib2.algorithm.math.Exp;
 import paint.calculations.CalculateTauResult;
-import paint.csv.BaseTableIO;
-import paint.csv.TrackTableIO;
+import paint.io.TrackTableIO;
 import paint.csv.TrackToTable;
 import paint.objects.*;
 import paint.utilities.ColumnValue;
