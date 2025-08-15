@@ -239,7 +239,7 @@ public class Square {
     public void setUniqueKey(String uniqueKey) { this.uniqueKey = uniqueKey;}
 
     public int getLabelNumber() { return labelNumber; }
-    public void setLabelNumber(int squareNumber) { this.labelNumber = labelNumber; }
+    public void setLabelNumber(int labelNumber) { this.labelNumber = labelNumber; }
 
     public int getSquareNumber() { return squareNumber; }
     public void setSquareNumber(int squareNumber) { this.squareNumber = squareNumber; }

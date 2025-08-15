@@ -1,6 +1,8 @@
 package paint.loaders;
 
+import net.imglib2.algorithm.math.Exp;
 import paint.calculations.CalculateTauResult;
+import paint.csv.TrackToTable;
 import paint.objects.*;
 import paint.utilities.ColumnValue;
 
@@ -19,6 +21,10 @@ import java.util.*;
 
 import static paint.calculations.CalculateTau.calculateTau;
 import static paint.constants.PaintConstants.*;
+import static paint.csv.TrackCSVWriter.writeTracksTableToCSV;
+import static paint.csv.TrackCSVWriter.writeTracksToCSV;
+import static paint.csv.TrackToTable.toTable;
+
 import paint.utilities.JsonConfig;
 
 public final class ProjectDataLoader {
@@ -46,11 +52,9 @@ public final class ProjectDataLoader {
             if (args.length > 1) {
                 if ("--legacy".equalsIgnoreCase(args[1])) {
                     matureProject = false;
-                }
-                else if ("--mature".equalsIgnoreCase(args[1])) {
+                } else if ("--mature".equalsIgnoreCase(args[1])) {
                     matureProject = true;
-                }
-                else {
+                } else {
                     System.err.println("Unknown option: " + args[1]);
                     System.out.println("Use --mature or --legacy (default is --mature).");
                     System.exit(2);
@@ -67,25 +71,85 @@ public final class ProjectDataLoader {
 
         System.out.println(project);
 
+        //
+        //
+        //
+        //
 
-        // Get the first recording from the first experiment and look for the squares that have more than 20n tracks
+        // Get the first recording from the first experiment and look for the squares that have sufficient tracks
         Experiment exp = project.getExperiments().get(0);                                                 // Get the experiment in the project
         Recording rec = exp.getRecordings().get(0);                                                       // Get the first recording in the expriment
         List<Square> squares = rec.getSquares();
-        int minNumberOfTracksForTau = 0;// Get a list of all the squares in the recor
-        double minRequiredSQuared  = 0.9; // ding
+        int minNumberOfTracksForTau = 0;
+        double minRequiredSQuared = 0.9;
         int index = 0;
+        Table tracksTable;
+        Table experimentTracksTable = TrackToTable.emptyTrackTable();
         for (Square sq : squares) {                                                                       // Iterate through that list
-            if (sq.getNumberTracks() >= minNumberOfTracksForTau ) {                                       // Only if the square has more than 20 tracks
+            if (sq.getNumberTracks() >= minNumberOfTracksForTau) {                                       // Only if the square has more than 20 tracks
                 List<Track> tracks = sq.getTracks();                                                      // Get a list of all the tracks in the square
                 CalculateTauResult result = calculateTau(tracks, minNumberOfTracksForTau, minRequiredSQuared);
                 if (result.getStatus() == CalculateTauResult.Status.TAU_SUCCESS) {
                     System.out.printf("Status: %-30s Tau: %6.1f  R_Squared : %3.6f%n", result.getStatus(), result.getTau(), result.getRSquared());
+                    try {
+                        writeTracksToCSV(tracks, "/Users/hans/Downloads/test_tracks.csv");
+                    } catch (IOException e) {
+                        System.err.println("Failed to write tracks to CSV: " + e.getMessage());
+                    }
+                    tracksTable = toTable(tracks);
+                    experimentTracksTable.append(tracksTable);
+                    int i = 0;
                 }
                 index += 1;
             }
         }
+        try {
+            writeTracksTableToCSV(experimentTracksTable, "/Users/hans/Downloads/experiment_tracks.csv");
+        } catch (IOException e) {
+            System.err.println("Failed to write tracks table to CSV: " + e.getMessage());
+        }
         System.out.println("Number of squares with more than or equal to " + minNumberOfTracksForTau + " tracks: " + index);
+
+        //
+        //
+        //
+        //
+
+        Table projectTracksTable = TrackToTable.emptyTrackTable();
+        List<Experiment> experiments = project.getExperiments();
+        int numberTracksInRecording = 0;
+        int numberTracksInExperiment = 0;
+        int numberTracksInProject = 0;
+        for (Experiment experiment : experiments) {
+            List<Recording> recordings = experiment.getRecordings();
+            for (Recording recording : recordings) {
+                List<Square> squaresInRecording = recording.getSquares();
+                numberTracksInRecording = 0;
+                for (Square square : squaresInRecording) {
+                    List<Track> tracksInSquare = square.getTracks();
+                    tracksTable = toTable(tracksInSquare);
+                    if (tracksTable.rowCount() != 0) {
+                        projectTracksTable.append(tracksTable);
+                        System.out.printf("Added %3d tracks or square %3d of recording %s of experiment %s%n",
+                                tracksTable.rowCount(),
+                                square.getSquareNumber(),
+                                recording.getRecordingName(),
+                                experiment.getExperimentName());
+                        numberTracksInRecording += tracksTable.rowCount();
+                        numberTracksInExperiment += tracksTable.rowCount();
+                        numberTracksInProject += tracksTable.rowCount();
+                    }
+                }
+                System.out.printf("\n\n\nThe number of tracks in %s is %s\n\n\n", recording.getRecordingName(), numberTracksInRecording);
+            }
+        }
+        try {
+            System.out.println("Number of tracks in project: " + numberTracksInProject);
+            System.out.println("Number of tracks in project: " + projectTracksTable.rowCount());
+            writeTracksTableToCSV(projectTracksTable, "/Users/hans/Downloads/test_tracks.csv");
+        } catch (IOException e) {
+            System.err.println("Failed to write tracks to CSV: " + e.getMessage());
+        }
     }
 
     // ---------- Public API ----------
@@ -284,8 +348,22 @@ public final class ProjectDataLoader {
     }
 
     /** Tracks CSV (original columns). */
-    public static Table loadTracks(Path experimentPath) throws Exception {
-        return readTable(experimentPath.resolve(TRACKS_CSV));
+    public static Table loadTracks(Path experimentPath) throws Exception {     // @@@
+
+        String tracksPath = experimentPath.resolve(TRACKS_CSV).toString();
+         // Detect all column types first
+        Table temp = Table.read().csv(tracksPath);
+        ColumnType[] detected = temp.columnTypes();
+
+        // Find and override just the one column you care about
+        int colIndex = temp.columnIndex("Label Nr");
+        detected[colIndex] = ColumnType.INTEGER;
+
+        // Read again with forced column type
+        CsvReadOptions options = CsvReadOptions.builder(tracksPath)
+                .columnTypes(detected)
+                .build();
+        return Table.read().usingOptions(options);
     }
 
     /** Recordings CSV (all STRING columns). */
@@ -566,6 +644,8 @@ public final class ProjectDataLoader {
     private static Track createTrackFromRow(Row row) {
 
         Track track = new Track();
+        track.setUniqueKey(row.getString("Unique Key"));
+        track.setRecordingName(row.getString("Ext Recording Name"));
         track.setTrackLabel(row.getString("Track Label"));
         track.setTrackId(row.getInt("Track Id"));
         track.setTrackLabel(row.getString("Track Label"));
@@ -586,6 +666,15 @@ public final class ProjectDataLoader {
         track.setDiffusionCoefficientExt(row.getDouble("Diffusion Coefficient Ext"));
         track.setTotalDistance(row.getDouble("Total Distance"));
         track.setConfinementRatio(row.getDouble("Confinement Ratio"));
+        track.setSquareNumber(row.getInt("Square Nr"));
+        try {
+            int Temp = row.getInt("Label Nr");
+        }
+        catch  (Exception e){
+            System.out.println("Error: Label Nr is not an integer");
+        }
+        track.setLabelNumber(row.getInt("Label Nr"));
+
 
         return track;
     }

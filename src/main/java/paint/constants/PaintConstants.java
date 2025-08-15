@@ -2,6 +2,9 @@ package paint.constants;
 
 public final class PaintConstants {
 
+    private PaintConstants() {
+        // Prevent instantiation
+    }
     // Filenames
     public static final String RECORDINGS_CSV = "All Recordings.csv";
     public static final String TRACKS_CSV = "All Tracks.csv";
@@ -21,4 +24,32 @@ public final class PaintConstants {
     // Squares
     public static final double IMAGE_WIDTH = 82.0864;
     public static final double IMAGE_HEIGHT = 82.0864;
+
+    public static final String[] TRACK_COLS = {
+            "Unique Key",                  // 0
+            "Ext Recording Name",          // 1
+            "Track Id",                    // 2
+            "Track Label",                 // 3
+            "Number Spots",                // 4
+            "Number Gaps",                 // 5
+            "Longest Gap",                 // 6
+            "Track Duration",              // 7
+            "Track X Location",            // 8
+            "Track Y Location",            // 9
+            "Track Displacement",          // 10
+            "Track Max Speed",             // 11
+            "Track Median Speed",          // 12
+            "Track Mean Speed",            // 13
+            "Track Max Speed Calc",        // 14
+            "Track Median Speed Calc",     // 15
+            "Track Mean Speed Calc",       // 16
+            "Diffusion Coefficient",       // 17
+            "Diffusion Coefficient Ext",   // 18
+            "Total Distance",              // 19
+            "Confinement Ratio",           // 20
+            "Square Nr",                   // 21
+            "Label Nr"                     // 22
+    };
+
+
 }

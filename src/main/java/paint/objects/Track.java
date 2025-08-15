@@ -4,34 +4,39 @@ import paint.utilities.ColumnValue;
 import java.util.List;
 
 public class Track {
-    private String uniqueKey;
-    private int trackId;
-    private String trackLabel;
-    private int numberSpots;
-    private int numberGaps;
-    private int longestGap;
-    private double trackDuration;
-    private double trackXLocation;
-    private double trackYLocation;
-    private double trackDisplacement;
-    private double trackMaxSpeed;
-    private double trackMedianSpeed;
-    private double trackMeanSpeed;
-    private double trackMaxSpeedCalc;
-    private double trackMedianSpeedCalc;
-    private double trackMeanSpeedCalc;
-    private double diffusionCoefficient;
-    private double diffusionCoefficientExt;
-    private double totalDistance;
-    private double confinementRatio;
+    private String uniqueKey;                 // 0
+    private String recordingName;             // 1
+    private int trackId;                      // 2
+    private String trackLabel;                // 3
+    private int numberSpots;                  // 4
+    private int numberGaps;                   // 5
+    private int longestGap;                   // 6
+    private double trackDuration;             // 7
+    private double trackXLocation;            // 8
+    private double trackYLocation;            // 9
+    private double trackDisplacement;         // 10
+    private double trackMaxSpeed;             // 11
+    private double trackMedianSpeed;          // 12
+    private double trackMeanSpeed;            // 13
+    private double trackMaxSpeedCalc;         // 14
+    private double trackMedianSpeedCalc;      // 15
+    private double trackMeanSpeedCalc;        // 16
+    private double diffusionCoefficient;      // 17
+    private double diffusionCoefficientExt;   // 18
+    private double totalDistance;             // 19
+    private double confinementRatio;          // 20`
+    private int squareNumber;                 // 21
+    private int labelNumber;                  // 22
 
     public Track() { }
 
-    public Track(int trackId, String trackLabel, int nrSpots, int nrGaps, int longestGap, double trackDuration,
+    public Track(String uniqueKey, String recordingName, int trackId, String trackLabel, int nrSpots, int nrGaps, int longestGap, double trackDuration,
                  double trackXLocation, double trackYLocation, double trackDisplacement, double trackMaxSpeed,
                  double trackMedianSpeed, double trackMeanSpeed, double trackMaxSpeedCalc, double trackMedianSpeedCalc,
                  double trackMeanSpeedCalc, double diffusionCoefficient, double diffusionCoefficientExt,
-                 double totalDistance, double confinementRatio) {
+                 double totalDistance, double confinementRatio, int squareNumber, int labelNumber) {
+        this.uniqueKey = uniqueKey;
+        this.recordingName = recordingName;
         this.trackId = trackId;
         this.trackLabel = trackLabel;
         this.numberSpots = nrSpots;
@@ -51,6 +56,8 @@ public class Track {
         this.diffusionCoefficientExt = diffusionCoefficientExt;
         this.totalDistance = totalDistance;
         this.confinementRatio = confinementRatio;
+        this.squareNumber = squareNumber;
+        this.labelNumber = labelNumber;
     }
 
 
@@ -80,6 +87,12 @@ public class Track {
                         break;
                     case "Longest Gap":
                         this.longestGap = (int) Double.parseDouble(curValue);
+                        break;
+                    case "Square Nr":
+                        this.squareNumber = (int) Double.parseDouble(curValue);
+                        break;
+                    case "Label Nr":
+                        this.labelNumber = (int) Double.parseDouble(curValue);
                         break;
 
                     // String values
@@ -133,7 +146,6 @@ public class Track {
 
                     // Unused:
                     case "Unique Key":
-                    case "Square Nr":
                     case "Ext Recording Name":
                         break;
 
@@ -155,6 +167,9 @@ public class Track {
     public String getUniqueKey() { return uniqueKey; }
     public void setUniqueKey(String uniqueKey) { this.uniqueKey = uniqueKey;}
 
+    public String getRecordingName() { return recordingName; }
+    public void setRecordingName(String recordingName) { this.recordingName = recordingName;}
+
     public int getTrackId() { return trackId; }
     public void setTrackId(int trackId) { this.trackId = trackId; }
 
@@ -167,7 +182,7 @@ public class Track {
     public int getNumberGaps() { return numberGaps; }
     public void setNumberGaps(int nrGaps) { this.numberGaps = nrGaps; }
 
-    public double getLongestGap() { return longestGap; }
+    public int getLongestGap() { return longestGap; }
     public void setLongestGap(int longestGap) { this.longestGap = longestGap; }
 
     public double getTrackDuration() { return trackDuration; }
@@ -212,4 +227,9 @@ public class Track {
     public double getConfinementRatio() { return confinementRatio; }
     public void setConfinementRatio(double confinementRatio) { this.confinementRatio = confinementRatio; }
 
+    public int getSquareNumber() { return squareNumber; }
+    public void setSquareNumber(int squareNumber) { this.squareNumber = squareNumber; }
+
+    public int getLabelNumber() { return labelNumber; }
+    public void setLabelNumber(int labelNumber) { this.labelNumber = labelNumber; }
 }
