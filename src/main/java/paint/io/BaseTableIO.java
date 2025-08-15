@@ -78,28 +78,59 @@ public class BaseTableIO<E> {
         return t;
     }
 
-    /** Return a new table that is a copy of 'a' with rows from 'b' appended. */
-    public Table appended(Table a, Table b) {
-        validateHeader(a, adapter.columns());
-        validateHeader(b, adapter.columns());
-        Table copy = a.copy();
-        // b.retainColumns(...) expects varargs -> provide String[]
-        String[] aCols = a.columnNames().toArray(new String[a.columnCount()]);
-        copy.append(b.retainColumns(aCols));
+    /** Return a new table that is a copy of 'combined' with rows from 'add' appended.
+     *  You can call this repeatedly to append multiple tables.
+     *      combined = trackIO.appendInPlace(combined, batch1);
+     *      combined = trackIO.appendInPlace(combined, batch2);
+     * @param combined - the table to append to.
+     * @param add - the table to append.
+     * @return - combined new table with the rows from 'add' appended.
+     */
+
+    public Table appended(Table combined, Table add) {
+
+        validateHeader(combined, adapter.columns());
+        validateHeader(add, adapter.columns());
+        Table copy = combined.copy();
+        // add.retainColumns(...) expects varargs -> provide String[]
+        String[] aCols = combined.columnNames().toArray(new String[combined.columnCount()]);
+        copy.append(add.retainColumns(aCols));
         return copy;
     }
 
-    /** Ensure header matches exactly (names and order). */
-    private static void validateHeader(Table t, String[] expected) {
-        List<String> names = t.columnNames();
-        if (names.size() != expected.length) {
+    /** Return a new table that is a copy of 'a' with rows from 'b' appended.
+     * You can call this repeatedly to append multiple tables.
+     * trackIO.appendInPlace(combined, batch1);        // modifies 'combined'
+     * trackIO.appendInPlace(combined, batch2);        // modifies 'combined' again
+     * @param target - the table to append to.
+     * @param source - the table to append.
+    */
+
+    public void appendInPlace(Table target, Table source) {
+        validateHeader(target, adapter.columns());
+        validateHeader(source, adapter.columns());
+        target.append(source);   // We have checked the headers already, so a direct append this is safe
+
+        // This is the tablesaw way to append tables
+        // String[] cols = target.columnNames().toArray(new String[target.columnCount()]);
+        // target.append(source.retainColumns(cols));   // This is the tablesaw way to append tables
+    }
+
+    /** Ensure the header of the table matches exactly the specified list (names and order).
+     * @param tableToValidate - table to validate.
+     * @param expectedColumns - the expected column names.
+     * @throws IllegalArgumentException if the header does not match exactly.
+     * */
+    private static void validateHeader(Table tableToValidate, String[] expectedColumns) {
+        List<String> names = tableToValidate.columnNames();
+        if (names.size() != expectedColumns.length) {
             throw new IllegalArgumentException("Unexpected column count: found=" + names.size()
-                    + " expected=" + expected.length + " -> " + names);
+                    + " expectedColumns=" + expectedColumns.length + " -> " + names);
         }
-        for (int i = 0; i < expected.length; i++) {
-            if (!expected[i].equals(names.get(i))) {
+        for (int i = 0; i < expectedColumns.length; i++) {
+            if (!expectedColumns[i].equals(names.get(i))) {
                 throw new IllegalArgumentException("Unexpected column at index " + i
-                        + ": found '" + names.get(i) + "', expected '" + expected[i] + "'");
+                        + ": found '" + names.get(i) + "', expectedColumns '" + expectedColumns[i] + "'");
             }
         }
     }
