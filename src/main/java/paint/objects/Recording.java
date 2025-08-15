@@ -188,8 +188,8 @@ public class Recording {
     public String getProbeName() { return probeName; }
     public void setProbeName(String probeName) { this.probeName = probeName; }
 
-    public String getRecordingType() { return probeType; }
-    public void setRecordingType(String recordingType) { this.probeType = recordingType; }
+    public String getProbeType() { return probeType; }
+    public void setProbeType(String probeType) { this.probeType = probeType; }
 
     public String getCellType() { return cellType; }
     public void setCellType(String cellType) { this.cellType = cellType; }
@@ -206,27 +206,46 @@ public class Recording {
     public double getThreshold() { return threshold; }
     public void setThreshold(double threshold) { this.threshold = threshold; }
 
-    public List<Square> getSquares() {
-        return squares;
-    }
+    public int getNumberSpots() { return numberSpots; }
+    public void setNumberSpots(int numberSpots) { this.numberSpots = numberSpots; }
 
-    public void setSquares(List<Square> squares) {
-        this.squares = squares;
-    }
+    public int getNumberTracks() { return numberTracks; }
+    public void setNumberTracks(int numberTracks) { this.numberTracks = numberTracks; }
 
-    public void addSquare(Square square) {
-        this.squares.add(square);
-    }
+    public double getRunTime() { return runTime; }
+    public void setRunTime(double runTime) { this.runTime = runTime; }
 
-    public Table getTracksTable() { return tracksTable; }
-    public void setTracksTable(Table tracksTable) { this.tracksTable = tracksTable; }
+    public int getRecordingSize() { return recordingSize; }
+    public void setRecordingSize(int recordingSize) { this.recordingSize = recordingSize; }
 
+    public String getTimeStamp() { return timeStamp; }
+    public void setTimeStamp(String timeStamp) { this.timeStamp = timeStamp; }
 
-    public List<Track> getTracks() {
-        return tracks;
-    }
+    public int getNumberOfSpotsInAllTracks() { return numberOfSpotsInAllTracks; }
+    public void setNumberOfSpotsInAllTracks(int numberOfSpotsInAllTracks) { this.numberOfSpotsInAllTracks = numberOfSpotsInAllTracks; }
+
+    public boolean isExclude() { return exclude; }
+    public void setExclude(boolean exclude) { this.exclude = exclude; }
+
+    public double getTau() { return tau; }
+    public void setTau(double tau) { this.tau = tau; }
+
+    public double getRSquared() { return rSquared; }
+    public void setRSquared(double rSquared) { this.rSquared = rSquared; }
+
+    public double getDensity() { return density; }
+    public void setDensity(double density) { this.density = density; }
+
+    public List<Square> getSquares() { return squares; }    {}
+
+    public List<Track> getTracks() { return tracks; }
 
     public void setTracks(List<Track> tracks) { this.tracks = tracks; }
+
+    public void setTracksTable(Table tracksTable) { this.tracksTable = tracksTable;}
+
+    public void addSquares(List <Square> squares) { this.squares.addAll(squares); }
+    public void addSquare(Square square) { this.squares.add(square); }
 
     public void addTrack(Track track) {
         this.tracks.add(track);

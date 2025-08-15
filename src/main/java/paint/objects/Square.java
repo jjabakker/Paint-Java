@@ -12,7 +12,7 @@ public class Square {
     // Attributes
 
     private String uniqueKey;
-
+    private String recordingName;
     private int squareNumber;
     private int rowNumber;
     private int colNumber;
@@ -237,6 +237,9 @@ public class Square {
 
     public String getUniqueKey() { return uniqueKey; }
     public void setUniqueKey(String uniqueKey) { this.uniqueKey = uniqueKey;}
+
+    public String getRecordingName() { return recordingName; }
+    public void setRecordingName(String recordingName) { this.recordingName = recordingName;}
 
     public int getLabelNumber() { return labelNumber; }
     public void setLabelNumber(int labelNumber) { this.labelNumber = labelNumber; }

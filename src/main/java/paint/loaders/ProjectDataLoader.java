@@ -2,6 +2,8 @@ package paint.loaders;
 
 import net.imglib2.algorithm.math.Exp;
 import paint.calculations.CalculateTauResult;
+import paint.csv.BaseTableIO;
+import paint.csv.TrackTableIO;
 import paint.csv.TrackToTable;
 import paint.objects.*;
 import paint.utilities.ColumnValue;
@@ -120,6 +122,32 @@ public final class ProjectDataLoader {
         int numberTracksInRecording = 0;
         int numberTracksInExperiment = 0;
         int numberTracksInProject = 0;
+
+//        //TrackTableIO trackIO = new TrackTableIO();
+//        // Create your BaseTableIO for Tracks (or Squares, Recordings, etc.)
+//        BaseTableIO<Track> trackIO = new BaseTableIO<Track>(new TrackTableAdapter());
+//
+//        // Start with an empty but structured table
+//        Table combined = trackIO.emptyTable();
+//
+//        // Create or load another table with data
+//        Table newBatch = trackIO.toTable(someTracks);  // or trackIO.readCsv("tracks.csv")
+//
+//        // Append rows from newBatch into combined
+//        combined = trackIO.appended(combined, newBatch);
+//
+//        // Save if needed
+//        trackIO.writeCsv(combined, "all_tracks.csv");
+
+
+        int table_counter = 0;
+        Table tracksTable0 = null;
+        Table tracksTable1 = null;
+        Table tracksTable2 = null;
+
+        TrackTableIO trackIO = new TrackTableIO();
+        Table tracksCombined= trackIO.emptyTable();
+
         for (Experiment experiment : experiments) {
             List<Recording> recordings = experiment.getRecordings();
             for (Recording recording : recordings) {
@@ -128,6 +156,21 @@ public final class ProjectDataLoader {
                 for (Square square : squaresInRecording) {
                     List<Track> tracksInSquare = square.getTracks();
                     tracksTable = toTable(tracksInSquare);
+
+
+                    switch (table_counter) {
+                        case 0:
+                            tracksTable0 = trackIO.toTable(tracksInSquare);
+                            break;
+                        case 1:
+                            tracksTable1 = trackIO.toTable(tracksInSquare);
+                            break;
+                        case 2:
+                            tracksTable2 = trackIO.toTable(tracksInSquare);
+                            break;
+                    }
+                    table_counter += 1;
+
                     if (tracksTable.rowCount() != 0) {
                         projectTracksTable.append(tracksTable);
                         System.out.printf("Added %3d tracks or square %3d of recording %s of experiment %s%n",
@@ -150,6 +193,24 @@ public final class ProjectDataLoader {
         } catch (IOException e) {
             System.err.println("Failed to write tracks to CSV: " + e.getMessage());
         }
+
+
+        //
+        //
+        //
+        //
+
+        tracksCombined = trackIO.appended(tracksCombined, tracksTable0);
+        tracksCombined = trackIO.appended(tracksCombined, tracksTable1);
+        tracksCombined = trackIO.appended(tracksCombined, tracksTable2);
+        try {
+            trackIO.writeCsv(tracksCombined, "/Users/hans/Downloads/test_tracks_combined.csv");
+            writeTracksTableToCSV(tracksCombined, "/Users/hans/Downloads/test_tracks_combined.csv");
+        } catch (IOException e) {
+            System.err.println("Failed to write tracks to CSV: " + e.getMessage());
+        }
+
+
     }
 
     // ---------- Public API ----------

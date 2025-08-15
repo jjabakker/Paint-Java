@@ -51,5 +51,73 @@ public final class PaintConstants {
             "Label Nr"                     // 22
     };
 
+    public static final String[] SQUARE_COLS = {
+            "Unique Key",                       // 0
+            "Recording Name",                   // 1
+            "Square Number",                    // 2
+            "Row Number",                       // 3
+            "Col Number",                       // 4
+            "Label Number",                     // 5
+            "Cell ID",                          // 6
+            "Selected",                         // 7
+            "Square Manually Excluded",         // 8
+            "Image Excluded",                   // 9
+            "X0",                               // 10
+            "Y0",                               // 11
+            "X1",                               // 12
+            "Y1",                               // 13
+            "Number Tracks",                    // 14
+            "Variability",                      // 15
+            "Density",                          // 16
+            "Density Ratio",                    // 17
+            "Tau",                              // 18
+            "RSquared",                         // 19
+            "Median Diffusion Coefficient",     // 20
+            "Mean Diffusion Coefficient",       // 21
+            "Median Diffusion Coefficient Ext", // 22
+            "Mean Diffusion Coefficient Ext",   // 23
+            "Median Long Track Duration",       // 24
+            "Mean Long Track Duration",         // 25
+            "Median Short Track Duration",      // 26
+            "Mean Short Track Duration",        // 27
+            "Median Displacement",              // 28
+            "Max Displacement",                 // 29
+            "Total Displacement",               // 30
+            "Median Max Speed",                 // 31
+            "Max Max Speed",                    // 32
+            "Median Mean Speed",                // 33
+            "Max Mean Speed",                   // 34
+            "Max Track Duration",               // 35
+            "Total Track Duration",             // 36
+            "Median Track Duration"             // 37
+    };
+
+
+    public static final String[] RECORDING_COLS = {
+            "Recording Name",                // 1
+            "Condition Nr",                  // 2
+            "Replicate Nr",                  // 3
+            "Probe Name",                    // 4
+            "Probe Type",                    // 5
+            "Cell Type",                     // 6
+            "Adjuvant",                      // 7
+            "Concentration",                 // 8
+            "Process Flag",                  // 9
+            "Threshold",                     // 10
+            "Number Spots",                  // 11
+            "Number Tracks",                 // 12
+            "Run Time",                      // 13
+            "Recording Size",                // 14
+            "Time Stamp",                    // 15
+            "Number Of Spots In All Tracks", // 16
+            "Exclude",                       // 17
+            "Tau",                           // 18
+            "RSquared",                      // 19
+            "Density"                        // 20
+    };
+
+    public static final String[] EXPERIMENT_COLS = {
+            "experimentName"
+    };
 
 }
