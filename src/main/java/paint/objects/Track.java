@@ -79,19 +79,19 @@ public class Track {
                     case "Track Id":
                         this.trackId = (int) Double.parseDouble(curValue);
                         break;
-                    case "Nr Gaps":
+                    case "Number of Gaps":
                         this.numberGaps = (int) Double.parseDouble(curValue);
                         break;
-                    case "Nr Spots":
+                    case "Number of Spots":
                         this.numberSpots = (int) Double.parseDouble(curValue);
                         break;
                     case "Longest Gap":
                         this.longestGap = (int) Double.parseDouble(curValue);
                         break;
-                    case "Square Nr":
+                    case "Square Number":
                         this.squareNumber = (int) Double.parseDouble(curValue);
                         break;
-                    case "Label Nr":
+                    case "Label Number":
                         this.labelNumber = (int) Double.parseDouble(curValue);
                         break;
 

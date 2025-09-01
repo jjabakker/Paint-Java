@@ -103,23 +103,29 @@ public class Square {
 
                     // Integer values
 
-                    case "Square Nr":
+                    case "Square Number":
                         this.squareNumber = (int) Double.parseDouble(curValue);
                         break;
-                    case "Row Nr":
+                    case "Row Number":
                         this.rowNumber = (int) Double.parseDouble(curValue);
                         break;
-                    case "Col Nr":
+                    case "Column Number":
                         this.colNumber = (int) Double.parseDouble(curValue);
                         break;
-                    case "Label Nr":
+                    case "Label Number":
                         this.labelNumber = (int) Double.parseDouble(curValue);
                         break;
-                    case "Cell Id":
+                    case "Cell ID":
                         this.cellId = (int) Double.parseDouble(curValue);
                         break;
-                    case "Nr Tracks":
+                    case "Number of Tracks":
                         this.numberTracks = (int) Double.parseDouble(curValue);
+                        break;
+
+                    // String values
+
+                    case "Recording Name":
+                        this.recordingName = curValue;
                         break;
 
                     // Double values
@@ -166,8 +172,14 @@ public class Square {
                     case "Median Long Track Duration":
                         this.medianLongTrackDuration = Double.parseDouble(curValue);
                         break;
+                    case "Mean Long Track Duration":
+                        this.meanLongTrackDuration = Double.parseDouble(curValue);
+                        break;
                     case "Median Short Track Duration":
                         this.medianShortTrackDuration = Double.parseDouble(curValue);
+                        break;
+                    case "Mean Short Track Duration":
+                        this.meanShortTrackDuration = Double.parseDouble(curValue);
                         break;
                     case "Median Displacement":
                         this.medianDisplacement = Double.parseDouble(curValue);
@@ -221,7 +233,7 @@ public class Square {
                         break;
 
                     default:
-                        System.out.println("Warning: Unknown column " + cv.getColumnName());
+                        System.out.println("Warning: Unknown column in Square: " + cv.getColumnName());
                         break;
 
                 }

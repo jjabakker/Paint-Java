@@ -55,7 +55,7 @@ public class Recording {
                     case "Recording Name":
                         this.recordingName = curValue;
                         break;
-                    case "Probe":
+                    case "Probe Name":
                         this.probeName = curValue;
                         break;
                     case "Probe Type":
@@ -74,19 +74,19 @@ public class Recording {
 
                     // Integer values
 
-                    case "Condition Nr":
+                    case "Condition Number":
                         this.conditionNr = (int) Double.parseDouble(curValue);
                         break;
-                    case "Replicate Nr":
+                    case "Replicate Number":
                         this.replicateNr = (int) Double.parseDouble(curValue);
                         break;
-                    case "Nr Spots":
+                    case "Number of Spots":
                         this.numberSpots = (int) Double.parseDouble(curValue);
                         break;
-                    case "Nr Tracks":
+                    case "Number of Tracks":
                         this.numberTracks = (int) Double.parseDouble(curValue);
                         break;
-                    case "Nr Spots in All Tracks":
+                    case "Number of Spots in All Tracks":
                         this.numberOfSpotsInAllTracks = (int) Double.parseDouble(curValue);
                         break;
                     case "Recording Size":
@@ -116,7 +116,7 @@ public class Recording {
 
                     // Boolean values
 
-                    case "Process":
+                    case "Process Flag":
                         this.processFlag = checkBooleanValue(curValue);
                         break;
                     case "Exclude":

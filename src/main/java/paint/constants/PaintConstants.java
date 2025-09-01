@@ -56,7 +56,7 @@ public final class PaintConstants {
             "Recording Name",                   // 1
             "Square Number",                    // 2
             "Row Number",                       // 3
-            "Col Number",                       // 4
+            "Column Number",                    // 4
             "Label Number",                     // 5
             "Cell ID",                          // 6
 
@@ -105,26 +105,26 @@ public final class PaintConstants {
 
 
     public static final String[] RECORDING_COLS = {
-            "Recording Name",                // 1
-            "Condition Number",              // 2
-            "Replicate Number",              // 3
-            "Probe Name",                    // 4
-            "Probe Type",                    // 5
-            "Cell Type",                     // 6
-            "Adjuvant",                      // 7
-            "Concentration",                 // 8
-            "Process Flag",                  // 9
-            "Threshold",                     // 10
-            "Number of Spots",               // 11
-            "Number of Tracks",              // 12
-            "Run Time",                      // 13
-            "Recording Size",                // 14
-            "Time Stamp",                    // 15
-            "Number Of Spots In All Tracks", // 16
-            "Exclude",                       // 17
-            "Tau",                           // 18
-            "R Squared",                     // 19
-            "Density"                        // 20
+            "Recording Name",                // 0
+            "Condition Number",              // 1
+            "Replicate Number",              // 2
+            "Probe Name",                    // 3
+            "Probe Type",                    // 4
+            "Cell Type",                     // 5
+            "Adjuvant",                      // 6
+            "Concentration",                 // 7
+            "Process Flag",                  // 8
+            "Threshold",                     // 9
+            "Number of Spots",               // 10
+            "Number of Tracks",              // 11
+            "Run Time",                      // 12
+            "Recording Size",                // 13
+            "Time Stamp",                    // 14
+            "Number of Spots in All Tracks", // 15
+            "Exclude",                       // 16
+            "Tau",                           // 17
+            "R Squared",                     // 18
+            "Density"                        // 19
     };
 
     public static final String[] EXPERIMENT_COLS = {
