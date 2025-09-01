@@ -25,6 +25,22 @@ public class Context {
     public Context(int numberOfSquaresInRecording) {
         setNumberOfSquaresInRecording(numberOfSquaresInRecording);
     }
+
+    public Context(Context other) {
+        this.numberOfSquaresInRecording = other.numberOfSquaresInRecording;
+        this.minRequiredRSquared = other.minRequiredRSquared;
+        this.maxAllowableVariability = other.maxAllowableVariability;
+        this.minRequiredDensityRatio = other.minRequiredDensityRatio;
+        this.minTracksForTau = other.minTracksForTau;
+        this.maxFrameGap = other.maxFrameGap;
+        this.gapClosingMaxDistance = other.gapClosingMaxDistance;
+        this.linkingMaxDistance = other.linkingMaxDistance;
+        this.medianFiltering = other.medianFiltering;
+        this.minNumberOfSpotsInTrack = other.minNumberOfSpotsInTrack;
+        this.neighbourMode = other.neighbourMode;
+    }
+
+
     // Getters and setters
 
     public void setNumberOfSquaresInRecording(String numberOfSquaresInRecording) {

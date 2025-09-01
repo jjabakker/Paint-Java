@@ -18,6 +18,13 @@ public class Project {
         this.experiments = new ArrayList<>();
     }
 
+    public Project(String projectName, Path projectPath, Context context, List<Experiment> experiments) {
+        this.projectName = projectName;
+        this.projectPath = projectPath;
+        this.context = new Context(context);
+        this.experiments = new ArrayList<>(experiments);
+    }
+
     public Project(Path projectPath) {
         this.projectName = projectPath.getFileName().toString();
         this.projectPath = projectPath;
