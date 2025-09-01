@@ -62,6 +62,8 @@ public final class ProjectDataLoader {
             }
 
             System.out.println("Project: " + projectPath.getFileName().toString());
+
+            // This is the actual call to read in a project
             project = loadProject(projectPath, matureProject);
 
         } catch (Exception e) {
@@ -73,22 +75,23 @@ public final class ProjectDataLoader {
 
         //
         //
+        // At this point the project has been read in and we can inspect it
         //
         //
 
         // Get the first recording from the first experiment and look for the squares that have sufficient tracks
-        Experiment exp = project.getExperiments().get(0);                                                 // Get the experiment in the project
-        Recording rec = exp.getRecordings().get(0);                                                       // Get the first recording in the expriment
-        List<Square> squares = rec.getSquares();
+        Experiment exp = project.getExperiments().get(0);                                                 // Get the first experiment in the project
+        Recording rec = exp.getRecordings().get(0);                                                       // Get the first recording in the experiment
+        List<Square> squares = rec.getSquares();                                                          // Get a list of all the squares in the recording
         int minNumberOfTracksForTau = 0;
         double minRequiredSQuared = 0.9;
         int index = 0;
         Table tracksTable;
         Table experimentTracksTable = TrackToTable.emptyTrackTable();
-        for (Square sq : squares) {                                                                       // Iterate through that list
-            if (sq.getNumberTracks() >= minNumberOfTracksForTau) {                                       // Only if the square has more than 20 tracks
+        for (Square sq : squares) {                                                                       // Iterate through the list of squares
+            if (sq.getNumberTracks() >= minNumberOfTracksForTau) {                                        // Only if the square has more than the min number of tracks
                 List<Track> tracks = sq.getTracks();                                                      // Get a list of all the tracks in the square
-                CalculateTauResult result = calculateTau(tracks, minNumberOfTracksForTau, minRequiredSQuared);
+                CalculateTauResult result = calculateTau(tracks, minNumberOfTracksForTau, minRequiredSQuared);  // Calculate the Tau
                 if (result.getStatus() == CalculateTauResult.Status.TAU_SUCCESS) {
                     System.out.printf("Status: %-30s Tau: %6.1f  R_Squared : %3.6f%n", result.getStatus(), result.getTau(), result.getRSquared());
                     try {
@@ -112,30 +115,15 @@ public final class ProjectDataLoader {
 
         //
         //
+         // Here we start with the new IO
         //
         //
 
         Table projectTracksTable = TrackToTable.emptyTrackTable();
-        List<Experiment> experiments = project.getExperiments();
+
         int numberTracksInRecording = 0;
         int numberTracksInExperiment = 0;
         int numberTracksInProject = 0;
-
-//        //TrackTableIO trackIO = new TrackTableIO();
-//        // Create your BaseTableIO for Tracks (or Squares, Recordings, etc.)
-//        BaseTableIO<Track> trackIO = new BaseTableIO<Track>(new TrackTableAdapter());
-//
-//        // Start with an empty but structured table
-//        Table combined = trackIO.emptyTable();
-//
-//        // Create or load another table with data
-//        Table newBatch = trackIO.toTable(someTracks);  // or trackIO.readCsv("tracks.csv")
-//
-//        // Append rows from newBatch into combined
-//        combined = trackIO.appended(combined, newBatch);
-//
-//        // Save if needed
-//        trackIO.writeCsv(combined, "all_tracks.csv");
 
 
         int table_counter = 0;
@@ -143,28 +131,28 @@ public final class ProjectDataLoader {
         Table tracksTable1 = null;
         Table tracksTable2 = null;
 
-        TrackTableIO trackIO = new TrackTableIO();
-        Table tracksCombined= trackIO.emptyTable();
+        TrackTableIO trackTableIO = new TrackTableIO();                          // Create a new TrackTableIO object
+        Table tracksCombined = trackTableIO.emptyTable();                        // Create a new empty table to hold the combined tracks
 
-        for (Experiment experiment : experiments) {
+        List<Experiment> experiments = project.getExperiments();
+        for (Experiment experiment : experiments) {                         // Loop through the experiments
             List<Recording> recordings = experiment.getRecordings();
-            for (Recording recording : recordings) {
+            for (Recording recording : recordings) {                        // Loop through the recordings
                 List<Square> squaresInRecording = recording.getSquares();
                 numberTracksInRecording = 0;
-                for (Square square : squaresInRecording) {
-                    List<Track> tracksInSquare = square.getTracks();
-                    tracksTable = toTable(tracksInSquare);
-
+                for (Square square : squaresInRecording) {                  // Loop through the squares in the recording
+                    List<Track> tracksInSquare = square.getTracks();        // Get the list of tracks for each square
+                    tracksTable = trackTableIO.toTable(tracksInSquare);     // Convert the tracks to a table
 
                     switch (table_counter) {
                         case 0:
-                            tracksTable0 = trackIO.toTable(tracksInSquare);
+                            tracksTable0 = tracksTable.copy();
                             break;
                         case 1:
-                            tracksTable1 = trackIO.toTable(tracksInSquare);
+                            tracksTable1 = tracksTable.copy();
                             break;
                         case 2:
-                            tracksTable2 = trackIO.toTable(tracksInSquare);
+                            tracksTable2 = tracksTable.copy();
                             break;
                     }
                     table_counter += 1;
@@ -195,15 +183,15 @@ public final class ProjectDataLoader {
 
         //
         //
+        // Now append the tables to the combined table and write to disk
         //
         //
 
-        tracksCombined = trackIO.appended(tracksCombined, tracksTable0);
-        tracksCombined = trackIO.appended(tracksCombined, tracksTable1);
-        tracksCombined = trackIO.appended(tracksCombined, tracksTable2);
+        tracksCombined = trackTableIO.appended(tracksCombined, tracksTable0);
+        tracksCombined = trackTableIO.appended(tracksCombined, tracksTable1);
+        tracksCombined = trackTableIO.appended(tracksCombined, tracksTable2);
         try {
-            trackIO.writeCsv(tracksCombined, "/Users/hans/Downloads/test_tracks_combined.csv");
-            writeTracksTableToCSV(tracksCombined, "/Users/hans/Downloads/test_tracks_combined.csv");
+            trackTableIO.writeCsv(tracksCombined, "/Users/hans/Downloads/test_tracks_combined.csv");
         } catch (IOException e) {
             System.err.println("Failed to write tracks to CSV: " + e.getMessage());
         }

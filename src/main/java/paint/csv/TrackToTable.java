@@ -90,13 +90,14 @@ public class TrackToTable {
         }
 
         return Table.create("tracks",
-                c0, c1, c2, c3, c4, c5, c6,
-                c7, c8, c9, c10, c11, c12, c13,
-                c14, c15, c16, c17, c18, c19, c20, c21, c22
+                c0,  c1,  c2,  c3,  c4,  c5,  c6,  c7,  c8,  c9,
+                c10, c11, c12, c13, c14, c15, c16, c17, c18, c19,
+                c20, c21, c22
         );
     }
 
     /** Convert Tablesaw Table -> List<Track> (expects exact schema/order). */
+
     public static List<Track> toTracks(Table table) {
         // Validate header matches TRACK_COLS
         for (int i = 0; i < TRACK_COLS.length; i++) {
@@ -163,12 +164,21 @@ public class TrackToTable {
 
     // --- Append helpers that gracefully handle nulls ---
     private static void append(StringColumn col, String v) {
-        if (v == null) col.appendMissing(); else col.append(v);
+        if (v == null)
+            col.appendMissing();
+        else
+            col.append(v);
     }
+
     private static void append(IntColumn col, Integer v) {
-        if (v == null) col.appendMissing(); else col.append(v);
+        if (v == null)
+            col.appendMissing();
+        else col.append(v);
     }
     private static void append(DoubleColumn col, Double v) {
-        if (v == null) col.appendMissing(); else col.append(v);
+        if (v == null)
+            col.appendMissing();
+        else
+            col.append(v);
     }
 }

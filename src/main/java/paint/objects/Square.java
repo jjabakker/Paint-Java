@@ -427,8 +427,6 @@ public class Square {
     }
 
 
-
-
     public static void main(String[] args) {
         List<Square> squares = new ArrayList<>();
         for (int i = 0; i < 21; i++) {

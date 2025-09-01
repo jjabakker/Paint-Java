@@ -236,7 +236,7 @@ public class Recording {
     public double getDensity() { return density; }
     public void setDensity(double density) { this.density = density; }
 
-    public List<Square> getSquares() { return squares; }    {}
+    public List<Square> getSquares() { return squares; }
 
     public List<Track> getTracks() { return tracks; }
 
