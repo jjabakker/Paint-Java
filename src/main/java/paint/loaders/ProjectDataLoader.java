@@ -84,7 +84,7 @@ public final class ProjectDataLoader {
         Table projectTracks = trackTableIO.emptyTable();                         // Create a new empty table to hold the combined tracks
 
         RecordingTableIO recordingTableIO = new RecordingTableIO();              // Create a new RecordingTableIO object
-        Table projectRecordings = trackTableIO.emptyTable();                     // Create a new empty table to hold the combined recordings
+        Table projectRecordings = recordingTableIO.emptyTable();                     // Create a new empty table to hold the combined recordings
 
         SquareTableIO squareTableIO = new SquareTableIO();                       // Create a new RecordingTableIO object
         Table projectSquares = squareTableIO.emptyTable();                       // Create a new empty table to hold the combined recordings
@@ -105,6 +105,10 @@ public final class ProjectDataLoader {
                 System.out.printf("\t%s\n", rec.getRecordingName());
             }
 
+            // Compile all the recordings into a single table
+            Table recordingsTable = recordingTableIO.toTable(exp.getRecordings());
+            projectRecordings = recordingTableIO.appended(projectRecordings, recordingsTable);
+
             for (Recording rec : exp.getRecordings()) {
                 System.out.printf("\n");
                 System.out.printf("Recording: %s\n", rec.getRecordingName());
@@ -115,8 +119,16 @@ public final class ProjectDataLoader {
                     if (square.getTracks().size() != 0) {
                         numberOfTracksInSquare += square.getTracks().size();
 
-                        Table tracksTable = trackTableIO.toTable(square.getTracks());
+                        // Compile all the tracks into a single table
+                        // You can do this, but it is very slow
+                        // Table tracksTable = trackTableIO.toTable(square.getTracks());
                         // projectTracks = trackTableIO.appended(projectTracks, tracksTable);
+
+
+                        // Compile all the squares into a single table
+                        // You can do this, but it is very slow
+                        // Table squaresTable = squareTableIO.toTable(rec.getSquares());
+                        // projectSquares = squareTableIO.appended(projectSquares, squaresTable);
                     }
                 }
 
