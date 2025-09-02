@@ -18,8 +18,13 @@ public class RecordingTableIO extends BaseTableIO<Recording> {
 
     private static class RecordingAdapter implements EntityTableAdapter<Recording> {
 
-        public String tableName() { return "recordings"; }
-        public String[] columns() { return RECORDING_COLS; }
+        public String tableName() {
+            return "recordings";
+        }
+
+        public String[] columns() {
+            return RECORDING_COLS;
+        }
 
         public ColumnType[] columnTypes() {
             return new ColumnType[] {
@@ -84,7 +89,6 @@ public class RecordingTableIO extends BaseTableIO<Recording> {
             ((DoubleColumn ) c.get(7)).append(r.getConcentration());
             ((BooleanColumn) c.get(8)).append(r.isProcessFlag());
             ((DoubleColumn ) c.get(9)).append(r.getThreshold());
-
             ((IntColumn    ) c.get(10)).append(r.getNumberSpots());
             ((IntColumn    ) c.get(11)).append(r.getNumberTracks());
             ((DoubleColumn ) c.get(12)).append(r.getRunTime());

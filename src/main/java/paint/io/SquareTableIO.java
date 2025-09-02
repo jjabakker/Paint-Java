@@ -17,8 +17,13 @@ public class SquareTableIO extends BaseTableIO<Square> {
 
     private static class SquareAdapter implements EntityTableAdapter<Square> {
 
-        public String tableName() { return "squares"; }
-        public String[] columns() { return SQUARE_COLS; }
+        public String tableName() {
+            return "squares";
+        }
+
+        public String[] columns() {
+            return SQUARE_COLS;
+        }
 
         public ColumnType[] columnTypes() {
             return new ColumnType[] {
@@ -28,7 +33,7 @@ public class SquareTableIO extends BaseTableIO<Square> {
                     ColumnType.INTEGER, // rowNumber
                     ColumnType.INTEGER, // colNumber
                     ColumnType.INTEGER, // labelNumber
-                    ColumnType.INTEGER, // cellId
+                    ColumnType.INTEGER, // cellID
 
                     ColumnType.BOOLEAN, // selected
                     ColumnType.BOOLEAN, // squareManuallyExcluded
@@ -48,11 +53,13 @@ public class SquareTableIO extends BaseTableIO<Square> {
 
                     ColumnType.DOUBLE,  // medianDiffusionCoefficient
                     ColumnType.DOUBLE,  // meanDiffusionCoefficient
+
                     ColumnType.DOUBLE,  // medianDiffusionCoefficientExt
                     ColumnType.DOUBLE,  // meanDiffusionCoefficientExt
 
                     ColumnType.DOUBLE,  // medianLongTrackDuration
                     ColumnType.DOUBLE,  // meanLongTrackDuration
+
                     ColumnType.DOUBLE,  // medianShortTrackDuration
                     ColumnType.DOUBLE,  // meanShortTrackDuration
 
@@ -81,38 +88,48 @@ public class SquareTableIO extends BaseTableIO<Square> {
             c.add(IntColumn.create    (SQUARE_COLS[4]));
             c.add(IntColumn.create    (SQUARE_COLS[5]));
             c.add(IntColumn.create    (SQUARE_COLS[6]));
+
             c.add(BooleanColumn.create(SQUARE_COLS[7]));
             c.add(BooleanColumn.create(SQUARE_COLS[8]));
             c.add(BooleanColumn.create(SQUARE_COLS[9]));
+
             c.add(DoubleColumn.create (SQUARE_COLS[10]));
             c.add(DoubleColumn.create (SQUARE_COLS[11]));
             c.add(DoubleColumn.create (SQUARE_COLS[12]));
             c.add(DoubleColumn.create (SQUARE_COLS[13]));
+
             c.add(IntColumn.create    (SQUARE_COLS[14]));
             c.add(DoubleColumn.create (SQUARE_COLS[15]));
             c.add(DoubleColumn.create (SQUARE_COLS[16]));
             c.add(DoubleColumn.create (SQUARE_COLS[17]));
             c.add(DoubleColumn.create (SQUARE_COLS[18]));
             c.add(DoubleColumn.create (SQUARE_COLS[19]));
+
             c.add(DoubleColumn.create (SQUARE_COLS[20]));
             c.add(DoubleColumn.create (SQUARE_COLS[21]));
+
             c.add(DoubleColumn.create (SQUARE_COLS[22]));
             c.add(DoubleColumn.create (SQUARE_COLS[23]));
+
             c.add(DoubleColumn.create (SQUARE_COLS[24]));
             c.add(DoubleColumn.create (SQUARE_COLS[25]));
+
             c.add(DoubleColumn.create (SQUARE_COLS[26]));
             c.add(DoubleColumn.create (SQUARE_COLS[27]));
+
             c.add(DoubleColumn.create (SQUARE_COLS[28]));
             c.add(DoubleColumn.create (SQUARE_COLS[29]));
             c.add(DoubleColumn.create (SQUARE_COLS[30]));
+
             c.add(DoubleColumn.create (SQUARE_COLS[31]));
             c.add(DoubleColumn.create (SQUARE_COLS[32]));
+
             c.add(DoubleColumn.create (SQUARE_COLS[33]));
             c.add(DoubleColumn.create (SQUARE_COLS[34]));
+
             c.add(DoubleColumn.create (SQUARE_COLS[35]));
             c.add(DoubleColumn.create (SQUARE_COLS[36]));
             c.add(DoubleColumn.create (SQUARE_COLS[37]));
-            c.add(DoubleColumn.create (SQUARE_COLS[38]));
             return c;
         }
 
@@ -144,11 +161,13 @@ public class SquareTableIO extends BaseTableIO<Square> {
 
             ((DoubleColumn ) c.get(20)).append(s.getMedianDiffusionCoefficient());
             ((DoubleColumn ) c.get(21)).append(s.getMeanDiffusionCoefficient());
+
             ((DoubleColumn ) c.get(22)).append(s.getMedianDiffusionCoefficientExt());
             ((DoubleColumn ) c.get(23)).append(s.getMeanDiffusionCoefficientExt());
 
             ((DoubleColumn ) c.get(24)).append(s.getMedianLongTrackDuration());
             ((DoubleColumn ) c.get(25)).append(s.getMeanLongTrackDuration());
+
             ((DoubleColumn ) c.get(26)).append(s.getMedianShortTrackDuration());
             ((DoubleColumn ) c.get(27)).append(s.getMeanShortTrackDuration());
 
@@ -195,11 +214,13 @@ public class SquareTableIO extends BaseTableIO<Square> {
 
             s.setMedianDiffusionCoefficient(t.doubleColumn(SQUARE_COLS[20]).getDouble(r));
             s.setMeanDiffusionCoefficient(t.doubleColumn(SQUARE_COLS[21]).getDouble(r));
+
             s.setMedianDiffusionCoefficientExt(t.doubleColumn(SQUARE_COLS[22]).getDouble(r));
             s.setMeanDiffusionCoefficientExt(t.doubleColumn(SQUARE_COLS[23]).getDouble(r));
 
             s.setMedianLongTrackDuration(t.doubleColumn(SQUARE_COLS[24]).getDouble(r));
             s.setMeanLongTrackDuration(t.doubleColumn(SQUARE_COLS[25]).getDouble(r));
+
             s.setMedianShortTrackDuration(t.doubleColumn(SQUARE_COLS[26]).getDouble(r));
             s.setMeanShortTrackDuration(t.doubleColumn(SQUARE_COLS[27]).getDouble(r));
 

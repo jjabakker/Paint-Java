@@ -12,12 +12,19 @@ import static paint.constants.PaintConstants.EXPERIMENT_COLS;
 
 public class ExperimentTableIO extends BaseTableIO<Experiment> {
 
-    public ExperimentTableIO() { super(new ExperimentAdapter()); }
+    public ExperimentTableIO() {
+        super(new ExperimentAdapter());
+    }
 
     private static class ExperimentAdapter implements EntityTableAdapter<Experiment> {
 
-        public String tableName() { return "experiments"; }
-        public String[] columns() { return EXPERIMENT_COLS; }
+        public String tableName() {
+            return "experiments";
+        }
+
+        public String[] columns() {
+            return EXPERIMENT_COLS;
+        }
 
         public ColumnType[] columnTypes() {
             return new ColumnType[] {
