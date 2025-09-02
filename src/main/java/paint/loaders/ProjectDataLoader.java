@@ -56,9 +56,6 @@ public final class ProjectDataLoader {
                 }
             }
 
-            // System.out.println("Project: " + projectPath.getFileName().toString());
-
-            // This is the actual call to read in a project
             project = loadProject(projectPath, matureProject);
 
         } catch (Exception e) {
@@ -66,8 +63,11 @@ public final class ProjectDataLoader {
             System.exit(1);
         }
 
-        // System.out.println(project);
+        System.out.println(project);
+
         // evaluateProject(project);
+
+        System.out.println("\n\n\n\n");
         cycleThroughProject(project);
     }
 
@@ -81,15 +81,16 @@ public final class ProjectDataLoader {
         int numberOfTracksInProject = 0;
 
         TrackTableIO trackTableIO = new TrackTableIO();                          // Create a new TrackTableIO object
-        Table projectTracks = trackTableIO.emptyTable();                        // Create a new empty table to hold the combined tracks
+        Table projectTracks = trackTableIO.emptyTable();                         // Create a new empty table to hold the combined tracks
 
         RecordingTableIO recordingTableIO = new RecordingTableIO();              // Create a new RecordingTableIO object
-        Table projectRecordings = trackTableIO.emptyTable();                      // Create a new empty table to hold the combined recordings
+        Table projectRecordings = trackTableIO.emptyTable();                     // Create a new empty table to hold the combined recordings
 
         SquareTableIO squareTableIO = new SquareTableIO();                       // Create a new RecordingTableIO object
-        Table Projectsquares = squareTableIO.emptyTable();                        // Create a new empty table to hold the combined recordings
+        Table projectSquares = squareTableIO.emptyTable();                       // Create a new empty table to hold the combined recordings
 
         System.out.printf("Project: %s has the following context:\n",project.getProjectName());
+        System.out.println(project.getContext());
         System.out.printf("Project %s has %d experiments:\n", project.getProjectName(), project.getExperiments().size());
 
         for (Experiment exp : project.getExperiments()) {
@@ -112,7 +113,10 @@ public final class ProjectDataLoader {
                 int numberOfTracksInSquare = 0;
                 for (Square square: rec.getSquares()) {
                     if (square.getTracks().size() != 0) {
-                        numberOfTracksInSquare += square.getTracks().size() ;
+                        numberOfTracksInSquare += square.getTracks().size();
+
+                        Table tracksTable = trackTableIO.toTable(square.getTracks());
+                        // projectTracks = trackTableIO.appended(projectTracks, tracksTable);
                     }
                 }
 
@@ -122,6 +126,20 @@ public final class ProjectDataLoader {
             System.out.printf("Number of tracks in experiment: %d\n", numberOfTracksInExperiment);
         }
         System.out.printf("\nNumber of tracks in project: %d\n", numberOfTracksInProject);
+
+        try {
+            if (projectTracks != null && projectTracks.rowCount() != 0) {
+                trackTableIO.writeCsv(projectTracks, "/Users/hans/Downloads/test_tracks_combined.csv");
+            }
+            if (projectRecordings != null && projectRecordings.rowCount() != 0) {
+                recordingTableIO.writeCsv(projectRecordings, "/Users/hans/Downloads/test_recordings_combined.csv");
+            }
+            if (projectSquares != null && projectSquares.rowCount() != 0) {
+                squareTableIO.writeCsv(projectSquares, "/Users/hans/Downloads/test_squares_combined.csv");
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to write tracks to CSV: " + e.getMessage());
+        }
     }
 
     public static void evaluateProject(Project project) {

@@ -265,23 +265,23 @@ public class Recording {
 //        sb.append("----------------------------------------------------------------------\n");
 
         //sb.append(String.format("%Recording data%n"));
-        sb.append(String.format("\tRecording Name                : %s%n", recordingName));
-        sb.append(String.format("\tCondition Nr                  : %d%n", conditionNr));
-        sb.append(String.format("\tReplicate Nr                  : %d%n", replicateNr));
-        sb.append(String.format("\tProbe Name                    : %s%n", probeName));
-        sb.append(String.format("\tProbe Type                    : %s%n", probeType));
-        sb.append(String.format("\tCell Type                     : %s%n", cellType));
-        sb.append(String.format("\tAdjuvant                      : %s%n", adjuvant));
+        sb.append(String.format("\tRecording Name                : %s%n",   recordingName));
+        sb.append(String.format("\tCondition Nr                  : %d%n",   conditionNr));
+        sb.append(String.format("\tReplicate Nr                  : %d%n",   replicateNr));
+        sb.append(String.format("\tProbe Name                    : %s%n",   probeName));
+        sb.append(String.format("\tProbe Type                    : %s%n",   probeType));
+        sb.append(String.format("\tCell Type                     : %s%n",   cellType));
+        sb.append(String.format("\tAdjuvant                      : %s%n",   adjuvant));
         sb.append(String.format("\tConcentration                 : %.2f%n", concentration));
         sb.append(String.format("\tThreshold                     : %.2f%n", threshold));
-        // sb.append(String.format("\tProcess                       : %b%n", processFlag));
-        sb.append(String.format("\tExclude                       : %b%n", exclude));
-        sb.append(String.format("\tTime Stamp                    : %s%n", timeStamp));
-        sb.append(String.format("\tNumber of Spots               : %d%n", numberSpots));
-        sb.append(String.format("\tNumber of Tracks              : %d%n", numberTracks));
-        sb.append(String.format("\tNumber of Spots in All Tracks : %d%n", numberOfSpotsInAllTracks));
+//      sb.append(String.format("\tProcess                       : %b%n",   processFlag));
+        sb.append(String.format("\tExclude                       : %b%n",   exclude));
+        sb.append(String.format("\tTime Stamp                    : %s%n",   timeStamp));
+        sb.append(String.format("\tNumber of Spots               : %d%n",   numberSpots));
+        sb.append(String.format("\tNumber of Tracks              : %d%n",   numberTracks));
+        sb.append(String.format("\tNumber of Spots in All Tracks : %d%n",   numberOfSpotsInAllTracks));
         sb.append(String.format("\tRun Time                      : %.2f%n", runTime));
-        sb.append(String.format("\tRecording Size                : %d%n", recordingSize));
+        sb.append(String.format("\tRecording Size                : %d%n",   recordingSize));
         sb.append(String.format("\tTau                           : %.2f%n", tau));
         sb.append(String.format("\tR Squared                     : %.2f%n", rSquared));
         sb.append(String.format("\tDensity                       : %.2f%n", density));
@@ -292,6 +292,15 @@ public class Recording {
         if (squares != null) {
             sb.append(String.format("\tNumber of square              : %d%n", squares.size()));
         }
+
+        int numberOfSquaresWithTracks = 0;
+        for (Square square : squares) {
+            if (square.getTracks() != null && square.getTracks().size() > 0) {
+                numberOfSquaresWithTracks += 1;
+            };
+        }
+        sb.append(String.format("\tNumber of squares with tracks : %d%n", numberOfSquaresWithTracks));
+
 
         return sb.toString();
     }

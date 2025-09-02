@@ -92,9 +92,11 @@ public class Project {
         }
 
         for (Experiment experiment : experiments) {
+            sb.append("\n");
             sb.append(experiment);
             List <Recording> recordings = experiment.getRecordings();
             for (Recording rec : recordings) {
+                sb.append("\n");
                 sb.append(rec);
             }
         }
