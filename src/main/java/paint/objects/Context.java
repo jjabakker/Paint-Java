@@ -7,6 +7,8 @@ import java.util.Set;
 public class Context {
 
     private int numberOfSquaresInRecording;
+    private int numberOfSquaresInRow;
+    private int numberOfSquaresInColumn;
     private double minRequiredRSquared;
     private double maxAllowableVariability;
     private double minRequiredDensityRatio;
@@ -28,6 +30,8 @@ public class Context {
 
     public Context(Context other) {
         this.numberOfSquaresInRecording = other.numberOfSquaresInRecording;
+        this.numberOfSquaresInRow = other.numberOfSquaresInRow;
+        this.numberOfSquaresInColumn = other.numberOfSquaresInColumn;
         this.minRequiredRSquared = other.minRequiredRSquared;
         this.maxAllowableVariability = other.maxAllowableVariability;
         this.minRequiredDensityRatio = other.minRequiredDensityRatio;
@@ -56,6 +60,8 @@ public class Context {
     public void setNumberOfSquaresInRecording(int numberOfSquaresInRecording) {
       if (isPerfectSquare(numberOfSquaresInRecording)) {
           this.numberOfSquaresInRecording = numberOfSquaresInRecording;
+          this.numberOfSquaresInRow = (int) Math.sqrt(numberOfSquaresInRecording);
+          this.numberOfSquaresInColumn = (int) Math.sqrt(numberOfSquaresInRecording);
       } else {
           System.out.println("Number of squares in recording must be a perfect square.");
           System.exit(1);
@@ -64,6 +70,14 @@ public class Context {
 
     public int getNumberOfSquaresInRecording() {
         return this.numberOfSquaresInRecording;
+    }
+
+    public int getNumberOfSquaresInRow() {
+        return this.numberOfSquaresInRow;
+    }
+
+    public int getNumberOfSquaresInColumn() {
+        return this.numberOfSquaresInColumn;
     }
 
     public void setMaxFrameGap(int maxFrameGap) {
@@ -114,12 +128,9 @@ public class Context {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("\n\n");
-        sb.append("----------------------------------------------------------------------\n");
-        sb.append("Context\n");
-        sb.append("----------------------------------------------------------------------\n");
-        sb.append("\n");
         sb.append(String.format("\tNr of Squares in Recording   : %d%n", numberOfSquaresInRecording));
+        sb.append(String.format("\tNr of Squares in Row         : %d%n", numberOfSquaresInRow));
+        sb.append(String.format("\tNr of Squares in Column      : %d%n", numberOfSquaresInColumn));
         sb.append(String.format("\tMax Allowable Variability    : %.2f%n", maxAllowableVariability));
         sb.append(String.format("\tMin Required Density Ratio   : %.2f%n", minRequiredDensityRatio));
         sb.append(String.format("\tMin Required R Squared       : %.2f%n", minRequiredRSquared));

@@ -36,7 +36,7 @@ public class TrackTableIO extends BaseTableIO<Track> {
                     ColumnType.STRING,   // trackLabel
                     ColumnType.INTEGER,  // numberSpots
                     ColumnType.INTEGER,  // numberGaps
-                    ColumnType.DOUBLE,   // longestGap  (double per your earlier codepath)
+                    ColumnType.INTEGER,  // longestGap
                     ColumnType.DOUBLE,   // trackDuration
                     ColumnType.DOUBLE,   // trackXLocation
                     ColumnType.DOUBLE,   // trackYLocation
@@ -114,7 +114,7 @@ public class TrackTableIO extends BaseTableIO<Track> {
         public Track readEntity(Table table, int r) {
             Track t = new Track();
             t.setUniqueKey(table.stringColumn(TRACK_COLS[0]).get(r));
-            t.setUniqueKey(table.stringColumn(TRACK_COLS[1]).get(r));
+            t.setRecordingName(table.stringColumn(TRACK_COLS[1]).get(r));
             t.setTrackId(table.intColumn(TRACK_COLS[2]).getInt(r));
             t.setTrackLabel(table.stringColumn(TRACK_COLS[3]).get(r));
             t.setNumberSpots(table.intColumn(TRACK_COLS[4]).getInt(r));
@@ -134,8 +134,8 @@ public class TrackTableIO extends BaseTableIO<Track> {
             t.setDiffusionCoefficientExt(table.doubleColumn(TRACK_COLS[18]).getDouble(r));
             t.setTotalDistance(table.doubleColumn(TRACK_COLS[19]).getDouble(r));
             t.setConfinementRatio(table.doubleColumn(TRACK_COLS[20]).getDouble(r));
-            t.setTrackId(table.intColumn(TRACK_COLS[21]).getInt(r));
-            t.setTrackId(table.intColumn(TRACK_COLS[22]).getInt(r));
+            t.setSquareNumber(table.intColumn(TRACK_COLS[21]).getInt(r));
+            t.setLabelNumber(table.intColumn(TRACK_COLS[22]).getInt(r));
             return t;
         }
     }

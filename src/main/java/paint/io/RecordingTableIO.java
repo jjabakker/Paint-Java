@@ -14,7 +14,9 @@ import static paint.constants.PaintConstants.RECORDING_COLS;
 
 public class RecordingTableIO extends BaseTableIO<Recording> {
 
-    public RecordingTableIO() { super(new RecordingAdapter()); }
+    public RecordingTableIO() {
+        super(new RecordingAdapter());
+    }
 
     private static class RecordingAdapter implements EntityTableAdapter<Recording> {
 

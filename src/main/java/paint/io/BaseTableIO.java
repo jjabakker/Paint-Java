@@ -6,7 +6,7 @@ import tech.tablesaw.io.csv.CsvReadOptions;
 import tech.tablesaw.columns.Column;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,9 +67,15 @@ public class BaseTableIO<E> {
         normalized.write().csv(filePath);
     }
 
+    public void writeCsv(Table table, Path filePath) throws IOException {
+        // adapter.columns() is String[] -> OK for varargs
+        Table normalized = table.copy().retainColumns(adapter.columns());
+        normalized.write().csv(filePath.toString());
+    }
+
     /** Read CSV forcing the adapter’s column types; validates header order. */
-    public Table readCsv(String filePath) throws IOException {
-        CsvReadOptions opts = CsvReadOptions.builder(Paths.get(filePath).toFile())
+    public Table readCsv(Path filePath) throws IOException {
+        CsvReadOptions opts = CsvReadOptions.builder(filePath.toFile())
                 .header(true)
                 .columnTypes(adapter.columnTypes())
                 .build();
@@ -100,8 +106,8 @@ public class BaseTableIO<E> {
 
     /** Return a new table that is a copy of 'a' with rows from 'b' appended.
      * You can call this repeatedly to append multiple tables.
-     * trackIO.appendInPlace(combined, batch1);        // modifies 'combined'
-     * trackIO.appendInPlace(combined, batch2);        // modifies 'combined' again
+     * trackIO.appendInPlace(combined, batch1);  // modifies 'combined'
+     * trackIO.appendInPlace(combined, batch2);  // modifies 'combined' again
      * @param target - the table to append to.
      * @param source - the table to append.
     */
@@ -109,7 +115,7 @@ public class BaseTableIO<E> {
     public void appendInPlace(Table target, Table source) {
         validateHeader(target, adapter.columns());
         validateHeader(source, adapter.columns());
-        target.append(source);   // We have checked the headers already, so a direct append this is safe
+        target.append(source);   // We have checked the headers already, so a direct 'append' is safe
 
         // This is the tablesaw way to append tables
         // String[] cols = target.columnNames().toArray(new String[target.columnCount()]);

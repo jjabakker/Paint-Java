@@ -259,10 +259,10 @@ public class Recording {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("\n\n");
-        sb.append("----------------------------------------------------------------------\n");
-        sb.append("Recording: ").append(recordingName).append("\n");
-        sb.append("----------------------------------------------------------------------\n");
+//        sb.append("\n\n");
+//        sb.append("----------------------------------------------------------------------\n");
+//        sb.append("Recording: ").append(recordingName).append("\n");
+//        sb.append("----------------------------------------------------------------------\n");
 
         //sb.append(String.format("%Recording data%n"));
         sb.append(String.format("\tRecording Name                : %s%n", recordingName));
@@ -287,10 +287,10 @@ public class Recording {
         sb.append(String.format("\tDensity                       : %.2f%n", density));
 
         if (tracks != null) {
-            sb.append(String.format("%nRecording %s has %d tracks", recordingName, tracks.size()));
+            sb.append(String.format("\tNumber of tracks              : %d%n", tracks.size()));
         }
         if (squares != null) {
-            sb.append(String.format("%nRecording %s has %d squares%n", recordingName, squares.size()));
+            sb.append(String.format("\tNumber of square              : %d%n", squares.size()));
         }
 
         return sb.toString();

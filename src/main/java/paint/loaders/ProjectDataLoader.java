@@ -3,15 +3,13 @@ package paint.loaders;
 import paint.calculations.CalculateTauResult;
 import paint.io.RecordingTableIO;
 import paint.io.TrackTableIO;
-import paint.io.ExperimentTableIO;
+
 import paint.io.SquareTableIO;
 import paint.csv.TrackToTable;
 import paint.objects.*;
-import paint.utilities.ColumnValue;
 
 import paint.utilities.ExceptionUtils;
 import tech.tablesaw.api.*;
-import tech.tablesaw.columns.Column;
 import tech.tablesaw.io.csv.CsvReadOptions;
 import tech.tablesaw.selection.Selection;
 
@@ -24,9 +22,6 @@ import java.util.*;
 
 import static paint.calculations.CalculateTau.calculateTau;
 import static paint.constants.PaintConstants.*;
-import static paint.csv.TrackCSVWriter.writeTracksTableToCSV;
-import static paint.csv.TrackCSVWriter.writeTracksToCSV;
-import static paint.csv.TrackToTable.toTable;
 
 import paint.utilities.JsonConfig;
 
@@ -46,25 +41,22 @@ public final class ProjectDataLoader {
                 System.out.println("Usage: java -cp <jar> paint.loaders.PainProjectLoader <project-root-path> [--mature|--legacy]");
                 System.out.println("  <project-root-path>  Path containing Experiment Info.csv and experiment directories");
                 System.out.println("  --mature             Expect squares file (All Squares.csv) in experiments (default)");
-                System.out.println("  --legacy             Do not require squares file");
                 return;
             }
 
-            boolean matureProject = true;
+            boolean matureProject = false;
 
             if (args.length > 1) {
-                if ("--legacy".equalsIgnoreCase(args[1])) {
-                    matureProject = false;
-                } else if ("--mature".equalsIgnoreCase(args[1])) {
+                if ("--mature".equalsIgnoreCase(args[1])) {
                     matureProject = true;
                 } else {
                     System.err.println("Unknown option: " + args[1]);
-                    System.out.println("Use --mature or --legacy (default is --mature).");
+                    System.out.println("Use --mature.");
                     System.exit(2);
                 }
             }
 
-            System.out.println("Project: " + projectPath.getFileName().toString());
+            // System.out.println("Project: " + projectPath.getFileName().toString());
 
             // This is the actual call to read in a project
             project = loadProject(projectPath, matureProject);
@@ -74,13 +66,65 @@ public final class ProjectDataLoader {
             System.exit(1);
         }
 
-        System.out.println(project);
+        // System.out.println(project);
+        // evaluateProject(project);
+        cycleThroughProject(project);
+    }
 
-        //
-        //
-        // At this point the project has been read in and we can inspect it
-        //
-        //
+
+    // ---------- Public API ----------
+
+    public static void cycleThroughProject(Project project) {
+
+
+        int numberOfTracksInExperiment = 0;
+        int numberOfTracksInProject = 0;
+
+        TrackTableIO trackTableIO = new TrackTableIO();                          // Create a new TrackTableIO object
+        Table projectTracks = trackTableIO.emptyTable();                        // Create a new empty table to hold the combined tracks
+
+        RecordingTableIO recordingTableIO = new RecordingTableIO();              // Create a new RecordingTableIO object
+        Table projectRecordings = trackTableIO.emptyTable();                      // Create a new empty table to hold the combined recordings
+
+        SquareTableIO squareTableIO = new SquareTableIO();                       // Create a new RecordingTableIO object
+        Table Projectsquares = squareTableIO.emptyTable();                        // Create a new empty table to hold the combined recordings
+
+        System.out.printf("Project: %s has the following context:\n",project.getProjectName());
+        System.out.printf("Project %s has %d experiments:\n", project.getProjectName(), project.getExperiments().size());
+
+        for (Experiment exp : project.getExperiments()) {
+            System.out.printf("\t%s\n", exp.getExperimentName());
+        }
+        System.out.println();
+
+        for (Experiment exp : project.getExperiments()) {
+            numberOfTracksInExperiment = 0;
+            System.out.printf("\n\nExperiment: %s has %d recordings.\n", exp.getExperimentName(), exp.getRecordings().size());
+            for (Recording rec : exp.getRecordings()) {
+                System.out.printf("\t%s\n", rec.getRecordingName());
+            }
+
+            for (Recording rec : exp.getRecordings()) {
+                System.out.printf("\n");
+                System.out.printf("Recording: %s\n", rec.getRecordingName());
+                System.out.println(rec);
+
+                int numberOfTracksInSquare = 0;
+                for (Square square: rec.getSquares()) {
+                    if (square.getTracks().size() != 0) {
+                        numberOfTracksInSquare += square.getTracks().size() ;
+                    }
+                }
+
+                numberOfTracksInProject += numberOfTracksInSquare;
+                numberOfTracksInExperiment += numberOfTracksInSquare;
+            }
+            System.out.printf("Number of tracks in experiment: %d\n", numberOfTracksInExperiment);
+        }
+        System.out.printf("\nNumber of tracks in project: %d\n", numberOfTracksInProject);
+    }
+
+    public static void evaluateProject(Project project) {
 
         // Get the first recording from the first experiment and look for the squares that have sufficient tracks
         Experiment exp = project.getExperiments().get(0);                                                 // Get the first experiment in the project
@@ -97,19 +141,23 @@ public final class ProjectDataLoader {
                 CalculateTauResult result = calculateTau(tracks, minNumberOfTracksForTau, minRequiredRSquared);  // Calculate the Tau
                 if (result.getStatus() == CalculateTauResult.Status.TAU_SUCCESS) {
                     System.out.printf("Status: %-30s Tau: %6.1f  R_Squared : %3.6f%n", result.getStatus(), result.getTau(), result.getRSquared());
-                    try {
-                        writeTracksToCSV(tracks, "/Users/hans/Downloads/test_tracks.csv");
-                    } catch (IOException e) {
-                        System.err.println("Failed to write tracks to CSV: " + e.getMessage());
-                    }
-                    tracksTable = toTable(tracks);
-                    experimentTracksTable.append(tracksTable);
+//                    try {
+//                        // writeTracksToCSV(tracks, "/Users/hans/Downloads/test_tracks.csv");
+//
+//                    } catch (IOException e) {
+//                        System.err.println("Failed to write tracks to CSV: " + e.getMessage());
+//                    }
+                    // tracksTable = toTable(tracks);
+                    // experimentTracksTable.append(tracksTable);
                 }
                 index += 1;
             }
         }
         try {
-            writeTracksTableToCSV(experimentTracksTable, "/Users/hans/Downloads/experiment_tracks.csv");
+            TrackTableIO trackTableIO  = new TrackTableIO();
+            trackTableIO.writeCsv(experimentTracksTable, "/Users/hans/Downloads/experiment_tracks2.csv");
+
+
         } catch (IOException e) {
             System.err.println("Failed to write tracks table to CSV: " + e.getMessage());
         }
@@ -177,7 +225,10 @@ public final class ProjectDataLoader {
         try {
             System.out.println("Number of tracks in project: " + numberTracksInProject);
             System.out.println("Number of tracks in project: " + projectTracksTable.rowCount());
-            writeTracksTableToCSV(projectTracksTable, "/Users/hans/Downloads/test_tracks.csv");
+            // writeTracksTableToCSV(projectTracksTable, "/Users/hans/Downloads/test_tracks.csv");
+            trackTableIO.writeCsv(projectTracksTable, "/Users/hans/Downloads/test_tracks_combined.csv");
+
+
         } catch (IOException e) {
             System.err.println("Failed to write tracks to CSV: " + e.getMessage());
         }
@@ -197,17 +248,11 @@ public final class ProjectDataLoader {
         } catch (IOException e) {
             System.err.println("Failed to write tracks to CSV: " + e.getMessage());
         }
-
-
     }
-
-    // ---------- Public API ----------
-
 
     public static Project loadProject(Path projectPath, boolean matureProject) {
         List<Experiment> experiments = new ArrayList<>();
         Set<String> experimentsToProcess;
-        Project project;
 
         // Read the context information from the Paint Configuration.json file
         Context context = loadContextFromJsonConfig(projectPath);
@@ -224,7 +269,7 @@ public final class ProjectDataLoader {
                     System.err.println("Warning: experiment folder not found: " + experimentName);
                     continue;
                 }
-                loadAndAddExperiment(experiments, projectPath, experimentName, matureProject);
+                loadAndAddExperiment(experiments, projectPath, experimentName, context, matureProject);
             }
         }
 
@@ -233,10 +278,11 @@ public final class ProjectDataLoader {
     }
 
     private static void loadAndAddExperiment(List<Experiment> experiments, Path projectPath,
-                                             String experimentName, boolean matureProject) {
+                                             String experimentName, Context context, boolean matureProject) {
+
         Result result = null;
         try {
-            result = loadExperiment(projectPath, experimentName, matureProject);
+            result = loadExperiment(projectPath, experimentName, context, matureProject);
         } catch (Exception e) {
             //throw new RuntimeException(e);
         }
@@ -253,12 +299,19 @@ public final class ProjectDataLoader {
         }
     }
 
-    /** Load a single experiment; returns Result with Experiment or errors. */
-    public static Result loadExperiment(Path projectPath, String experimentName, boolean matureProject) throws Exception {
+
+
+
+    /**
+     * Load a single experiment; returns Result with Experiment or errors.
+     */
+
+    public static Result loadExperiment(Path projectPath, String experimentName,
+                                        Context context, boolean matureProject) throws Exception {
 
         Path experimentPath = projectPath.resolve(experimentName);
 
-        // Validate the structure
+        // Validate if the expected files and directories are present in the experiment folder.
         List<String> errors = validateExperimentLayout(experimentPath, experimentName, matureProject);
         if (!errors.isEmpty()) {
             return Result.failure(errors);
@@ -270,19 +323,9 @@ public final class ProjectDataLoader {
         // Load recordings, but do not bother with their squares and tracks yet.
         List<Recording> recordings;
         try {
-            TrackTableIO trackTableIO  = new TrackTableIO();
-            Table tracksTable = trackTableIO.readCsv(experimentPath.resolve(TRACKS_CSV).toString());
-
-            // ExperimentTableIO experimentTableIO  = new ExperimentTableIO();
-            // experimentTableIO.readCsv(experimentPath.resolve(EXPERIMENT_INFO_CSV).toString());
-
-            SquareTableIO squareTableIO = new SquareTableIO();
-            Table squaresTable = squareTableIO.readCsv(experimentPath.resolve(SQUARES_CSV).toString());
-
             RecordingTableIO recordingsTableIO  = new RecordingTableIO();
-            Table recordingsTable = recordingsTableIO.readCsv(experimentPath.resolve(RECORDINGS_CSV).toString());
-
-            recordings = loadRecordings(experimentPath);
+            Table recordingsTable = recordingsTableIO.readCsv(experimentPath.resolve(RECORDINGS_CSV));
+            recordings = recordingsTableIO.toEntities(recordingsTable);
             for (Recording rec : recordings) {
                 experiment.addRecording(rec);
             }
@@ -291,137 +334,51 @@ public final class ProjectDataLoader {
             return Result.failure(errors);
         }
 
-        // Read the experiment 'All Squares' and assign the squares to each recording.
-        Table squaresTable = readTableAsStrings(experimentPath.resolve(SQUARES_CSV));
+        // Read the experiment 'All Squares' file
+        SquareTableIO squareTableIO = new SquareTableIO();
+        Table squaresTable = squareTableIO.readCsv(experimentPath.resolve(SQUARES_CSV));
+
+        // Read the experiment 'All Tracks' file
+        TrackTableIO trackTableIO = new TrackTableIO();
+        Table tracksTable = trackTableIO.readCsv(experimentPath.resolve(TRACKS_CSV));
+
+        // Assign the squares to each recording.
         for (Recording recording : recordings) {
-            String recordingName = recording.getRecordingName();
-            String recordingNameColumn = COL_RECORDING_NAME;
 
-            // The Code is a bit more complex because there is ambiguity in which column the name is to be found.
-            // Later on when 'Ext Recording Name' is fully phased out, this code can be simplified.
-            if (!squaresTable.containsColumn(COL_RECORDING_NAME) && squaresTable.containsColumn(COL_EXT_RECORDING_NAME)) {
-                recordingNameColumn = COL_EXT_RECORDING_NAME;
-            }
-            //else {
-            //    System.err.println("No column named 'Recording Name' or 'Ext Recording Name' found in '" + SQUARES_CSV + "'.");
-            //    System.exit(-1);
-            //}
-            // End
-
+            // Find the square records for this recording
             Table squaresOfRecording = squaresTable.where(
-                    squaresTable.stringColumn(recordingNameColumn)
-                            .matchesRegex("^" + recordingName + "(?:-threshold-\\d{1,3})?$")
-            );
+                    squaresTable.stringColumn(COL_RECORDING_NAME)
+                            .matchesRegex("^" + recording.getRecordingName() + "(?:-threshold-\\d{1,3})?$"));
 
-            // Create the Square objects for this recording
-            for (Row row : squaresOfRecording) {
-                List<ColumnValue> colValues = new ArrayList<>();
+            // Create the Square objects for this recording and add the Square objects to the recording
+            List<Square> squares = squareTableIO.toEntities(squaresOfRecording);
+            recording.addSquares(squares);
 
-                for (int colIndex = 0; colIndex < squaresOfRecording.columnCount(); colIndex++) {
-                    String columnName = squaresOfRecording.column(colIndex).name();
-                    Object value = row.getObject(colIndex);
-                    colValues.add(new ColumnValue(columnName, (String) value));
-                }
+            // Find the track records for this recording
+            Table tracksOfRecording = tracksTable.where(
+                    tracksTable.stringColumn(COL_RECORDING_NAME)
+                            .matchesRegex("^" + recording.getRecordingName() + "(?:-threshold-\\d{1,3})?$"));
 
-                Square square  = new Square(colValues);
-                recording.addSquare(square);
-            }
-        }
+            // Create the Tracks objects for this recording and add the Tracks objects to the recording
+            List<Track> tracks = trackTableIO.toEntities(tracksOfRecording);
+            recording.setTracks(tracks);  // ToDo - be consistent, use the ame call as for squares above
+            recording.setTracksTable(tracksOfRecording);
 
-        // Read the experiment tracks and assign the tracks to each recording.
-        Table experimentTracksTable = loadTracks(experimentPath);
-        int numberOfTracksInExperiment = experimentTracksTable.rowCount();
-
-        for (Recording recording : recordings) {
-            String recordingName = recording.getRecordingName();
-            String recordingNameColumn = COL_RECORDING_NAME;
-
-            Table recordingTracksTable = experimentTracksTable.where(
-                    experimentTracksTable.stringColumn(recordingNameColumn)
-                            .matchesRegex("^" + recordingName + "(?:-threshold-\\d{1,3})?$"));
-            int numberOfTracksInRecording = recordingTracksTable.rowCount();
-
-            // Save the table
-            if (recordingTracksTable.rowCount() == 0) {
-                continue;
-            }
-            recording.setTracksTable(recordingTracksTable);
-
-            // Here the Track objects are added (arguably you do one or the other)
-            for (Row row1 : recordingTracksTable) {
-                Track track = createTrackFromRow(row1);
-                recording.addTrack(track);
-            }
-
-            // Now assign tracks to squares in each recording
+            // Assign the Tracks to specific squares in each recording
             int cumulativeNumberOfTracksInSquares = 0;
-            int colIndex;
-            int rowIndex;
-            int lastColIndex = 19;   // ToDo
-            int lastRowIndex = 19;
+            int lastRowCol = context.getNumberOfSquaresInRow() - 1;
 
             for (Square square : recording.getSquares()) {
-                double x0 = square.getX0();
-                double y0 = square.getY0();
-                double x1 = square.getX1();
-                double y1 = square.getY1();
-                colIndex = square.getColNumber();
-                rowIndex = square.getRowNumber();
 
-                Table squareTracksTable = filterTracksInSquare(recordingTracksTable, x0, y0, x1, y1, colIndex == lastColIndex,
-                        rowIndex == lastRowIndex);
-                if (squareTracksTable.rowCount() > 0) {
-                    cumulativeNumberOfTracksInSquares += squareTracksTable.rowCount();
-                    for (Row row : squareTracksTable) {
-                        Track track = createTrackFromRow(row);
-                        square.addTrack(track);
-                    }
-                }
+                Table squareTracksTable = filterTracksInSquare(tracksOfRecording, square, lastRowCol);
+                tracks = trackTableIO.toEntities(squareTracksTable);
+                square.setTracks(tracks);
             }
-            System.out.println("RecordingTracksTable size: " + recordingTracksTable.rowCount() + " --- " + " Cumulative Number of Tracks In Squares " + cumulativeNumberOfTracksInSquares);
         }
 
         return errors.isEmpty() ? Result.success(experiment) : Result.failure(errors);
     }
 
-    /** Project-level CSV (all STRING columns). */
-    public static Table loadProjectInfo(Path projectPath) throws Exception {
-        return readTableAsStrings(projectPath.resolve(PROJECT_INFO_CSV));
-    }
-
-    /** Experiment info CSV (all STRING columns). */
-    public static Table loadExperimentInfo(Path experimentPath) throws Exception {
-        return readTableAsStrings(experimentPath.resolve(EXPERIMENT_INFO_CSV));
-    }
-
-    /** Squares CSV (all STRING columns). */
-    public static Table loadSquares(Path experimentPath) throws Exception {
-        return readTableAsStrings(experimentPath.resolve(SQUARES_CSV));
-    }
-
-    /** Tracks CSV (original columns). */
-    public static Table loadTracks(Path experimentPath) throws Exception {     // @@@
-
-        String tracksPath = experimentPath.resolve(TRACKS_CSV).toString();
-         // Detect all column types first
-        Table temp = Table.read().csv(tracksPath);
-        ColumnType[] detected = temp.columnTypes();
-
-        // Find and override just the one column you care about
-        int colIndex = temp.columnIndex("Label Number");
-        detected[colIndex] = ColumnType.INTEGER;
-
-        // Read again with forced column type
-        CsvReadOptions options = CsvReadOptions.builder(tracksPath)
-                .columnTypes(detected)
-                .build();
-        return Table.read().usingOptions(options);
-    }
-
-    /** Recordings CSV (all STRING columns). */
-    public static Table loadRecordingsTable(Path experimentPath) throws Exception {
-        return readTableAsStrings(experimentPath.resolve(RECORDINGS_CSV));
-    }
 
     // ---------- Result type ----------
 
@@ -459,9 +416,9 @@ public final class ProjectDataLoader {
 
 
     /** A regular read, safe dor csv files that have been system-generated */
-    private static Table readTable(Path csvPath) throws Exception {
-        return Table.read().csv(csvPath.toFile());
-    }
+//    private static Table readTable(Path csvPath) throws Exception {
+//        return Table.read().csv(csvPath.toFile());
+//    }
 
     /** Always read CSV with ALL columns forced to STRING. */
     private static Table readTableAsStrings(Path csvPath) throws Exception {
@@ -515,79 +472,6 @@ public final class ProjectDataLoader {
         return errors;
     }
 
-    private static List<Recording> loadRecordings(Path experimentPath)  {
-        Table table = null;
-
-
-        //  @@@@@@@
-        try {
-            table = loadRecordingsTable(experimentPath);
-        } catch (Exception e) {
-            //throw new RuntimeException(e);
-        }
-        
-        List<Recording> recordings = new ArrayList<>(table.rowCount());
-        for (Row row : table) {
-            List<ColumnValue> colValues = new ArrayList<>();
-            for (int colIndex = 0; colIndex < table.columnCount(); colIndex++) {
-                String columnName = table.column(colIndex).name();
-                Object value = row.getObject(colIndex);
-                colValues.add(new ColumnValue(columnName, String.valueOf(value)));
-            }
-            Recording rec = new Recording(colValues);
-            recordings.add(rec);
-        }
-
-        if (recordings.isEmpty()) {
-            Recording placeholder = new Recording();
-            placeholder.setRecordingName("Recording");
-            return Collections.singletonList(placeholder);
-        }
-
-        return recordings;
-    }
-
-
-    private static Object getUniqueColumnValueOrExit(Table table, String columnName) {
-        // 1) Existence check BEFORE calling table.column(...)
-        if (!table.columnNames().contains(columnName)) {
-            System.err.println("Column '" + columnName + "' does not exist.");
-            System.err.println("Available columns: " + table.columnNames());
-            System.exit(-1);
-        }
-
-        // 2) Now it's safe to fetch the column
-        Column col = table.column(columnName);
-
-        if (col.size() == 0) {
-            System.err.println("Column '" + columnName + "' is empty.");
-            System.exit(-1);
-        }
-
-        // 3) Verify all rows hold the same value
-        Object first = col.get(0);
-        if (col instanceof NumberColumn) {
-            NumberColumn nc = (NumberColumn) col;
-            double d0 = nc.getDouble(0);
-            for (int i = 1; i < nc.size(); i++) {
-                double di = nc.getDouble(i);
-                // Treat NaN == NaN as equal; else use exact double compare
-                if (!(Double.isNaN(d0) && Double.isNaN(di)) && Double.compare(d0, di) != 0) {
-                    System.err.println("Not all rows have the same value in numeric column: " + columnName);
-                    System.exit(-1);
-                }
-            }
-        } else {
-            for (int i = 1; i < col.size(); i++) {
-                Object v = col.get(i);
-                if (!equalsNullSafe(first, v)) {
-                    System.err.println("Not all rows have the same value in column: " + columnName);
-                    System.exit(-1);
-                }
-            }
-        }
-        return first; // same as col.get(0)
-    }
 
     private static Set<String> readListOfExperimentsToProcess(Path projectPath) {
         Set<String> include = new HashSet<>();
@@ -624,24 +508,31 @@ public final class ProjectDataLoader {
         }
     }
 
-    // Null-safe equality with String trimming option if you want it
-    private static boolean equalsNullSafe(Object a, Object b) {
-        if (a == b) return true;
-        if (a == null || b == null) return false;
-        return a.equals(b);
-    }
+
     private static boolean isTruthy(String v) {
-        if (v == null) return false;
+        if (v == null) {
+            return false;
+        }
         String s = v.trim();
         return s.equalsIgnoreCase("true") || s.equalsIgnoreCase("t")
                 || s.equalsIgnoreCase("yes") || s.equalsIgnoreCase("y")
                 || s.equals("1");
     }
 
+    /*
+    Selexct the tracks that are within the square's bounding box.
+     */
 
+    public static Table filterTracksInSquare(Table tracks, Square square, int lastRowCol) {
 
-    public static Table filterTracksInSquare(Table tracks, double x0, double y0, double x1, double y1,
-                                             boolean isLastColumn, boolean isLastRow) {
+        double x0 = square.getX0();
+        double y0 = square.getY0();
+        double x1 = square.getX1();
+        double y1 = square.getY1();
+
+        boolean isLastColumn = square.getColNumber() == lastRowCol;
+        boolean isLastRow = square.getRowNumber() == lastRowCol;
+
         double left   = Math.min(x0, x1);
         double right  = Math.max(x0, x1);
         double top    = Math.min(y0, y1);
@@ -665,49 +556,16 @@ public final class ProjectDataLoader {
         return tracks.where(sel);
     }
 
-    private static Track createTrackFromRow(Row row) {
 
-        Track track = new Track();
-        track.setUniqueKey(row.getString("Unique Key"));
-        track.setRecordingName(row.getString("Recording Name"));
-        track.setTrackLabel(row.getString("Track Label"));
-        track.setTrackId(row.getInt("Track Id"));
-        track.setTrackLabel(row.getString("Track Label"));
-        track.setNumberSpots(row.getInt("Number of Spots"));
-        track.setNumberGaps(row.getInt("Number of Gaps"));
-        track.setLongestGap(row.getInt("Longest Gap"));
-        track.setTrackDuration(row.getDouble("Track Duration"));
-        track.setTrackXLocation(row.getDouble("Track X Location"));
-        track.setTrackYLocation(row.getDouble("Track Y Location"));
-        track.setTrackDisplacement(row.getDouble("Track Displacement"));
-        track.setTrackMaxSpeed(row.getDouble("Track Max Speed"));
-        track.setTrackMedianSpeed(row.getDouble("Track Median Speed"));
-        track.setTrackMeanSpeed(row.getDouble("Track Mean Speed"));
-        track.setTrackMaxSpeedCalc(row.getDouble("Track Max Speed Calc"));
-        track.setTrackMedianSpeedCalc(row.getDouble("Track Median Speed Calc"));
-        track.setTrackMeanSpeedCalc(row.getDouble("Track Mean Speed Calc"));
-        track.setDiffusionCoefficient(row.getDouble("Diffusion Coefficient"));
-        track.setDiffusionCoefficientExt(row.getDouble("Diffusion Coefficient Ext"));
-        track.setTotalDistance(row.getDouble("Total Distance"));
-        track.setConfinementRatio(row.getDouble("Confinement Ratio"));
-        track.setSquareNumber(row.getInt("Square Number"));
-        try {
-            int Temp = row.getInt("Label Number");
-        }
-        catch  (Exception e){
-            System.out.println("Error: Label Nr is not an integer");
-        }
-        track.setLabelNumber(row.getInt("Label Number"));
-
-
-        return track;
-    }
+    /*
+    Load parameters that are kept constant for the whole project from the JSON file
+     */
 
     private static Context loadContextFromJsonConfig(Path projectPath) {
 
         Context context = new Context();
 
-        int numberOfSquaresInRecording = 3;
+        int numberOfSquaresInRecording = 400;
         double minRequiredRSquared = 0.1;
         double maxAllowableVariability = 10;
         double minRequiredDensityRatio = 0.1;
@@ -723,17 +581,17 @@ public final class ProjectDataLoader {
         JsonConfig config = new JsonConfig(projectPath.resolve(PAINT_JSON));
 
         try {
-            numberOfSquaresInRecording = config.getInt("Generate Squares", "Nr of Squares in Recording", 400);
-            minRequiredRSquared = config.getDouble("Generate Squares", "Min Required R Squared", 0.1);
-            maxAllowableVariability = config.getDouble("Generate Squares", "Max Allowable Variability", 10.0);
-            minRequiredDensityRatio = config.getDouble("Generate Squares", "Min Required Density Ratio", 2.0);
-            minTracksForTau = config.getInt("Generate Squares", "Min Tracks to Calculate Tau", 20);
-            maxFrameGap = config.getInt("TrackMate", "MAX_FRAME_GAP", 3);
-            gapClosingMaxDistance = config.getDouble("TrackMate", "GAP_CLOSING_MAX_DISTANCE", 1.2);
-            linkingMaxDistance = config.getDouble("TrackMate", "LINKING_MAX_DISTANCE", 0.6);
-            medianFiltering = config.getBoolean("TrackMate", "DO_MEDIAN_FILTERING", false);
-            minNumberOfSpotsInTrack = config.getInt("TrackMate", "MIN_NR_SPOTS_IN_TRACK", 3);
-            neighbourMode = config.getString("Generate Squares", "NEIGHBOUR_MODE", "Free");
+            numberOfSquaresInRecording = config.getInt("Generate Squares", "Nr of Squares in Recording", numberOfSquaresInRecording);
+            minRequiredRSquared = config.getDouble("Generate Squares", "Min Required R Squared", minRequiredRSquared);
+            maxAllowableVariability = config.getDouble("Generate Squares", "Max Allowable Variability", maxAllowableVariability);
+            minRequiredDensityRatio = config.getDouble("Generate Squares", "Min Required Density Ratio", minRequiredDensityRatio);
+            minTracksForTau = config.getInt("Generate Squares", "Min Tracks to Calculate Tau", minTracksForTau);
+            maxFrameGap = config.getInt("TrackMate", "MAX_FRAME_GAP", maxFrameGap);
+            gapClosingMaxDistance = config.getDouble("TrackMate", "GAP_CLOSING_MAX_DISTANCE", gapClosingMaxDistance);
+            linkingMaxDistance = config.getDouble("TrackMate", "LINKING_MAX_DISTANCE", linkingMaxDistance);
+            medianFiltering = config.getBoolean("TrackMate", "DO_MEDIAN_FILTERING", medianFiltering);
+            minNumberOfSpotsInTrack = config.getInt("TrackMate", "MIN_NR_SPOTS_IN_TRACK", minNumberOfSpotsInTrack);
+            neighbourMode = config.getString("Generate Squares", "NEIGHBOUR_MODE", neighbourMode);
 
         }
         catch (Exception e) {
