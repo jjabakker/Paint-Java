@@ -15,17 +15,21 @@ import paint.utilities.DirectoryClassifier;
 
 public class GenerateSquareDialog {
 
+    // The variables that keep the parameters
     private JTextField nrSquaresField;
     private JTextField minTracksField;
     private JTextField minRSquaredField;
     private JTextField minDensityRatioField;
     private JTextField maxVariabilityField;
 
+    // The experimentr checkboxes are created dynamically
     private java.util.List<JCheckBox> checkBoxes = new java.util.ArrayList<>();
-    private boolean checkBoxChanged = false;
 
     private JPanel checkboxPanel;   // store as field so we can repopulate
+
+    // To keep track of changes
     private boolean hasChanges = false;
+    private boolean checkBoxChanged = false;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -95,6 +99,12 @@ public class GenerateSquareDialog {
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
+
+        // preload checkboxes if directory is known
+        if (!lastUsedDirectory.isEmpty()) {
+            populateCheckboxesFromDirectory(lastUsedDirectory, config);
+        }
+
         // === Directory Selector Panel ===
         JPanel directoryPanel = new JPanel(new BorderLayout(5, 5));
         directoryPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -103,7 +113,6 @@ public class GenerateSquareDialog {
         directoryField.setPreferredSize(new Dimension(600, 25));
         if (!lastUsedDirectory.isEmpty()) {
             directoryField.setText(lastUsedDirectory);
-            populateCheckboxesFromDirectory(lastUsedDirectory); // preload
         } else {
             hasChanges = true;
         }
@@ -122,13 +131,14 @@ public class GenerateSquareDialog {
                 hasChanges = true;
                 String selectedPath = chooser.getSelectedFile().getAbsolutePath();
                 directoryField.setText(selectedPath);
+                // populateCheckboxesFromDirectory(selectedPath, config);
 
                 try {
                     DirectoryClassifier.ClassificationResult result =
                             DirectoryClassifier.classifyDirectoryWork(Paths.get(selectedPath));
 
                     if (result.type == DirectoryClassifier.DirectoryType.PROJECT) {
-                        populateCheckboxesFromDirectory(selectedPath);
+                        populateCheckboxesFromDirectory(selectedPath, config);
                     }
                     else {
                         checkboxPanel.removeAll();
@@ -183,9 +193,12 @@ public class GenerateSquareDialog {
                 config.setDouble("Generate Squares", "Max Allowable Variability", maxVariabilityVal);
                 config.setString("Generate Squares", "Last Used Directory", directoryField.getText());
 
-                if (hasChanges) {
+                saveCheckboxStates(config, directoryField.getText());
+
+                if (hasChanges || checkBoxChanged) {
                     config.save();
                     hasChanges = false;
+                    checkBoxChanged = false;
                 }
 
             } catch (NumberFormatException ex) {
@@ -217,39 +230,11 @@ public class GenerateSquareDialog {
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
         frame.pack();
-        frame.setSize(800, frame.getPreferredSize().height);
+        frame.setSize(1000, frame.getPreferredSize().height);
         frame.setResizable(false);
         frame.setVisible(true);
     }
 
-    private void populateCheckboxesFromDirectory(String directoryPath) {
-        checkboxPanel.removeAll();
-
-        File dir = new File(directoryPath);
-        if (dir.exists() && dir.isDirectory()) {
-            File[] files = dir.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    // Example: only CSV files
-                    if (file.isDirectory()) {
-                        JCheckBox checkBox = new JCheckBox(file.getName());
-
-                        // Add listener to detect changes
-                        checkBox.addItemListener(e -> {
-                            checkBoxChanged = true;  // mark that something changed
-                            System.out.println(file.getName() + " -> " + checkBox.isSelected());
-                        });
-
-                        checkboxPanel.add(checkBox);
-                        checkBoxes.add(checkBox);
-                    }
-                }
-            }
-        }
-
-        checkboxPanel.revalidate();
-        checkboxPanel.repaint();
-    }
 
     private JTextField createTightTextField(String text, DocumentFilter filter) {
         JTextField textField = new JTextField(text);
@@ -315,5 +300,51 @@ public class GenerateSquareDialog {
                     }
             }
         }
+    }
+
+    private void saveCheckboxStates(JsonConfig config, String directoryPath) {
+        // Clear out old entries for this directory
+        config.removeAllCheckboxStates("Generate Squares");
+
+        // Save current checkboxes
+        for (JCheckBox cb : checkBoxes) {
+            config.setBoolean("Generate Squares",
+                    "Checkbox States." + cb.getText(),   // 🔑 only subdir name
+                    cb.isSelected());
+        }
+    }
+
+    private void populateCheckboxesFromDirectory(String directoryPath, JsonConfig config) {
+        checkboxPanel.removeAll();
+        checkBoxes.clear();
+
+        File dir = new File(directoryPath);
+        if (dir.exists() && dir.isDirectory()) {
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        JCheckBox checkBox = new JCheckBox(file.getName());
+
+                        // restore saved state if it exists
+                        boolean savedState = config.getBoolean(
+                                "Generate Squares",
+                                "Checkbox States." + file.getName(),
+                                false
+                        );
+                        checkBox.setSelected(savedState);
+
+                        // Add the listener
+                        checkBox.addItemListener(e -> checkBoxChanged = true);
+                        checkboxPanel.add(checkBox);
+                        checkBoxes.add(checkBox);
+                    }
+                }
+            }
+        }
+
+        checkboxPanel.revalidate();
+        checkboxPanel.repaint();
+        checkboxPanel.updateUI();
     }
 }

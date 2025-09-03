@@ -32,6 +32,48 @@ public class JsonConfig {
         }
     }
 
+    public void remove(String section, String keyPath) {
+        JsonObject sectionObj = root.getAsJsonObject(section);
+        if (sectionObj == null) {
+            return;
+        }
+
+        String[] keys = keyPath.split("\\.");
+        JsonObject current = sectionObj;
+
+        // Traverse down until the second-to-last key
+        for (int i = 0; i < keys.length - 1; i++) {
+            if (!current.has(keys[i]) || !current.get(keys[i]).isJsonObject()) {
+                return; // nothing to remove
+            }
+            current = current.getAsJsonObject(keys[i]);
+        }
+
+        // Remove the final key
+        current.remove(keys[keys.length - 1]);
+    }
+
+
+    public void removeAllCheckboxStates(String section) {
+        JsonObject sectionObj = root.getAsJsonObject(section);
+        if (sectionObj == null) {
+            return;
+        }
+
+        // collect keys to avoid ConcurrentModificationException
+        java.util.List<String> keysToRemove = new java.util.ArrayList<>();
+
+        for (String key : sectionObj.keySet()) {
+            if (key.startsWith("Checkbox States")) {
+                keysToRemove.add(key);
+            }
+        }
+
+        for (String key : keysToRemove) {
+            sectionObj.remove(key);
+        }
+    }
+
     // GETTERS
 
     public String getString(String section, String key, String defaultValue) {
@@ -133,4 +175,6 @@ public class JsonConfig {
             return false;
         }
     }
+
+
 }
