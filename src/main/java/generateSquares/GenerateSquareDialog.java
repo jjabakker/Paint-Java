@@ -6,6 +6,7 @@ import javax.swing.text.AbstractDocument;
 import javax.swing.text.DocumentFilter;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
@@ -20,7 +21,11 @@ public class GenerateSquareDialog {
     private JTextField minDensityRatioField;
     private JTextField maxVariabilityField;
 
-    private boolean hasChanges = false;  // Flag to track changes
+    private java.util.List<JCheckBox> checkBoxes = new java.util.ArrayList<>();
+    private boolean checkBoxChanged = false;
+
+    private JPanel checkboxPanel;   // store as field so we can repopulate
+    private boolean hasChanges = false;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -30,8 +35,6 @@ public class GenerateSquareDialog {
     }
 
     void go() {
-
-        // Create the config reader and fetch the values
         JsonConfig config = new JsonConfig(Paths.get("src/main/resources/paint.json"));
 
         int nrSquares = config.getInt("Generate Squares", "Nr of Squares in Row", 5);
@@ -40,7 +43,6 @@ public class GenerateSquareDialog {
         double minDensityRatio = config.getDouble("Generate Squares", "Min Required Density Ratio", 2.0);
         double maxVariability = config.getDouble("Generate Squares", "Max Allowable Variability", 10.0);
 
-        // Load saved the directory path
         String lastUsedDirectory = config.getString("Generate Squares", "Last Used Directory", "");
 
         JFrame frame = new JFrame("Generate Squares");
@@ -72,14 +74,11 @@ public class GenerateSquareDialog {
         formPanel.add(new JLabel("Max Allowed Variability"));
         formPanel.add(maxVariabilityField);
 
-        // Attach DocumentListener to track changes as the user edits fields
+        // Track changes
         DocumentListener changeListener = new DocumentListener() {
-            @Override
-            public void insertUpdate(javax.swing.event.DocumentEvent e) { hasChanges = true; }
-            @Override
-            public void removeUpdate(javax.swing.event.DocumentEvent e) { hasChanges = true; }
-            @Override
-            public void changedUpdate(javax.swing.event.DocumentEvent e) { hasChanges = true; }
+            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { hasChanges = true; }
+            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { hasChanges = true; }
+            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { hasChanges = true; }
         };
 
         nrSquaresField.getDocument().addDocumentListener(changeListener);
@@ -88,21 +87,29 @@ public class GenerateSquareDialog {
         minDensityRatioField.getDocument().addDocumentListener(changeListener);
         maxVariabilityField.getDocument().addDocumentListener(changeListener);
 
+        // === Checkbox Panel ===
+        checkboxPanel = new JPanel();
+        checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.Y_AXIS));
+        JScrollPane scrollPane = new JScrollPane(checkboxPanel);
+        scrollPane.setPreferredSize(new Dimension(600, 150));
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
         // === Directory Selector Panel ===
         JPanel directoryPanel = new JPanel(new BorderLayout(5, 5));
         directoryPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
         JTextField directoryField = new JTextField();
-        directoryField.setPreferredSize(new Dimension(600, 25));  // width can be adjusted
+        directoryField.setPreferredSize(new Dimension(600, 25));
         if (!lastUsedDirectory.isEmpty()) {
-            directoryField.setText(lastUsedDirectory);  // Set the saved path here
-        }
-        else {
-            hasChanges = true;  // Then for sure the user will need to enter something
+            directoryField.setText(lastUsedDirectory);
+            populateCheckboxesFromDirectory(lastUsedDirectory); // preload
+        } else {
+            hasChanges = true;
         }
 
         JButton browseButton = new JButton("Browse...");
-        browseButton.setPreferredSize(new Dimension(100, 30));   // button size fixed
+        browseButton.setPreferredSize(new Dimension(100, 30));
 
         directoryPanel.add(directoryField, BorderLayout.CENTER);
         directoryPanel.add(browseButton, BorderLayout.WEST);
@@ -112,7 +119,25 @@ public class GenerateSquareDialog {
             chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             int returnVal = chooser.showOpenDialog(frame);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-                directoryField.setText(chooser.getSelectedFile().getAbsolutePath());
+                hasChanges = true;
+                String selectedPath = chooser.getSelectedFile().getAbsolutePath();
+                directoryField.setText(selectedPath);
+
+                try {
+                    DirectoryClassifier.ClassificationResult result =
+                            DirectoryClassifier.classifyDirectoryWork(Paths.get(selectedPath));
+
+                    if (result.type == DirectoryClassifier.DirectoryType.PROJECT) {
+                        populateCheckboxesFromDirectory(selectedPath);
+                    }
+                    else {
+                        checkboxPanel.removeAll();
+                        checkboxPanel.repaint();
+                    }
+                }
+                catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
@@ -122,8 +147,6 @@ public class GenerateSquareDialog {
         JButton cancelButton = new JButton("Cancel");
 
         okButton.addActionListener(e -> {
-
-            // Validate numeric inputs before proceeding
             try {
                 int nrSquaresVal = Integer.parseInt(nrSquaresField.getText());
                 int minTracksVal = Integer.parseInt(minTracksField.getText());
@@ -131,17 +154,14 @@ public class GenerateSquareDialog {
                 double minDensityRatioVal = Double.parseDouble(minDensityRatioField.getText());
                 double maxVariabilityVal = Double.parseDouble(maxVariabilityField.getText());
 
-                DirectoryClassifier.ClassificationResult result = DirectoryClassifier.classifyDirectoryWork(Paths.get(directoryField.getText()));
-
-                System.out.println("Maturity: " + result.maturity);
-                System.out.println("Type: " + result.type);
-                System.out.println("Feedback: " + result.feedback);
+                DirectoryClassifier.ClassificationResult result =
+                        DirectoryClassifier.classifyDirectoryWork(Paths.get(directoryField.getText()));
 
                 if (result.type == DirectoryClassifier.DirectoryType.UNKNOWN) {
                     ImageIcon customIcon = new ImageIcon("/Users/hans/IdeaProjects/utilities/src/main/resources/paint.png");
                     String message = "<html><body style='width: 200px;'>" + result.feedback + "</body></html>";
                     JOptionPane.showMessageDialog(
-                            null,                 // parent component (null centers on screen)
+                            null,
                             new JLabel(message),
                             "Warning",
                             JOptionPane.PLAIN_MESSAGE,
@@ -155,7 +175,7 @@ public class GenerateSquareDialog {
                     System.out.println("Selected Directory: " + directoryField.getText());
                 }
 
-                // Save config only if inputs are valid
+                // Save config
                 config.setInt("Generate Squares", "Nr of Squares in Row", nrSquaresVal);
                 config.setInt("Generate Squares", "Min Tracks to Calculate Tau", minTracksVal);
                 config.setDouble("Generate Squares", "Min Required R Squared", minRSquaredVal);
@@ -185,16 +205,50 @@ public class GenerateSquareDialog {
         buttonPanel.add(okButton);
         buttonPanel.add(cancelButton);
 
-        // === Layout the Frame ===
+        // === Main Content Panel ===
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.add(formPanel);
+        contentPanel.add(scrollPane);
+        contentPanel.add(directoryPanel);
+
         frame.setLayout(new BorderLayout());
-        frame.add(formPanel, BorderLayout.NORTH);
-        frame.add(directoryPanel, BorderLayout.CENTER);
+        frame.add(contentPanel, BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
         frame.pack();
         frame.setSize(800, frame.getPreferredSize().height);
         frame.setResizable(false);
         frame.setVisible(true);
+    }
+
+    private void populateCheckboxesFromDirectory(String directoryPath) {
+        checkboxPanel.removeAll();
+
+        File dir = new File(directoryPath);
+        if (dir.exists() && dir.isDirectory()) {
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    // Example: only CSV files
+                    if (file.isDirectory()) {
+                        JCheckBox checkBox = new JCheckBox(file.getName());
+
+                        // Add listener to detect changes
+                        checkBox.addItemListener(e -> {
+                            checkBoxChanged = true;  // mark that something changed
+                            System.out.println(file.getName() + " -> " + checkBox.isSelected());
+                        });
+
+                        checkboxPanel.add(checkBox);
+                        checkBoxes.add(checkBox);
+                    }
+                }
+            }
+        }
+
+        checkboxPanel.revalidate();
+        checkboxPanel.repaint();
     }
 
     private JTextField createTightTextField(String text, DocumentFilter filter) {
@@ -209,10 +263,7 @@ public class GenerateSquareDialog {
         return textField;
     }
 
-
-
     static class IntegerDocumentFilter extends DocumentFilter {
-
         @Override
         public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr)
                 throws javax.swing.text.BadLocationException {
@@ -220,7 +271,6 @@ public class GenerateSquareDialog {
                 super.insertString(fb, offset, string, attr);
             }
         }
-
         @Override
         public void replace(FilterBypass fb, int offset, int length, String text, javax.swing.text.AttributeSet attrs)
                 throws javax.swing.text.BadLocationException {
@@ -231,44 +281,24 @@ public class GenerateSquareDialog {
     }
 
     static class FloatDocumentFilter extends DocumentFilter {
-
         @Override
         public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr)
                 throws javax.swing.text.BadLocationException {
-
             String existingText = fb.getDocument().getText(0, fb.getDocument().getLength());
             String candidateText = new StringBuilder(existingText).insert(offset, string).toString();
-
             if (isValidFloat(candidateText)) {
                 super.insertString(fb, offset, string, attr);
             }
         }
-
         @Override
         public void replace(FilterBypass fb, int offset, int length, String text, javax.swing.text.AttributeSet attrs)
                 throws javax.swing.text.BadLocationException {
-
             String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
             String newText = new StringBuilder(currentText).replace(offset, offset + length, text).toString();
-
             if (isValidFloat(newText)) {
                 super.replace(fb, offset, length, text, attrs);
             }
         }
-
-//        private boolean isValidFloat(String text) {
-//            if (text.isEmpty()) return true;
-//            if (text.equals("-")) return true;
-//            if (text.equals(".")) return true;
-//            if (text.equals("-.")) return true;
-//            try {
-//                Float.parseFloat(text);
-//                return true;
-//            } catch (NumberFormatException e) {
-//                return false;
-//            }
-//        }
-
         private boolean isValidFloat(String text) {
             switch (text) {
                 case "":
