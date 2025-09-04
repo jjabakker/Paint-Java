@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import paint.objects.Context;
+import paint.utilities.AppLoggerNew;
 import paint.utilities.DirectoryClassifier;
 import paint.utilities.JsonConfig;
 
@@ -23,10 +24,13 @@ import static paint.generateSquares.GenerateSquareCalcs.calculateSquares;
 
 class ProjectDirectoryDialog {
 
+
     private JFrame frame;
     private JTextField directoryField;
 
     public static void main(String[] args) {
+        AppLoggerNew.init("GenerateSquares.log");
+        AppLoggerNew.info("Starting....");
         SwingUtilities.invokeLater(ProjectDirectoryDialog::new);
     }
 
@@ -117,7 +121,7 @@ class GenerateSquareDialog {
         double maxVariability = config.getDouble("Generate Squares", "Max Allowable Variability", 10.0);
 
         JPanel formPanel = new JPanel(new GridLayout(5, 2, 5, 8));
-        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         nrSquaresField = createTightTextField(String.valueOf(nrSquares), new IntegerDocumentFilter());
         minTracksField = createTightTextField(String.valueOf(minTracks), new IntegerDocumentFilter());
@@ -154,15 +158,42 @@ class GenerateSquareDialog {
         scrollPane.setPreferredSize(new Dimension(600, 200));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setBorder(BorderFactory.createEtchedBorder());
 
-        frame.add(scrollPane, BorderLayout.CENTER);
+        // Control panel with Select All / Clear All buttons
+        JPanel checkboxControlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton selectAllButton = new JButton("Select All");
+        JButton clearAllButton = new JButton("Clear All");
+
+        selectAllButton.addActionListener(e -> {
+            for (JCheckBox cb : checkBoxes) {
+                cb.setSelected(true);
+                userChangedInput = true;
+            }
+        });
+        clearAllButton.addActionListener(e -> {
+            for (JCheckBox cb : checkBoxes) {
+                cb.setSelected(false);
+                userChangedInput = true;
+            }
+        });
+
+        checkboxControlPanel.add(selectAllButton);
+        checkboxControlPanel.add(clearAllButton);
+
+    // Put buttons above the scroll pane
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.add(checkboxControlPanel, BorderLayout.NORTH);
+        centerPanel.add(scrollPane, BorderLayout.CENTER);
+
+        frame.add(centerPanel, BorderLayout.CENTER);
 
         // === Button Panel ===
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton okButton = new JButton("OK");
         JButton cancelButton = new JButton("Cancel");
 
-        okButton.addActionListener(e -> handleOk(config));
+        okButton.addActionListener(e -> handleOkToCalculate(config));
         cancelButton.addActionListener(e -> frame.dispose());
 
         buttonPanel.add(okButton);
@@ -171,7 +202,7 @@ class GenerateSquareDialog {
         frame.add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private void handleOk(JsonConfig config) {
+    private void handleOkToCalculate(JsonConfig config) {
         try {
             int nrSquaresVal = Integer.parseInt(nrSquaresField.getText());
             int minTracksVal = Integer.parseInt(minTracksField.getText());
@@ -356,11 +387,4 @@ class GenerateSquareDialog {
     }
 
 
-}
-
-
-public class GenerateSquares {
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(ProjectDirectoryDialog::new);
-    }
 }
