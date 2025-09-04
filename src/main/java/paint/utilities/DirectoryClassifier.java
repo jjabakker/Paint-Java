@@ -78,10 +78,12 @@ public class DirectoryClassifier {
             ));
 
     public static ClassificationResult classifyDirectoryWork(Path directory) throws IOException {
-        List<Path> contents = Files.list(directory)
-                .filter(p -> !p.getFileName().toString().equals(".DS_Store"))
-                .collect(Collectors.toList());
-
+        List<Path> contents;
+        try (java.util.stream.Stream<Path> stream = Files.list(directory)) {
+            contents = stream
+                    .filter(p -> !p.getFileName().toString().equals(".DS_Store"))
+                    .collect(Collectors.toList());
+        }
         Path outputDir = directory.resolve("Output");
         List<String> feedback = new ArrayList<>();
 
