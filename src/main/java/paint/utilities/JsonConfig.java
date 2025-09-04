@@ -18,12 +18,19 @@ public class JsonConfig {
 
     private final Path path;
     private final Gson gson;
-    private final Map<String, Map<String, Object>> data;
+    private final Map<String, Map<String, Object>> configData;
+
+
+    // === Constructors ===
+
+    /*
+     * The constructor attempts to read from the given path, but supplies defaults if reading fails.
+     */
 
     public JsonConfig(Path path) {
         this.path = path;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
-        this.data = new HashMap<>();
+        this.configData = new HashMap<>();
 
         if (Files.exists(path)) {
             loadFromFile();
@@ -35,10 +42,13 @@ public class JsonConfig {
     @SuppressWarnings("unchecked")
     private void loadFromFile() {
         try (Reader reader = Files.newBufferedReader(path)) {
-            Map<String, Map<String, Object>> loaded =
-                    gson.fromJson(reader, new TypeToken<Map<String, Map<String, Object>>>() {}.getType());
+
+            // Here’s a reader with JSON. Please give me a Map<String, Map<String, Object>>,
+            // and I’m handing you a precise blueprint of the type using TypeToken.
+
+            Map<String, Map<String, Object>> loaded = gson.fromJson(reader, new TypeToken<Map<String, Map<String, Object>>>() {}.getType());
             if (loaded != null) {
-                data.putAll(loaded);
+                configData.putAll(loaded);
             }
         } catch (IOException e) {
             System.err.println("Failed to read config file: " + e.getMessage());
@@ -62,19 +72,19 @@ public class JsonConfig {
         generateSquares.put("Plot Max", 5);
         generateSquares.put("Neighbour Mode", "Free");
         generateSquares.put("Last Used Directory", "");
-        data.put("Generate Squares", generateSquares);
+        configData.put("Generate Squares", generateSquares);
 
         // === Paint ===
         Map<String, Object> paint = new HashMap<>();
         paint.put("Version", "1.0");
         paint.put("Image File Extension", ".nd2");
         paint.put("Fiji Path", "/Applications/Fiji.app");
-        data.put("Paint", paint);
+        configData.put("Paint", paint);
 
         // === Recording Viewer ===
         Map<String, Object> recordingViewer = new HashMap<>();
         recordingViewer.put("Save Mode", "Ask");
-        data.put("Recording Viewer", recordingViewer);
+        configData.put("Recording Viewer", recordingViewer);
 
         // === TrackMate ===
         Map<String, Object> trackMate = new HashMap<>();
@@ -94,7 +104,7 @@ public class JsonConfig {
         trackMate.put("ALLOW_TRACK_SPLITTING", false);
         trackMate.put("ALLOW_TRACK_MERGING", false);
         trackMate.put("MERGING_MAX_DISTANCE", 15.0);
-        data.put("TrackMate", trackMate);
+        configData.put("TrackMate", trackMate);
 
         // === User Directories ===
         Map<String, Object> userDirs = new HashMap<>();
@@ -102,12 +112,12 @@ public class JsonConfig {
         userDirs.put("Experiment Directory", "");
         userDirs.put("Level", "Project");
         userDirs.put("Images Directory", "");
-        data.put("User Directories", userDirs);
+        configData.put("User Directories", userDirs);
     }
 
     public void save() throws IOException {
         try (Writer writer = Files.newBufferedWriter(path)) {
-            gson.toJson(data, writer);
+            gson.toJson(configData, writer);
         }
     }
 
@@ -145,7 +155,7 @@ public class JsonConfig {
     }
 
     private Object get(String section, String key) {
-        Map<String, Object> current = data.get(section);
+        Map<String, Object> current = configData.get(section);
         return current != null ? current.get(key) : null;
     }
 
@@ -167,12 +177,12 @@ public class JsonConfig {
     }
 
     private void set(String section, String key, Object value) {
-        Map<String, Object> current = data.computeIfAbsent(section, k -> new HashMap<>());
+        Map<String, Object> current = configData.computeIfAbsent(section, k -> new HashMap<>());
         current.put(key, value);
     }
 
     public void remove(String section, String key) {
-        Map<String, Object> current = data.get(section);
+        Map<String, Object> current = configData.get(section);
         if (current != null) {
             current.remove(key);
         }
@@ -184,7 +194,7 @@ public class JsonConfig {
      * without knowing the exact keys ahead of time.
      */
     public void removeWithPrefix(String section, String prefix) {
-        Map<String, Object> current = data.get(section);
+        Map<String, Object> current = configData.get(section);
         if (current == null || current.isEmpty()) {
             return;
         }
@@ -203,7 +213,7 @@ public class JsonConfig {
 
     // Optional: list keys in a section
     public Set<String> keys(String section) {
-        Map<String, Object> current = data.get(section);
+        Map<String, Object> current = configData.get(section);
         if (current != null) {
             return current.keySet();
         }
