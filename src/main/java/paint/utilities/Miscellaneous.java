@@ -15,7 +15,7 @@ import java.util.Arrays;
 
 public class Miscellaneous {
 
-    /** Always read CSV with ALL columns forced to STRING. */
+    /** Read CSV with ALL columns forced to STRING. */
     public static Table readTableAsStrings(Path csvPath) throws Exception {
         String headerLine;
         try (BufferedReader br = Files.newBufferedReader(csvPath)) {

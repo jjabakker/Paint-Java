@@ -1,19 +1,17 @@
 package paint.generateSquares;
 
-import paint.loaders.ProjectDataLoader;
 import paint.objects.Context;
 import paint.objects.Experiment;
 
 import java.nio.file.Path;
 
 import static paint.loaders.ProjectDataLoader.loadExperiment;
-import static paint.loaders.ProjectDataLoader.loadExperiment1;
 
 public class GenerateSquareCalcs {
 
     static boolean calculateSquares(Path projectPath, String experimentName, Context context) {
         try {
-            Experiment experiment = loadExperiment1(projectPath, experimentName, context);
+            Experiment experiment = loadExperiment(projectPath, experimentName, context, false);
             if (experiment != null) {
                 System.out.println("Experiment loaded: " + experimentName);
                 System.out.println(experiment);

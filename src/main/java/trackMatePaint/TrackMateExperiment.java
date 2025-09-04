@@ -1,6 +1,5 @@
 package trackMatePaint;
 
-import paint.utilities.FileCleanForTrackMate;
 import com.opencsv.CSVReaderHeaderAware;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
@@ -17,7 +16,8 @@ import java.util.*;
 import java.util.logging.Logger;
 import paint.utilities.AppLoggerOld;
 
-import static paint.utilities.DurationFormatter.formatDuration;
+import static paint.utilities.Miscellaneous.deleteAssociatedFiles;
+import static paint.utilities.Miscellaneous.formatDuration;
 
 public class TrackMateExperiment {
 
@@ -119,12 +119,12 @@ public class TrackMateExperiment {
         }
 
         // Delete All Recordings.csv and All Tracks.csv if they exist
-        FileCleanForTrackMate.deleteAssociatedFiles(experimentInfoFile);
+        deleteAssociatedFiles(experimentInfoFile);
 
         // Then do the actual processing
         Instant start = Instant.now();
 
-        // Extend the Experiment Info file with new columns to bring it in All Recordings format
+        // Extend the Experiment Info file with new columns to bring it into All Recordings format
         recordings = addOrderedColumns(recordings);
 
         // Now cycle through again and fand do the work

@@ -34,6 +34,7 @@ public class Recording {
 
     private List<Square> squares = new ArrayList<>();
     private List<Track> tracks = new ArrayList<>();
+
     private Table tracksTable;
 
     //
@@ -243,16 +244,37 @@ public class Recording {
     public double getDensity() { return density; }
     public void setDensity(double density) { this.density = density; }
 
-    public List<Square> getSquares() { return squares; }
 
-    public List<Track> getTracks() { return tracks; }
+    public List<Track> getTracks() {
+        return tracks;
+    }
 
-    public void setTracks(List<Track> tracks) { this.tracks = tracks; }
+    public void setTracks(List<Track> tracks) {
+        this.tracks = tracks;
+    }
 
-    public void setTracksTable(Table tracksTable) { this.tracksTable = tracksTable;}
+    public List<Square> getSquares() {
+        return squares;
+    }
 
-    public void addSquares(List <Square> squares) { this.squares.addAll(squares); }
-    public void addSquare(Square square) { this.squares.add(square); }
+    public void setSquares(List<Square> squares) {
+        this.squares = squares;
+    }
+
+    public Table getTracksTable() {
+        return tracksTable;
+    }
+    public void setTracksTable(Table tracksTable) {
+        this.tracksTable = tracksTable;
+    }
+
+    public void addSquares(List <Square> squares) {
+        this.squares.addAll(squares);
+    }
+
+    public void addSquare(Square square) {
+        this.squares.add(square);
+    }
 
     public void addTrack(Track track) {
         this.tracks.add(track);

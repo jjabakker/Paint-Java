@@ -6,20 +6,19 @@ import paint.io.TrackTableIO;
 import paint.io.SquareTableIO;
 import paint.objects.*;
 
-import paint.utilities.ExceptionUtils;
+import paint.utilities.AppLogger;
 import tech.tablesaw.api.*;
-import tech.tablesaw.io.csv.CsvReadOptions;
 import tech.tablesaw.selection.Selection;
 
-import java.io.BufferedReader;
-
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
 import static paint.calculations.CalculateRecording.calculateAverageTrackCountOfBackground;
 import static paint.constants.PaintConstants.*;
-
+import static paint.utilities.Miscellaneous.friendlyMessage;
 import paint.utilities.JsonConfig;
 
 public final class ProjectDataLoader {
@@ -28,32 +27,32 @@ public final class ProjectDataLoader {
 
     public static void main(String[] args) {
         Project project = null;
+        AppLogger.init("Load Project");
 
         try {
-            Path projectPath;
-
-            if (args != null && args.length != 0) {
-                projectPath = java.nio.file.Paths.get(args[0]);
-            } else {
-                System.out.println("Usage: java -cp <jar> paint.loaders.PainProjectLoader <project-root-path> [--mature|--legacy]");
-                System.out.println("  <project-root-path>  Path containing Experiment Info.csv and experiment directories");
-                System.out.println("  --mature             Expect squares file (All Squares.csv) in experiments (default)");
+            if (args == null || args.length == 0) {
+                System.out.println("Usage: java -cp <jar> paint.loaders.PainProjectLoader <project-root-path> [experiments...] [--mature]");
+                System.out.println("  <project-root-path>   Path containing Experiment Info.csv and experiment directories");
+                System.out.println("  [experiments...]      Zero or more experiment names to load (default: all)");
+                System.out.println("  --mature              Expect squares file (All Squares.csv) in experiments");
                 return;
             }
 
-            boolean matureProject = false;
+            Path projectPath = java.nio.file.Paths.get(args[0]);
 
-            if (args.length > 1) {
-                if ("--mature".equalsIgnoreCase(args[1])) {
+            boolean matureProject = false;
+            List<String> experimentNames = new ArrayList<>();
+
+            // Parse remaining args
+            for (int i = 1; i < args.length; i++) {
+                if ("--mature".equalsIgnoreCase(args[i])) {
                     matureProject = true;
                 } else {
-                    System.err.println("Unknown option: " + args[1]);
-                    System.out.println("Use --mature.");
-                    System.exit(2);
+                    experimentNames.add(args[i]);
                 }
             }
 
-            project = loadProject(projectPath, matureProject);
+            project = loadProject(projectPath, experimentNames, matureProject);
 
         } catch (Exception e) {
             System.err.println("Failed to load project: " + e.getMessage());
@@ -74,7 +73,7 @@ public final class ProjectDataLoader {
     public static void cycleThroughProject(Project project) {
 
 
-        int numberOfTracksInExperiment = 0;
+        int numberOfTracksInExperiment;
         int numberOfTracksInProject = 0;
 
         System.out.printf("Project: %s has the following context:\n",project.getProjectName());
@@ -94,7 +93,7 @@ public final class ProjectDataLoader {
             }
 
             for (Recording rec : exp.getRecordings()) {
-                System.out.printf("\n");
+                System.out.println();
                 System.out.printf("Recording: %s\n", rec.getRecordingName());
                 System.out.println(rec);
 
@@ -118,26 +117,43 @@ public final class ProjectDataLoader {
    }
 
 
-    public static Project loadProject(Path projectPath, boolean matureProject) {
+    public static Project loadProject(Path projectPath, List<String> experimentNames, boolean matureProject) {
         List<Experiment> experiments = new ArrayList<>();
-        Set<String> experimentsToProcess;
 
         // Read the context information from the Paint Configuration.json file
         Context context = loadContextFromJsonConfig(projectPath);
 
-        // Read Paint Project Info.csv to determine which experiments to load.
-        experimentsToProcess = readListOfExperimentsToProcess(projectPath);
-        if (experimentsToProcess == null) {
-            System.err.println("No '" + PROJECT_INFO_CSV + "' file found in project folder. ");
-        } else {
-            // Process all experiments that are listed in the Paint Project Info.csv file.
-            for (String experimentName : experimentsToProcess) {
-                Path expDir = projectPath.resolve(experimentName);
-                if (!Files.isDirectory(expDir)) {
-                    System.err.println("Warning: experiment folder not found: " + experimentName);
-                    continue;
+        // If no Experiment was specified, assume that all experiments should be loaded
+        if (experimentNames == null || experimentNames.isEmpty()) {
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(projectPath, Files::isDirectory)) {
+                for (Path path : stream) {
+                    experimentNames.add(path.getFileName().toString());
                 }
-                loadAndAddExperiment(experiments, projectPath, experimentName, context, matureProject);
+                experimentNames.sort(String::compareToIgnoreCase);
+                System.out.println("Loading all experiments in the project.");
+            } catch (IOException e) {
+                System.err.println("Failed to read experiments: " + e.getMessage());
+                throw new RuntimeException(e);
+            }
+        }
+
+        // Load each experiment if it seems valid and add it to the project
+        for (String experimentName : experimentNames) {
+            Path expDir = projectPath.resolve(experimentName);
+            if (experimentSeemsValid(expDir, matureProject)) {
+                AppLogger.info("Loading experiment: " + experimentName);
+                try {
+                    Experiment experiment = loadExperiment(projectPath, experimentName, context, matureProject);
+                    if (experiment != null) {
+                        experiments.add(experiment);
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            else {
+                AppLogger.error("Experiment '" + experimentName + "' does not seem valid.");
+                AppLogger.error(reasonForExperimentProblem(expDir, matureProject));
             }
         }
 
@@ -145,233 +161,138 @@ public final class ProjectDataLoader {
         return new Project(projectPath.getFileName().toString(), projectPath, context, experiments);
     }
 
-    private static void loadAndAddExperiment(List<Experiment> experiments, Path projectPath,
-                                             String experimentName, Context context, boolean matureProject) {
-
-        Result result = null;
-        try {
-            result = loadExperiment(projectPath, experimentName, context, matureProject);
-        } catch (Exception e) {
-            //throw new RuntimeException(e);
-        }
-
-        if (result != null && result.isSuccess() && result.experiment().isPresent()) {
-            experiments.add(result.experiment().get());
-        } else {
-            System.err.println("Failed to load experiment: " + experimentName);
-            if (result != null) {
-                for (String err : result.errors()) {
-                    System.err.println(err);
-                }
-            }
-        }
-    }
-
-
 
     /**
      * Load a single experiment; returns Result with Experiment or errors.
      */
 
-    public static Experiment loadExperiment1(Path projectPath, String experimentName, Context context) throws Exception {
-        Result result = loadExperiment(projectPath, experimentName, context, false);
-        return result.isSuccess() ? result.experiment().orElse(null) : null;
-    }
-
-    public static Result loadExperiment(Path projectPath, String experimentName,
-                                        Context context, boolean matureProject) throws Exception {
-
+    public static Experiment loadExperiment(Path projectPath, String experimentName, Context context, boolean matureProject) throws Exception {
         Path experimentPath = projectPath.resolve(experimentName);
 
-        // Validate if the expected files and directories are present in the experiment folder.
-        List<String> errors = validateExperimentLayout(experimentPath, experimentName, matureProject);
-        if (!errors.isEmpty()) {
-            return Result.failure(errors);
-        }
-
-        // Create the Experiment object so that it is available for populating
+        Table tracksTable = null;
+        Table squaresTable = null;
+        List<Recording> recordings = null;
         Experiment experiment = new Experiment(experimentName);
 
-        // Load recordings, but do not bother with their squares and tracks yet.
-        List<Recording> recordings;
+        // Load recordings, but do not bother with squares and tracks yet.
+        RecordingTableIO recordingsTableIO = new RecordingTableIO();
         try {
-            RecordingTableIO recordingsTableIO  = new RecordingTableIO();
             Table recordingsTable = recordingsTableIO.readCsv(experimentPath.resolve(RECORDINGS_CSV));
             recordings = recordingsTableIO.toEntities(recordingsTable);
             for (Recording rec : recordings) {
                 experiment.addRecording(rec);
             }
         } catch (Exception e) {
-            errors.add("Failed to read '" + RECORDINGS_CSV + "': " + ExceptionUtils.friendlyMessage(e));
-            return Result.failure(errors);
+            AppLogger.errorf("Failed to read %s in %s : %s", RECORDINGS_CSV, experimentName, friendlyMessage(e));
+            return null;
         }
-
-        // Read the experiment 'All Squares' file
-        SquareTableIO squareTableIO = new SquareTableIO();
-        Table squaresTable = squareTableIO.readCsv(experimentPath.resolve(SQUARES_CSV));
 
         // Read the experiment 'All Tracks' file
         TrackTableIO trackTableIO = new TrackTableIO();
-        Table tracksTable = trackTableIO.readCsv(experimentPath.resolve(TRACKS_CSV));
-
-        // Assign the squares to each recording.
-        for (Recording recording : recordings) {
-
-            // Find the square records for this recording
-            Table squaresOfRecording = squaresTable.where(
-                    squaresTable.stringColumn(COL_RECORDING_NAME)
-                            .matchesRegex("^" + recording.getRecordingName() + "(?:-threshold-\\d{1,3})?$"));
-
-            // Create the Square objects for this recording and add the Square objects to the recording
-            List<Square> squares = squareTableIO.toEntities(squaresOfRecording);
-            recording.addSquares(squares);
-
-            // Find the track records for this recording
-            Table tracksOfRecording = tracksTable.where(
-                    tracksTable.stringColumn(COL_RECORDING_NAME)
-                            .matchesRegex("^" + recording.getRecordingName() + "(?:-threshold-\\d{1,3})?$"));
-
-            // Create the Tracks objects for this recording and add the Tracks objects to the recording
-            List<Track> tracks = trackTableIO.toEntities(tracksOfRecording);
-            recording.setTracks(tracks);  // ToDo - be consistent, use the ame call as for squares above
-            recording.setTracksTable(tracksOfRecording);
-
-            // Assign the Tracks to specific squares in each recording
-            int cumulativeNumberOfTracksInSquares = 0;
-            int lastRowCol = context.getNumberOfSquaresInRow() - 1;
-
-            for (Square square : recording.getSquares()) {
-
-                Table squareTracksTable = filterTracksInSquare(tracksOfRecording, square, lastRowCol);
-                tracks = trackTableIO.toEntities(squareTracksTable);
-                square.setTracks(tracks);
-            }
-        }
-
-        return errors.isEmpty() ? Result.success(experiment) : Result.failure(errors);
-    }
-
-
-    // ---------- Result type ----------
-
-    public static final class Result {
-        private final Experiment experiment;
-        private final List<String> errors;
-
-        private Result(Experiment experiment, List<String> errors) {
-            this.experiment = experiment;
-            this.errors = errors;
-        }
-
-        public static Result success(Experiment experiment) {
-            return new Result(experiment, Collections.emptyList());
-        }
-
-        public static Result failure(List<String> errors) {
-            return new Result(null, new ArrayList<>(errors));
-        }
-
-        public Optional<Experiment> experiment() {
-            return Optional.ofNullable(experiment);
-        }
-
-        public List<String> errors() {
-            return Collections.unmodifiableList(errors);
-        }
-
-        public boolean isSuccess() {
-            return experiment != null && errors.isEmpty();
-        }
-    }
-
-    // ---------- Implementation ----------
-
-    /** Always read CSV with ALL columns forced to STRING. */
-    private static Table readTableAsStrings(Path csvPath) throws Exception {
-        String headerLine;
-        try (BufferedReader br = Files.newBufferedReader(csvPath)) {
-            headerLine = br.readLine();
-        }
-        if (headerLine == null) {
-            return Table.create(csvPath.getFileName().toString());
-        }
-
-        // simple split on comma; switch to a CSV parser if headers may contain commas in quotes
-        int columnCount = headerLine.split(",", -1).length;
-
-        ColumnType[] types = new ColumnType[columnCount];
-        Arrays.fill(types, ColumnType.STRING);
-
-        CsvReadOptions options = CsvReadOptions.builder(csvPath.toFile())
-                .header(true)
-                .columnTypes(types)
-                .build();
-
-        return Table.read().usingOptions(options);
-    }
-
-    private static List<String> validateExperimentLayout(Path experimentPath, String experimentName, boolean matureProject) {
-        List<String> errors = new ArrayList<>();
-
-        if (!Files.isDirectory(experimentPath)) {
-            errors.add("Experiment directory does not exist: " + experimentName);
-            return errors;
-        }
-        if (!Files.isRegularFile(experimentPath.resolve(RECORDINGS_CSV))) {
-            errors.add("File '" + RECORDINGS_CSV + "' does not exist.");
-        }
-        if (!Files.isRegularFile(experimentPath.resolve(TRACKS_CSV))) {
-            errors.add("File '" + TRACKS_CSV + "' does not exist.");
-        }
-        if (!Files.isDirectory(experimentPath.resolve(DIR_TRACKMATE_IMAGES))) {
-            errors.add("Directory '" + DIR_TRACKMATE_IMAGES + "' does not exist.");
-        }
-        if (!Files.isDirectory(experimentPath.resolve(DIR_BRIGHTFIELD_IMAGES))) {
-            errors.add("Directory '" + DIR_BRIGHTFIELD_IMAGES + "' does not exist.");
-        }
-
-        // If the experiment is marked as 'Mature' there needs to be an 'All Squares' CSV file.
-        if (matureProject && !Files.isRegularFile(experimentPath.resolve(SQUARES_CSV))) {
-            errors.add("File '" + SQUARES_CSV + "' does not exist.");
-        }
-
-        return errors;
-    }
-
-
-    private static Set<String> readListOfExperimentsToProcess(Path projectPath) {
-        Set<String> include = new HashSet<>();
-        Path csvPath = projectPath.resolve(PROJECT_INFO_CSV);
-        if (!Files.exists(csvPath)) {
-            System.err.println("Warning: Project_info.csv not found; including all experiments.");
-            return null; // null => include all (backward compatible)
-        }
-
         try {
-            Table t = readTableAsStrings(csvPath);
-
-            if (!t.columnNames().contains("Experiment Name")) {
-                System.err.println("Warning: Project_info.csv missing 'Experiment' column; including all.");
-                return null;
-            }
-            if (!t.columnNames().contains("Process")) {
-                System.err.println("Warning: Project_info.csv missing 'Process' column; including all.");
-                return null;
-            }
-
-            // Iterate rows and collect experiments with Process == truthy
-            for (int i = 0; i < t.rowCount(); i++) {
-                String exp = t.stringColumn("Experiment Name").get(i);
-                String proc = t.stringColumn("Process").get(i);
-                if (exp != null && isTruthy(proc)) {
-                    include.add(exp.trim());
-                }
-            }
-            return include;
-        } catch (Exception e) {
-            System.err.printf("Warning: Failed to read %s: %s", PROJECT_INFO_CSV,e.getMessage());
+            tracksTable = trackTableIO.readCsv(experimentPath.resolve(TRACKS_CSV));
+        }
+        catch (Exception e) {
+            AppLogger.errorf("Failed to read %s in %s: %s", TRACKS_CSV, experimentName, friendlyMessage(e));
             return null;
         }
+
+        // Read the experiment 'All Squares' file
+        //        if (!matureProject) {
+        //            // Return with a valid immature experiment, i.e. without Squares
+        //            return experiment;
+        //        }
+
+        SquareTableIO squareTableIO = new SquareTableIO();
+        try {
+            squaresTable = squareTableIO.readCsv(experimentPath.resolve(SQUARES_CSV));
+        }
+        catch (Exception e) {
+            AppLogger.errorf("Failed to read %s in %s: %s", SQUARES_CSV, experimentName, friendlyMessage(e));
+            return null;
+        }
+
+        // Assign the squares to each recording.
+        try {
+            for (Recording recording : recordings) {
+
+                // Find the square records for this recording
+                Table squaresOfRecording = squaresTable.where(
+                        squaresTable.stringColumn(COL_RECORDING_NAME)
+                                .matchesRegex("^" + recording.getRecordingName() + "(?:-threshold-\\d{1,3})?$"));
+
+                // Create the Square objects for this recording and add the Square objects to the recording
+                List<Square> squares = squareTableIO.toEntities(squaresOfRecording);
+                recording.addSquares(squares);
+
+                // Find the track records for this recording
+                Table tracksOfRecording = tracksTable.where(
+                        tracksTable.stringColumn(COL_RECORDING_NAME)
+                                .matchesRegex("^" + recording.getRecordingName() + "(?:-threshold-\\d{1,3})?$"));
+
+                // Create the Tracks objects for this recording and add the Tracks objects to the recording
+                List<Track> tracks = trackTableIO.toEntities(tracksOfRecording);
+                recording.setTracks(tracks);  // ToDo - be consistent, use the same call as for squares above
+                recording.setTracksTable(tracksOfRecording);
+
+                // Assign the Tracks to specific squares in each recording
+                int lastRowCol = context.getNumberOfSquaresInRow() - 1;
+
+                for (Square square : recording.getSquares()) {
+                    Table squareTracksTable = filterTracksInSquare(tracksOfRecording, square, lastRowCol);
+                    tracks = trackTableIO.toEntities(squareTracksTable);
+                    square.setTracks(tracks);
+                }
+            }
+        }
+        catch (Exception e) {
+            AppLogger.errorf("In %s failed to assign tracks squares: %s", experimentName, friendlyMessage(e));
+            return null;
+        }
+
+        // Return with a valid mature experiment
+        return experiment;
+    }
+
+
+    private static boolean experimentSeemsValid(Path experimentPath, boolean matureProject) {
+
+        return (Files.isDirectory(experimentPath) &&
+                Files.isRegularFile(experimentPath.resolve(RECORDINGS_CSV)) &&
+                Files.isRegularFile(experimentPath.resolve(TRACKS_CSV)) &&
+                Files.isDirectory(experimentPath.resolve(DIR_TRACKMATE_IMAGES)) &&
+                Files.isDirectory(experimentPath.resolve(DIR_BRIGHTFIELD_IMAGES)) &&
+                (!matureProject || Files.isRegularFile(experimentPath.resolve(SQUARES_CSV))));
+    }
+
+
+    private static String reasonForExperimentProblem(Path experimentPath, boolean matureProject) {
+
+        StringBuilder sb = new StringBuilder();
+
+        if (!Files.isDirectory(experimentPath)) {
+            sb.append("\tExperiment directory does not exist: " + experimentPath + "\n");
+            return sb.toString();
+        }
+        if (!Files.isRegularFile(experimentPath.resolve(RECORDINGS_CSV))) {
+            sb.append("\tFile '" + RECORDINGS_CSV + "' does not exist.\n");
+        }
+        if (!Files.isRegularFile(experimentPath.resolve(TRACKS_CSV))) {
+            sb.append("\tFile '" + TRACKS_CSV + "' does not exist.\n");
+        }
+        if (!Files.isDirectory(experimentPath.resolve(DIR_TRACKMATE_IMAGES))) {
+            sb.append("\tDirectory '" + DIR_TRACKMATE_IMAGES + "' does not exist\n.");
+        }
+        if (!Files.isDirectory(experimentPath.resolve(DIR_BRIGHTFIELD_IMAGES))) {
+            sb.append("\tDirectory '" + DIR_BRIGHTFIELD_IMAGES + "' does not exist.\n");
+        }
+
+        // If the experiment is marked as 'Mature', there needs to be an 'All Squares' CSV file.
+        if (matureProject && !Files.isRegularFile(experimentPath.resolve(SQUARES_CSV))) {
+            sb.append("\tFile '" + SQUARES_CSV + "' does not exist.\n");
+        }
+
+        return sb.toString();
     }
 
 
@@ -386,7 +307,7 @@ public final class ProjectDataLoader {
     }
 
     /*
-    Selexct the tracks that are within the square's bounding box.
+    Select the tracks that are within the square's bounding box.
      */
 
     public static Table filterTracksInSquare(Table tracks, Square square, int lastRowCol) {
@@ -407,20 +328,34 @@ public final class ProjectDataLoader {
         DoubleColumn x = tracks.doubleColumn("Track X Location");
         DoubleColumn y = tracks.doubleColumn("Track Y Location");
 
-        Selection sel = x.isGreaterThanOrEqualTo(left);
-        if (isLastColumn)
-            sel.and(x.isLessThanOrEqualTo(right));
-        else
-            sel.and(x.isLessThan(right));
+        // Build X-range selection
+        Selection selX;
+        try {
+            // Prefer a single-pass range when available
+            selX = isLastColumn
+                    ? x.isBetweenInclusive(left, right)
+                    : x.isGreaterThanOrEqualTo(left).and(x.isLessThan(right));
+        } catch (UnsupportedOperationException | NoSuchMethodError e) {
+            // Fallback if isBetweenInclusive is not available in this Tablesaw version
+            selX = x.isGreaterThanOrEqualTo(left).and(isLastColumn ? x.isLessThanOrEqualTo(right) : x.isLessThan(right));
+        }
 
-        sel.and(y.isGreaterThanOrEqualTo(top));
-        if (isLastRow)
-            sel.and(y.isLessThanOrEqualTo(bottom));
-        else
-            sel.and(y.isLessThan(bottom));
+        // Build Y-range selection
+        Selection selY;
+        try {
+            selY = isLastRow
+                    ? y.isBetweenInclusive(top, bottom)
+                    : y.isGreaterThanOrEqualTo(top).and(y.isLessThan(bottom));
+        } catch (UnsupportedOperationException | NoSuchMethodError e) {
+            selY = y.isGreaterThanOrEqualTo(top).and(isLastRow ? y.isLessThanOrEqualTo(bottom) : y.isLessThan(bottom));
+        }
+
+        // Combine once to minimize temporary allocations
+        Selection sel = selX.and(selY);
 
         return tracks.where(sel);
     }
+
 
 
     /*

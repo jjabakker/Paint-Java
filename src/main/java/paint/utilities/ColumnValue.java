@@ -9,6 +9,11 @@ public class ColumnValue {
         this.value = value;
     }
 
-    public String getColumnName() { return columnName; }
-    public Object getValue() { return value; }
+    public String getColumnName() {
+        return columnName;
+    }
+
+    public Object getValue() {
+        return value;
+    }
 }

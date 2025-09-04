@@ -4,6 +4,8 @@ import tech.tablesaw.api.DoubleColumn;
 import tech.tablesaw.api.Table;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,7 +25,8 @@ public class ProjectDataLoaderTest {
         assertTrue(projectRoot.toFile().mkdirs());
 
         // When
-        Project project = ProjectDataLoader.loadProject(projectRoot, false);
+        List<String> experimentNames = new ArrayList<>();
+        Project project = ProjectDataLoader.loadProject(projectRoot, experimentNames,false);
 
         // Then
         assertNotNull(project);
