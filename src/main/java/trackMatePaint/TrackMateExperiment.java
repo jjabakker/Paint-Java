@@ -15,13 +15,13 @@ import java.time.Instant;
 import java.util.*;
 
 import java.util.logging.Logger;
-import paint.utilities.AppLogger;
+import paint.utilities.AppLoggerOld;
 
 import static paint.utilities.DurationFormatter.formatDuration;
 
 public class TrackMateExperiment {
 
-    private static final Logger log = AppLogger.getLogger();
+    private static final Logger log = AppLoggerOld.getLogger();
 
     public TrackMateExperiment(Path experimentPath, Path omeroExperimentPath, boolean convert, String sweepCaseName) {
         go(experimentPath, omeroExperimentPath, convert, sweepCaseName);

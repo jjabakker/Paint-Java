@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 import java.time.Duration;
 import java.time.Instant;
 
-import paint.utilities.AppLogger;
+import paint.utilities.AppLoggerOld;
 import com.opencsv.CSVReaderHeaderAware;
 import com.opencsv.exceptions.CsvValidationException;
 
@@ -32,8 +32,8 @@ public class TrackMateBatch {
         setupLookAndFeelOfUI();
 
         // Initialize the logger before anything else uses it
-        AppLogger.init("TrackMate Batch.log", false);
-        log = AppLogger.getLogger();
+        AppLoggerOld.init("TrackMate Batch.log", false);
+        log = AppLoggerOld.getLogger();
 
         // Get the batch file name from the user
         File trackMateBatchFile = getTrackMateBatchFile();

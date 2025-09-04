@@ -1,13 +1,13 @@
 package trackMatePaint;
 
-import paint.utilities.AppLogger;
+import paint.utilities.AppLoggerOld;
 
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
 public class TrackMateRecording {
 
-    private static final Logger log = AppLogger.getLogger();
+    private static final Logger log = AppLoggerOld.getLogger();
 
     public TrackMateRecording(Path experimentPath, Path omeroExperimentPath, String recording) {
         log.info(String.format("Ready to start TrackMate on a recording: %s.", recording));

@@ -16,7 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import paint.objects.Context;
-import paint.utilities.AppLoggerNew;
+import paint.utilities.AppLogger;
 import paint.utilities.DirectoryClassifier;
 import paint.utilities.JsonConfig;
 
@@ -29,8 +29,8 @@ class ProjectDirectoryDialog {
     private JTextField directoryField;
 
     public static void main(String[] args) {
-        AppLoggerNew.init("GenerateSquares.log");
-        AppLoggerNew.info("Starting....");
+        AppLogger.init("GenerateSquares.log");
+        AppLogger.info("Starting....");
         SwingUtilities.invokeLater(ProjectDirectoryDialog::new);
     }
 
