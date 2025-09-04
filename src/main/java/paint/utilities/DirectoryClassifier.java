@@ -32,6 +32,17 @@ public class DirectoryClassifier {
         }
     }
 
+
+    public static class CheckResult {
+        public final boolean valid;
+        public final String reason;
+
+        public CheckResult(boolean valid, String reason) {
+            this.valid = valid;
+            this.reason = reason;
+        }
+    }
+
     // --- File/Dir constants ---
     private static final Set<String> EXPERIMENT_FILES = Collections.unmodifiableSet(
             new HashSet<>(Arrays.asList("Experiment Info.csv", "All Recordings.csv")));
@@ -121,6 +132,72 @@ public class DirectoryClassifier {
         return new String[]{result.type.name(), result.maturity.name()};
     }
 
+    public static CheckResult isExperimentDirectory(Path dir) {
+        if (!Files.isDirectory(dir)) {
+            return new CheckResult(false, "Not a directory: " + dir);
+        }
+
+        Path trackmate = dir.resolve("TrackMate Images");
+        Path brightfield = dir.resolve("Brightfield Images");
+        Path allRecordings = dir.resolve("All Recordings.csv");
+        Path allTracks = dir.resolve("All Tracks.csv");
+
+        if (!Files.isDirectory(trackmate)) {
+            return new CheckResult(false, "Missing TrackMate Images directory");
+        }
+        if (!Files.isDirectory(brightfield)) {
+            return new CheckResult(false, "Missing Brightfield Images directory");
+        }
+        if (!Files.isRegularFile(allRecordings)) {
+            return new CheckResult(false, "Missing All Recordings.csv file");
+        }
+        if (!Files.isRegularFile(allTracks)) {
+            return new CheckResult(false, "Missing All Tracks.csv file");
+        }
+
+        return new CheckResult(true, "Valid Experiment directory");
+    }
+
+    public static CheckResult isProjectDirectory(Path dir) {
+
+
+        int numberOfNonExperimentDirectories = 0;
+        int numberOfExperimentDirectories = 0;
+
+        if (!Files.isDirectory(dir)) {
+            return new CheckResult(false, "Not a directory: " + dir);
+        }
+
+        try {
+            boolean foundExperiment = false;
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+                for (Path sub : stream) {
+                    if (Files.isDirectory(sub)) {
+                        CheckResult expCheck = isExperimentDirectory(sub);
+                        if (expCheck.valid) {
+                            foundExperiment = true;
+                            numberOfExperimentDirectories += 1;
+                        }
+                        else {
+                            numberOfNonExperimentDirectories += 1;
+                            System.out.println("Not a experiment: " + sub);
+                        }
+                    }
+                }
+            }
+
+            if (!foundExperiment) {
+                return new CheckResult(false, "No valid Experiment directories found in " + dir);
+            }
+            else {
+                System.out.printf("Number Of Experiment Directories is %d and Non Experiment Directories is %d \n", numberOfExperimentDirectories, numberOfNonExperimentDirectories);
+                return new CheckResult(true, "Found Experiment directory found in " + dir);
+            }
+
+        } catch (IOException e) {
+            return new CheckResult(false, "Error reading directory: " + e.getMessage());
+        }
+    }
     // -------------------- Helper Methods --------------------
 
     private static boolean isExperiment(Path directory) {
