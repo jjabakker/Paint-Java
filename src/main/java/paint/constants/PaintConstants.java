@@ -11,6 +11,9 @@ public final class PaintConstants {
     public static final String SQUARES_CSV = "All Squares.csv";
     public static final String EXPERIMENT_INFO_CSV = "Experiment Info.csv";
     public static final String PAINT_JSON = "Paint Configuration.json";
+
+
+    // Candidate for removal - aold mechanism
     public static final String PROJECT_INFO_CSV = "Paint Project Info.csv";
 
     // Directories
@@ -18,7 +21,7 @@ public final class PaintConstants {
     public static final String DIR_BRIGHTFIELD_IMAGES = "Brightfield Images";
 
     // Column names
-    public static final String COL_EXT_RECORDING_NAME = "Ext Recording Name";
+    // public static final String COL_EXT_RECORDING_NAME = "Ext Recording Name";
     public static final String COL_RECORDING_NAME = "Recording Name";
 
     // Squares
