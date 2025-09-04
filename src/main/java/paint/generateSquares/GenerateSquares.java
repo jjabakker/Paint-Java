@@ -11,10 +11,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
+import paint.objects.Context;
 import paint.utilities.DirectoryClassifier;
 import paint.utilities.JsonConfig;
+
+import static paint.generateSquares.GenerateSquareCalcs.calculateSquares;
 
 class ProjectDirectoryDialog {
 
@@ -94,8 +99,7 @@ class GenerateSquareDialog {
 
     private JPanel checkboxPanel;
     private List<JCheckBox> checkBoxes = new ArrayList<>();
-    private boolean hasChanges = false;
-    private boolean checkBoxChanged = false;
+    private boolean userChangedInput = false;
 
     public GenerateSquareDialog(File projectDir) {
         this.projectDir = projectDir;
@@ -132,7 +136,7 @@ class GenerateSquareDialog {
         formPanel.add(new JLabel("Max Allowed Variability"));
         formPanel.add(maxVariabilityField);
 
-        DocumentListener changeListener = new SimpleChangeListener(() -> hasChanges = true);
+        DocumentListener changeListener = new SimpleChangeListener(() -> userChangedInput = true);
         nrSquaresField.getDocument().addDocumentListener(changeListener);
         minTracksField.getDocument().addDocumentListener(changeListener);
         minRSquaredField.getDocument().addDocumentListener(changeListener);
@@ -183,9 +187,11 @@ class GenerateSquareDialog {
             System.out.println("Max Allowed Variability: " + maxVariabilityVal);
             System.out.println("Selected Directory: " + projectDir.getAbsolutePath());
 
+            Context context = new Context();
             for (JCheckBox cb : checkBoxes) {
                 if (cb.isSelected()) {
-                    File expDir = new File(projectDir, cb.getText());
+                    String experimentName = cb.getText();
+                    File expDir = new File(projectDir, experimentName);
                     if (!expDir.isDirectory()) {
                         continue;
                     }
@@ -195,11 +201,13 @@ class GenerateSquareDialog {
                     }
                     else {
                         System.out.println("Running calculations for: " + expDir);
+
+                        calculateSquares(projectDir.toPath(), experimentName, context);
                         // processExperiment(expDir, nrSquaresVal, minTracksVal, ...);
                     }
                 }
             }
-
+            System.out.println("\n\nFinished calculating");
             // Save config
             saveConfig(config);
 
@@ -216,13 +224,16 @@ class GenerateSquareDialog {
 
         File[] subs = projectDir.listFiles();
         if (subs != null) {
+
+            Arrays.sort(subs, Comparator.comparing(File::getName, String.CASE_INSENSITIVE_ORDER));
+
             for (File sub : subs) {
                 if (sub.isDirectory()) {
                     JCheckBox cb = new JCheckBox(sub.getName());
                     boolean savedState = config.getBoolean("Generate Squares",
                             "Checkbox States." + sub.getName(), false);
                     cb.setSelected(savedState);
-                    cb.addItemListener(e -> checkBoxChanged = true);
+                    cb.addItemListener(e -> userChangedInput = true);
                     checkboxPanel.add(cb);
                     checkBoxes.add(cb);
                 }
@@ -240,15 +251,6 @@ class GenerateSquareDialog {
             double minDensityRatioVal = Double.parseDouble(minDensityRatioField.getText());
             double maxVariabilityVal = Double.parseDouble(maxVariabilityField.getText());
 
-//            DirectoryClassifier.ClassificationResult result =
-//                    DirectoryClassifier.classifyDirectoryWork(Path.of(projectDir.getAbsolutePath()));
-//
-//            if (result.type == DirectoryClassifier.DirectoryType.UNKNOWN) {
-//                JOptionPane.showMessageDialog(frame,
-//                        "Unknown directory type: " + result.feedback,
-//                        "Warning", JOptionPane.WARNING_MESSAGE);
-//            }
-
             config.setInt("Generate Squares", "Nr of Squares in Row", nrSquaresVal);
             config.setInt("Generate Squares", "Min Tracks to Calculate Tau", minTracksVal);
             config.setDouble("Generate Squares", "Min Required R Squared", minRSquaredVal);
@@ -262,10 +264,9 @@ class GenerateSquareDialog {
                         "Checkbox States." + cb.getText(), cb.isSelected());
             }
 
-            if (hasChanges || checkBoxChanged) {
+            if (userChangedInput) {
                 config.save();
-                hasChanges = false;
-                checkBoxChanged = false;
+                userChangedInput = false;
             }
 
         } catch (NumberFormatException ex) {

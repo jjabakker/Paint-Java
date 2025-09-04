@@ -169,10 +169,14 @@ public final class ProjectDataLoader {
 
 
 
-
     /**
      * Load a single experiment; returns Result with Experiment or errors.
      */
+
+    public static Experiment loadExperiment1(Path projectPath, String experimentName, Context context) throws Exception {
+        Result result = loadExperiment(projectPath, experimentName, context, false);
+        return result.isSuccess() ? result.experiment().orElse(null) : null;
+    }
 
     public static Result loadExperiment(Path projectPath, String experimentName,
                                         Context context, boolean matureProject) throws Exception {
@@ -281,12 +285,6 @@ public final class ProjectDataLoader {
     }
 
     // ---------- Implementation ----------
-
-
-    /** A regular read, safe dor csv files that have been system-generated */
-//    private static Table readTable(Path csvPath) throws Exception {
-//        return Table.read().csv(csvPath.toFile());
-//    }
 
     /** Always read CSV with ALL columns forced to STRING. */
     private static Table readTableAsStrings(Path csvPath) throws Exception {
