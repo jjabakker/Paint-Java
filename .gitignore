@@ -39,3 +39,5 @@ build/
 
 ### Own files
 *.log
+src/main/resources/Paint.json
+Paint.json
