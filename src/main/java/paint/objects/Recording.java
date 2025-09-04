@@ -24,7 +24,7 @@ public class Recording {
     private int numberOfSpots;
     private int numberOfTracks;
     private double runTime;
-    private int recordingSize;
+    private long recordingSize;
     private String timeStamp;
     private int numberOfSpotsInAllTracks;
     private boolean exclude;
@@ -94,7 +94,7 @@ public class Recording {
                         this.numberOfSpotsInAllTracks = (int) Double.parseDouble(curValue);
                         break;
                     case "Recording Size":
-                        this.recordingSize = (int) Double.parseDouble(curValue);
+                        this.recordingSize = (long) Double.parseDouble(curValue);
                         break;
 
                     // Double values
@@ -222,8 +222,8 @@ public class Recording {
     public double getRunTime() { return runTime; }
     public void setRunTime(double runTime) { this.runTime = runTime; }
 
-    public int getRecordingSize() { return recordingSize; }
-    public void setRecordingSize(int recordingSize) { this.recordingSize = recordingSize; }
+    public long getRecordingSize() { return recordingSize; }
+    public void setRecordingSize(long recordingSize) { this.recordingSize = recordingSize; }
 
     public String getTimeStamp() { return timeStamp; }
     public void setTimeStamp(String timeStamp) { this.timeStamp = timeStamp; }
