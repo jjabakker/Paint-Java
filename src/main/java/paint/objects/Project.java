@@ -6,14 +6,19 @@ import java.util.List;
 
 public class Project {
 
+    //
     // Attributes
+    //
 
     private String projectName;
     private Path projectPath;
     private Context context;
     private List<Experiment> experiments;
 
+    //
     // Constructors
+    //
+
     public Project() {
         this.experiments = new ArrayList<>();
     }
@@ -31,7 +36,9 @@ public class Project {
         this.experiments = new ArrayList<>();
     }
 
+    //
     // Getters and setters
+    //
 
     public String getProjectName() {
         return projectName;
@@ -41,16 +48,16 @@ public class Project {
         this.projectName = projectName;
     }
 
+    public Path getProjectPath() {
+        return projectPath;
+    }
+
+    public void setProjectPath(Path projectPath) {
+        this.projectName = projectName;
+    }
+
     public List<Experiment> getExperiments() {
         return experiments;
-    }
-
-    public void setContext(Context context) {  // ToDo Should maybe make a deep copy
-        this.context = context;
-    }
-
-    public Context getContext() {  // ToDo Should maybe make a deep copy
-        return context;
     }
 
     public Experiment getExperiment(String experimentName) {
@@ -59,20 +66,27 @@ public class Project {
                 return experiment;
             }
         }
-        return null; // not found
+        return null;
     }
 
-    public void setExperiments(List<Experiment> experiments) {
+    public void setExperiments(List<Experiment> experiments) {  // ToDo Should maybe make a deep copy
         this.experiments = experiments;
     }
 
-    public void addExperiment(Experiment experiment) {
+    public void addExperiment(Experiment experiment) { // ToDo Should maybe make a deep copy
         this.experiments.add(experiment);
+    }
+
+    public void setContext(Context context) { // ToDo Should maybe make a deep copy
+        this.context = context;
+    }
+
+    public Context getContext() { // ToDo Should maybe make a deep copy
+        return context;
     }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-
 
         sb.append("\n\n");
         sb.append("----------------------------------------------------------------------\n");
@@ -83,7 +97,7 @@ public class Project {
             sb.append("No context set yet.");
         }
         else {
-            sb.append(context.toString());
+            sb.append(context);
         }
         sb.append("\n");
         sb.append(String.format("%nExperiment %s has %d experiment%n",  projectName,  experiments.size()));

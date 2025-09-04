@@ -5,11 +5,11 @@ import java.util.*;
 public class Experiment {
 
     private String experimentName;
-
     private ArrayList<Recording> recordings;
 
-
+    //
     // Constructors
+    //
 
     public Experiment(String experimentName) {
         this.experimentName = experimentName;
@@ -20,28 +20,29 @@ public class Experiment {
         this.recordings = new ArrayList<>();
     }
 
-    // Getters and setters
+    public Experiment(String experimentName, ArrayList<Recording> recordings) { // ToDo Should maybe make a deep copy
+        this.experimentName = experimentName;
+        this.recordings = recordings;
+    }
 
+    //
+    // Getters and setters
+    //
 
     public void setExperimentName(String experimentName) {
         this.experimentName = experimentName;
     }
+
     public String getExperimentName() {
         return experimentName;
     }
 
-    public void addRecording(Recording recording) {
+    public void addRecording(Recording recording) { // ToDo Should maybe make a deep copy
         this.recordings.add(recording);
     }
 
-    public List<Recording> getRecordings() {
+    public List<Recording> getRecordings() { // ToDo Should maybe make a deep copy
         return recordings;
-    }
-
-
-    private static Boolean checkBooleanValue(String string) {
-        Set<String> yesValues = new HashSet<>(Arrays.asList("y", "ye", "yes", "ok", "true", "t"));
-        return yesValues.contains(string.trim().toLowerCase());
     }
 
     public String toString() {

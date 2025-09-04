@@ -297,7 +297,7 @@ public class Recording {
         for (Square square : squares) {
             if (square.getTracks() != null && square.getTracks().size() > 0) {
                 numberOfSquaresWithTracks += 1;
-            };
+            }
         }
         sb.append(String.format("\tNumber of squares with tracks : %d%n", numberOfSquaresWithTracks));
 

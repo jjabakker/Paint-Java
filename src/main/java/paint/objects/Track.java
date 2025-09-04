@@ -8,8 +8,8 @@ public class Track {
     private String recordingName;             // 1
     private int trackId;                      // 2
     private String trackLabel;                // 3
-    private int numberSpots;                  // 4
-    private int numberGaps;                   // 5
+    private int numberOfSpots;                // 4
+    private int numberOfGaps;                 // 5
     private int longestGap;                   // 6
     private double trackDuration;             // 7
     private double trackXLocation;            // 8
@@ -30,7 +30,7 @@ public class Track {
 
     public Track() { }
 
-    public Track(String uniqueKey, String recordingName, int trackId, String trackLabel, int nrSpots, int nrGaps, int longestGap, double trackDuration,
+    public Track(String uniqueKey, String recordingName, int trackId, String trackLabel, int numberOfSpots, int numberOfGaps, int longestGap, double trackDuration,
                  double trackXLocation, double trackYLocation, double trackDisplacement, double trackMaxSpeed,
                  double trackMedianSpeed, double trackMeanSpeed, double trackMaxSpeedCalc, double trackMedianSpeedCalc,
                  double trackMeanSpeedCalc, double diffusionCoefficient, double diffusionCoefficientExt,
@@ -39,8 +39,8 @@ public class Track {
         this.recordingName = recordingName;
         this.trackId = trackId;
         this.trackLabel = trackLabel;
-        this.numberSpots = nrSpots;
-        this.numberGaps = nrGaps;
+        this.numberOfSpots = numberOfSpots;
+        this.numberOfGaps = numberOfGaps;
         this.longestGap = longestGap;
         this.trackDuration = trackDuration;
         this.trackXLocation = trackXLocation;
@@ -80,10 +80,10 @@ public class Track {
                         this.trackId = (int) Double.parseDouble(curValue);
                         break;
                     case "Number of Gaps":
-                        this.numberGaps = (int) Double.parseDouble(curValue);
+                        this.numberOfGaps = (int) Double.parseDouble(curValue);
                         break;
                     case "Number of Spots":
-                        this.numberSpots = (int) Double.parseDouble(curValue);
+                        this.numberOfSpots = (int) Double.parseDouble(curValue);
                         break;
                     case "Longest Gap":
                         this.longestGap = (int) Double.parseDouble(curValue);
@@ -163,7 +163,6 @@ public class Track {
 
     // Getters and setters
 
-
     public String getUniqueKey() { return uniqueKey; }
     public void setUniqueKey(String uniqueKey) { this.uniqueKey = uniqueKey;}
 
@@ -176,11 +175,11 @@ public class Track {
     public String getTrackLabel() { return trackLabel; }
     public void setTrackLabel(String trackLabel) { this.trackLabel = trackLabel; }
 
-    public int getNumberSpots() { return numberSpots; }
-    public void setNumberSpots(int nrSpots) { this.numberSpots = nrSpots; }
+    public int getNumberOfSpots() { return numberOfSpots; }
+    public void setNumberOfSpots(int nrSpots) { this.numberOfSpots = nrSpots; }
 
-    public int getNumberGaps() { return numberGaps; }
-    public void setNumberGaps(int nrGaps) { this.numberGaps = nrGaps; }
+    public int getNumberOfGaps() { return numberOfGaps; }
+    public void setNumberOfGaps(int nrGaps) { this.numberOfGaps = nrGaps; }
 
     public int getLongestGap() { return longestGap; }
     public void setLongestGap(int longestGap) { this.longestGap = longestGap; }
