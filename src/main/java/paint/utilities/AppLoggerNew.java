@@ -19,14 +19,14 @@ public class AppLoggerNew {
 
         // Console handler
         ConsoleHandler consoleHandler = new ConsoleHandler();
-        consoleHandler.setFormatter(new SimpleFormatter());
+        consoleHandler.setFormatter(new MessageOnlyFormatter());
         consoleHandler.setLevel(Level.ALL);
         logger.addHandler(consoleHandler);
 
         try {
             String logFile = nextLogFileName(baseName);
             FileHandler fileHandler = new FileHandler(logFile, false); // always fresh file
-            fileHandler.setFormatter(new SimpleFormatter());
+            fileHandler.setFormatter(new MessageOnlyFormatter());
             fileHandler.setLevel(Level.ALL);
             logger.addHandler(fileHandler);
         } catch (IOException e) {
@@ -47,6 +47,14 @@ public class AppLoggerNew {
             counter++;
         }
     }
+
+    static class MessageOnlyFormatter extends Formatter {
+        @Override
+        public String format(LogRecord record) {
+            return record.getMessage() + System.lineSeparator();
+        }
+    }
+
     // Convenience methods
     public static void info(String msg) {
         logger.info(msg);
