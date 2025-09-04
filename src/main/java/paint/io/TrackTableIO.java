@@ -90,8 +90,8 @@ public class TrackTableIO extends BaseTableIO<Track> {
             ((StringColumn) cols.get(1)).append(t.getRecordingName());
             ((IntColumn)    cols.get(2)).append(t.getTrackId());
             ((StringColumn) cols.get(3)).append(t.getTrackLabel());
-            ((IntColumn)    cols.get(4)).append(t.getNumberSpots());
-            ((IntColumn)    cols.get(5)).append(t.getNumberGaps());
+            ((IntColumn)    cols.get(4)).append(t.getNumberOfSpots());
+            ((IntColumn)    cols.get(5)).append(t.getNumberOfGaps());
             ((IntColumn)    cols.get(6)).append(t.getLongestGap());
             ((DoubleColumn) cols.get(7)).append(t.getTrackDuration());
             ((DoubleColumn) cols.get(8)).append(t.getTrackXLocation());
@@ -117,8 +117,8 @@ public class TrackTableIO extends BaseTableIO<Track> {
             t.setRecordingName(table.stringColumn(TRACK_COLS[1]).get(r));
             t.setTrackId(table.intColumn(TRACK_COLS[2]).getInt(r));
             t.setTrackLabel(table.stringColumn(TRACK_COLS[3]).get(r));
-            t.setNumberSpots(table.intColumn(TRACK_COLS[4]).getInt(r));
-            t.setNumberGaps(table.intColumn(TRACK_COLS[5]).getInt(r));
+            t.setNumberOfSpots(table.intColumn(TRACK_COLS[4]).getInt(r));
+            t.setNumberOfGaps(table.intColumn(TRACK_COLS[5]).getInt(r));
             t.setLongestGap(table.intColumn(TRACK_COLS[6]).getInt(r));
             t.setTrackDuration(table.doubleColumn(TRACK_COLS[7]).getDouble(r));
             t.setTrackXLocation(table.doubleColumn(TRACK_COLS[8]).getDouble(r));
