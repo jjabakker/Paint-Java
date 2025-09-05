@@ -23,8 +23,8 @@ public class Project {
         this.experiments = new ArrayList<>();
     }
 
-    public Project(String projectName, Path projectPath, Context context, List<Experiment> experiments) {
-        this.projectName = projectName;
+    public Project(Path projectPath, Context context, List<Experiment> experiments) {
+        this.projectName = projectPath.getFileName().toString();
         this.projectPath = projectPath;
         this.context = new Context(context);
         this.experiments = new ArrayList<>(experiments);
@@ -34,6 +34,14 @@ public class Project {
         this.projectName = projectPath.getFileName().toString();
         this.projectPath = projectPath;
         this.experiments = new ArrayList<>();
+        this.context = new Context();
+    }
+
+    public Project(Path projectPath, Context context) {
+        this.projectName = projectPath.getFileName().toString();
+        this.projectPath = projectPath;
+        this.experiments = new ArrayList<>();
+        this.context = new Context(context);
     }
 
     //
@@ -42,10 +50,6 @@ public class Project {
 
     public String getProjectName() {
         return projectName;
-    }
-
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
     }
 
     public Path getProjectPath() {
