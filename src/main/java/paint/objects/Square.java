@@ -119,7 +119,7 @@ public class Square {
                         this.cellId = (int) Double.parseDouble(curValue);
                         break;
                     case "Number of Tracks":
-                        this.numberTracks = (int) Double.parseDouble(curValue);
+                        this.numberOfTracks = (int) Double.parseDouble(curValue);
                         break;
 
                     // String values
@@ -289,8 +289,8 @@ public class Square {
     public double getY1() { return y1; }
     public void setY1(double y1) { this.y1 = y1; }
 
-    public int getNumberTracks() { return numberTracks; }
-    public void setNumberTracks(int numberTracks) { this.numberTracks = numberTracks; }
+    public int getNumberOfTracks() { return numberOfTracks; }
+    public void setNumberOfTracks(int numberTracks) { this.numberOfTracks = numberTracks; }
 
     public double getVariability() { return variability; }
     public void setVariability(double variability) { this.variability = variability; }
@@ -388,7 +388,7 @@ public class Square {
         sb.append(String.format("\tY0                               : %.2f%n", y0));
         sb.append(String.format("\tX1                               : %.2f%n", x1));
         sb.append(String.format("\tY1                               : %.2f%n", y1));
-        sb.append(String.format("\tNumber of Tracks                 : %d%n", numberTracks));
+        sb.append(String.format("\tNumber of Tracks                 : %d%n", numberOfTracks));
         sb.append(String.format("\tVariability                      : %.2f%n", variability));
         sb.append(String.format("\tDensity                          : %.2f%n", density));
         sb.append(String.format("\tDensity Ratio                    : %.2f%n", densityRatio));

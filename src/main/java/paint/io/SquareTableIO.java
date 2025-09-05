@@ -152,7 +152,7 @@ public class SquareTableIO extends BaseTableIO<Square> {
             ((DoubleColumn ) c.get(12)).append(s.getX1());
             ((DoubleColumn ) c.get(13)).append(s.getY1());
 
-            ((IntColumn    ) c.get(14)).append(s.getNumberTracks());
+            ((IntColumn    ) c.get(14)).append(s.getNumberOfTracks());
             ((DoubleColumn ) c.get(15)).append(s.getVariability());
             ((DoubleColumn ) c.get(16)).append(s.getDensity());
             ((DoubleColumn ) c.get(17)).append(s.getDensityRatio());
@@ -205,7 +205,7 @@ public class SquareTableIO extends BaseTableIO<Square> {
             s.setX1(t.doubleColumn(SQUARE_COLS[12]).getDouble(r));
             s.setY1(t.doubleColumn(SQUARE_COLS[13]).getDouble(r));
 
-            s.setNumberTracks(t.intColumn(SQUARE_COLS[14]).getInt(r));
+            s.setNumberOfTracks(t.intColumn(SQUARE_COLS[14]).getInt(r));
             s.setVariability(t.doubleColumn(SQUARE_COLS[15]).getDouble(r));
             s.setDensity(t.doubleColumn(SQUARE_COLS[16]).getDouble(r));
             s.setDensityRatio(t.doubleColumn(SQUARE_COLS[17]).getDouble(r));
