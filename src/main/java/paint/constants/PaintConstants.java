@@ -76,30 +76,24 @@ public final class PaintConstants {
             "R Squared",                        // 19
 
             "Median Diffusion Coefficient",     // 20
-            "Mean Diffusion Coefficient",       // 21
+            "Median Diffusion Coefficient Ext", // 21
 
-            "Median Diffusion Coefficient Ext", // 22
-            "Mean Diffusion Coefficient Ext",   // 23
+            "Median Long Track Duration",       // 22
+            "Median Short Track Duration",      // 23
 
-            "Median Long Track Duration",       // 24
-            "Mean Long Track Duration",         // 25
+            "Median Displacement",              // 24
+            "Max Displacement",                 // 25
+            "Total Displacement",               // 26
 
-            "Median Short Track Duration",      // 26
-            "Mean Short Track Duration",        // 27
+            "Median Max Speed",                 // 27
+            "Max Max Speed",                    // 28
 
-            "Median Displacement",              // 28
-            "Max Displacement",                 // 29
-            "Total Displacement",               // 30
+            "Median Mean Speed",                // 29
+            "Max Mean Speed",                   // 30
 
-            "Median Max Speed",                 // 31
-            "Max Max Speed",                    // 32
-
-            "Median Mean Speed",                // 33
-            "Max Mean Speed",                   // 34
-
-            "Max Track Duration",               // 35
-            "Total Track Duration",             // 36
-            "Median Track Duration"             // 37
+            "Max Track Duration",               // 31
+            "Total Track Duration",             // 32
+            "Median Track Duration"             // 33
     };
 
 

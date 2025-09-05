@@ -27,55 +27,48 @@ public class SquareTableIO extends BaseTableIO<Square> {
 
         public ColumnType[] columnTypes() {
             return new ColumnType[] {
-                    ColumnType.STRING,  // uniqueKey
-                    ColumnType.STRING,  // recordingName
-                    ColumnType.INTEGER, // squareNumber
-                    ColumnType.INTEGER, // rowNumber
-                    ColumnType.INTEGER, // colNumber
-                    ColumnType.INTEGER, // labelNumber
-                    ColumnType.INTEGER, // cellID
+                    ColumnType.STRING,  //  0 uniqueKey
+                    ColumnType.STRING,  //  1 recordingName
+                    ColumnType.INTEGER, //  2 squareNumber
+                    ColumnType.INTEGER, //  3 rowNumber
+                    ColumnType.INTEGER, //  4 colNumber
+                    ColumnType.INTEGER, //  5 labelNumber
+                    ColumnType.INTEGER, //  6 cellID
 
-                    ColumnType.BOOLEAN, // selected
-                    ColumnType.BOOLEAN, // squareManuallyExcluded
-                    ColumnType.BOOLEAN, // imageExcluded
+                    ColumnType.BOOLEAN, //  7 selected
+                    ColumnType.BOOLEAN, //  8 squareManuallyExcluded
+                    ColumnType.BOOLEAN, //  9 imageExcluded
 
-                    ColumnType.DOUBLE,  // x0
-                    ColumnType.DOUBLE,  // y0
-                    ColumnType.DOUBLE,  // x1
-                    ColumnType.DOUBLE,  // y1
+                    ColumnType.DOUBLE,  // 10 x0
+                    ColumnType.DOUBLE,  // 11 y0
+                    ColumnType.DOUBLE,  // 12 x1
+                    ColumnType.DOUBLE,  // 13 y1
 
-                    ColumnType.INTEGER, // numberTracks
-                    ColumnType.DOUBLE,  // variability
-                    ColumnType.DOUBLE,  // density
-                    ColumnType.DOUBLE,  // densityRatio
-                    ColumnType.DOUBLE,  // tau
-                    ColumnType.DOUBLE,  // rSquared
+                    ColumnType.INTEGER, // 14 numberTracks
+                    ColumnType.DOUBLE,  // 15 variability
+                    ColumnType.DOUBLE,  // 16 density
+                    ColumnType.DOUBLE,  // 17 densityRatio
+                    ColumnType.DOUBLE,  // 18 tau
+                    ColumnType.DOUBLE,  // 19 rSquared
 
-                    ColumnType.DOUBLE,  // medianDiffusionCoefficient
-                    ColumnType.DOUBLE,  // meanDiffusionCoefficient
+                    ColumnType.DOUBLE,  // 20 medianDiffusionCoefficient
+                    ColumnType.DOUBLE,  // 21 medianDiffusionCoefficientExt
+                    ColumnType.DOUBLE,  // 22 medianLongTrackDuration
+                    ColumnType.DOUBLE,  // 23 medianShortTrackDuration
 
-                    ColumnType.DOUBLE,  // medianDiffusionCoefficientExt
-                    ColumnType.DOUBLE,  // meanDiffusionCoefficientExt
+                    ColumnType.DOUBLE,  // 24 medianDisplacement
+                    ColumnType.DOUBLE,  // 25 maxDisplacement
+                    ColumnType.DOUBLE,  // 26 totalDisplacement
 
-                    ColumnType.DOUBLE,  // medianLongTrackDuration
-                    ColumnType.DOUBLE,  // meanLongTrackDuration
+                    ColumnType.DOUBLE,  // 27 medianMaxSpeed
+                    ColumnType.DOUBLE,  // 28 maxMaxSpeed
 
-                    ColumnType.DOUBLE,  // medianShortTrackDuration
-                    ColumnType.DOUBLE,  // meanShortTrackDuration
+                    ColumnType.DOUBLE,  // 29 medianMeanSpeed
+                    ColumnType.DOUBLE,  // 30 maxMeanSpeed
 
-                    ColumnType.DOUBLE,  // medianDisplacement
-                    ColumnType.DOUBLE,  // maxDisplacement
-                    ColumnType.DOUBLE,  // totalDisplacement
-
-                    ColumnType.DOUBLE,  // medianMaxSpeed
-                    ColumnType.DOUBLE,  // maxMaxSpeed
-
-                    ColumnType.DOUBLE,  // medianMeanSpeed
-                    ColumnType.DOUBLE,  // maxMeanSpeed
-
-                    ColumnType.DOUBLE,  // maxTrackDuration
-                    ColumnType.DOUBLE,  // totalTrackDuration
-                    ColumnType.DOUBLE   // medianTrackDuration
+                    ColumnType.DOUBLE,  // 31 maxTrackDuration
+                    ColumnType.DOUBLE,  // 32 totalTrackDuration
+                    ColumnType.DOUBLE   // 33 medianTrackDuration
             };
         }
 
@@ -107,29 +100,22 @@ public class SquareTableIO extends BaseTableIO<Square> {
 
             c.add(DoubleColumn.create (SQUARE_COLS[20]));
             c.add(DoubleColumn.create (SQUARE_COLS[21]));
-
             c.add(DoubleColumn.create (SQUARE_COLS[22]));
             c.add(DoubleColumn.create (SQUARE_COLS[23]));
 
             c.add(DoubleColumn.create (SQUARE_COLS[24]));
             c.add(DoubleColumn.create (SQUARE_COLS[25]));
-
             c.add(DoubleColumn.create (SQUARE_COLS[26]));
-            c.add(DoubleColumn.create (SQUARE_COLS[27]));
 
+            c.add(DoubleColumn.create (SQUARE_COLS[27]));
             c.add(DoubleColumn.create (SQUARE_COLS[28]));
+
             c.add(DoubleColumn.create (SQUARE_COLS[29]));
             c.add(DoubleColumn.create (SQUARE_COLS[30]));
 
             c.add(DoubleColumn.create (SQUARE_COLS[31]));
             c.add(DoubleColumn.create (SQUARE_COLS[32]));
-
             c.add(DoubleColumn.create (SQUARE_COLS[33]));
-            c.add(DoubleColumn.create (SQUARE_COLS[34]));
-
-            c.add(DoubleColumn.create (SQUARE_COLS[35]));
-            c.add(DoubleColumn.create (SQUARE_COLS[36]));
-            c.add(DoubleColumn.create (SQUARE_COLS[37]));
             return c;
         }
 
@@ -160,30 +146,23 @@ public class SquareTableIO extends BaseTableIO<Square> {
             ((DoubleColumn ) c.get(19)).append(s.getRSquared());
 
             ((DoubleColumn ) c.get(20)).append(s.getMedianDiffusionCoefficient());
-            ((DoubleColumn ) c.get(21)).append(s.getMeanDiffusionCoefficient());
+            ((DoubleColumn ) c.get(21)).append(s.getMedianDiffusionCoefficientExt());
+            ((DoubleColumn ) c.get(22)).append(s.getMedianLongTrackDuration());
+            ((DoubleColumn ) c.get(23)).append(s.getMedianShortTrackDuration());
 
-            ((DoubleColumn ) c.get(22)).append(s.getMedianDiffusionCoefficientExt());
-            ((DoubleColumn ) c.get(23)).append(s.getMeanDiffusionCoefficientExt());
+            ((DoubleColumn ) c.get(24)).append(s.getMedianDisplacement());
+            ((DoubleColumn ) c.get(25)).append(s.getMaxDisplacement());
+            ((DoubleColumn ) c.get(26)).append(s.getTotalDisplacement());
 
-            ((DoubleColumn ) c.get(24)).append(s.getMedianLongTrackDuration());
-            ((DoubleColumn ) c.get(25)).append(s.getMeanLongTrackDuration());
+            ((DoubleColumn ) c.get(27)).append(s.getMedianMaxSpeed());
+            ((DoubleColumn ) c.get(28)).append(s.getMaxMaxSpeed());
 
-            ((DoubleColumn ) c.get(26)).append(s.getMedianShortTrackDuration());
-            ((DoubleColumn ) c.get(27)).append(s.getMeanShortTrackDuration());
+            ((DoubleColumn ) c.get(29)).append(s.getMedianMeanSpeed());
+            ((DoubleColumn ) c.get(30)).append(s.getMaxMeanSpeed());
 
-            ((DoubleColumn ) c.get(28)).append(s.getMedianDisplacement());
-            ((DoubleColumn ) c.get(29)).append(s.getMaxDisplacement());
-            ((DoubleColumn ) c.get(30)).append(s.getTotalDisplacement());
-
-            ((DoubleColumn ) c.get(31)).append(s.getMedianMaxSpeed());
-            ((DoubleColumn ) c.get(32)).append(s.getMaxMaxSpeed());
-
-            ((DoubleColumn ) c.get(33)).append(s.getMedianMeanSpeed());
-            ((DoubleColumn ) c.get(34)).append(s.getMaxMeanSpeed());
-
-            ((DoubleColumn ) c.get(35)).append(s.getMaxTrackDuration());
-            ((DoubleColumn ) c.get(36)).append(s.getTotalTrackDuration());
-            ((DoubleColumn ) c.get(37)).append(s.getMedianTrackDuration());
+            ((DoubleColumn ) c.get(31)).append(s.getMaxTrackDuration());
+            ((DoubleColumn ) c.get(32)).append(s.getTotalTrackDuration());
+            ((DoubleColumn ) c.get(33)).append(s.getMedianTrackDuration());
         }
 
         public Square readEntity(Table t, int r) {
@@ -213,30 +192,23 @@ public class SquareTableIO extends BaseTableIO<Square> {
             s.setRSquared(t.doubleColumn(SQUARE_COLS[19]).getDouble(r));
 
             s.setMedianDiffusionCoefficient(t.doubleColumn(SQUARE_COLS[20]).getDouble(r));
-            s.setMeanDiffusionCoefficient(t.doubleColumn(SQUARE_COLS[21]).getDouble(r));
+            s.setMedianDiffusionCoefficientExt(t.doubleColumn(SQUARE_COLS[21]).getDouble(r));
+            s.setMedianLongTrackDuration(t.doubleColumn(SQUARE_COLS[22]).getDouble(r));
+            s.setMedianShortTrackDuration(t.doubleColumn(SQUARE_COLS[23]).getDouble(r));
 
-            s.setMedianDiffusionCoefficientExt(t.doubleColumn(SQUARE_COLS[22]).getDouble(r));
-            s.setMeanDiffusionCoefficientExt(t.doubleColumn(SQUARE_COLS[23]).getDouble(r));
+            s.setMedianDisplacement(t.doubleColumn(SQUARE_COLS[24]).getDouble(r));
+            s.setMaxDisplacement(t.doubleColumn(SQUARE_COLS[25]).getDouble(r));
+            s.setTotalDisplacement(t.doubleColumn(SQUARE_COLS[26]).getDouble(r));
 
-            s.setMedianLongTrackDuration(t.doubleColumn(SQUARE_COLS[24]).getDouble(r));
-            s.setMeanLongTrackDuration(t.doubleColumn(SQUARE_COLS[25]).getDouble(r));
+            s.setMedianMaxSpeed(t.doubleColumn(SQUARE_COLS[27]).getDouble(r));
+            s.setMaxMaxSpeed(t.doubleColumn(SQUARE_COLS[28]).getDouble(r));
 
-            s.setMedianShortTrackDuration(t.doubleColumn(SQUARE_COLS[26]).getDouble(r));
-            s.setMeanShortTrackDuration(t.doubleColumn(SQUARE_COLS[27]).getDouble(r));
+            s.setMedianMeanSpeed(t.doubleColumn(SQUARE_COLS[29]).getDouble(r));
+            s.setMaxMeanSpeed(t.doubleColumn(SQUARE_COLS[30]).getDouble(r));
 
-            s.setMedianDisplacement(t.doubleColumn(SQUARE_COLS[28]).getDouble(r));
-            s.setMaxDisplacement(t.doubleColumn(SQUARE_COLS[29]).getDouble(r));
-            s.setTotalDisplacement(t.doubleColumn(SQUARE_COLS[30]).getDouble(r));
-
-            s.setMedianMaxSpeed(t.doubleColumn(SQUARE_COLS[31]).getDouble(r));
-            s.setMaxMaxSpeed(t.doubleColumn(SQUARE_COLS[32]).getDouble(r));
-
-            s.setMedianMeanSpeed(t.doubleColumn(SQUARE_COLS[33]).getDouble(r));
-            s.setMaxMeanSpeed(t.doubleColumn(SQUARE_COLS[34]).getDouble(r));
-
-            s.setMaxTrackDuration(t.doubleColumn(SQUARE_COLS[35]).getDouble(r));
-            s.setTotalTrackDuration(t.doubleColumn(SQUARE_COLS[36]).getDouble(r));
-            s.setMedianTrackDuration(t.doubleColumn(SQUARE_COLS[37]).getDouble(r));
+            s.setMaxTrackDuration(t.doubleColumn(SQUARE_COLS[31]).getDouble(r));
+            s.setTotalTrackDuration(t.doubleColumn(SQUARE_COLS[32]).getDouble(r));
+            s.setMedianTrackDuration(t.doubleColumn(SQUARE_COLS[33]).getDouble(r));
             return s;
         }
     }

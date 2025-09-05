@@ -1,6 +1,7 @@
 package paint.objects;
 
 import paint.utilities.ColumnValue;
+import tech.tablesaw.api.Table;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,57 +12,51 @@ public class Square {
 
     // Attributes
 
-    private String uniqueKey;
-    private String recordingName;
-    private int squareNumber;
-    private int rowNumber;
-    private int colNumber;
-    private int labelNumber;
-    private int cellId;
+    private String uniqueKey;                       // 0
+    private String recordingName;                   // 1
+    private int squareNumber;                       // 2
+    private int rowNumber;                          // 3
+    private int colNumber;                          // 4
+    private int labelNumber;                        // 5
+    private int cellId;                             // 6
 
-    private double x0;
-    private double y0;
-    private double x1;
-    private double y1;
+    private boolean selected;                       // 7
+    private boolean squareManuallyExcluded;         // 8
+    private boolean imageExcluded;                  // 9
 
-    private boolean selected;
-    private boolean squareManuallyExcluded;
-    private boolean imageExcluded;
+    private double x0;                              // 10
+    private double y0;                              // 11
+    private double x1;                              // 12
+    private double y1;                              // 13
 
-    private int numberOfTracks;
-    private double variability;
-    private double density;
-    private double densityRatio;
-    private double tau;
-    private double rSquared;
+    private int numberOfTracks;                     // 14
+    private double variability;                     // 15
+    private double density;                         // 16
+    private double densityRatio;                    // 17
+    private double tau;                             // 18
+    private double rSquared;                        // 19
 
-    private double medianDiffusionCoefficient;
-    private double meanDiffusionCoefficient;
+    private double medianDiffusionCoefficient;      // 20
+    private double medianDiffusionCoefficientExt;   // 21
+    private double medianLongTrackDuration;         // 22
+    private double medianShortTrackDuration;        // 23
 
-    private double medianDiffusionCoefficientExt;
-    private double meanDiffusionCoefficientExt;
+    private double medianDisplacement;              // 24
+    private double maxDisplacement;                 // 25
+    private double totalDisplacement;               // 26
 
-    private double medianLongTrackDuration;
-    private double meanLongTrackDuration;
+    private double medianMaxSpeed;                  // 27
+    private double maxMaxSpeed;                     // 28
 
-    private double medianShortTrackDuration;
-    private double meanShortTrackDuration;
+    private double medianMeanSpeed;                 // 29
+    private double maxMeanSpeed;                    // 30
 
-    private double medianDisplacement;
-    private double maxDisplacement;
-    private double totalDisplacement;
-
-    private double medianMaxSpeed;
-    private double maxMaxSpeed;
-
-    private double medianMeanSpeed;
-    private double maxMeanSpeed;
-
-    private double maxTrackDuration;
-    private double totalTrackDuration;
-    private double medianTrackDuration;
+    private double maxTrackDuration;                // 31
+    private double totalTrackDuration;              // 32
+    private double medianTrackDuration;             // 33
 
     private List<Track> tracks = new ArrayList<>();
+    private Table tracksTable = null;
 
 
     // Constructors
@@ -181,26 +176,14 @@ public class Square {
                     case "Median Diffusion Coefficient":
                         this.medianDiffusionCoefficient = Double.parseDouble(curValue);
                         break;
-                    case "Mean Diffusion Coefficient":
-                        this.meanDiffusionCoefficient = Double.parseDouble(curValue);
-                        break;
                     case "Median Diffusion Coefficient Ext":
                         this.medianDiffusionCoefficientExt = Double.parseDouble(curValue);
-                        break;
-                    case "Mean Diffusion Coefficient Ext":
-                        this.meanDiffusionCoefficientExt = Double.parseDouble(curValue);
                         break;
                     case "Median Long Track Duration":
                         this.medianLongTrackDuration = Double.parseDouble(curValue);
                         break;
-                    case "Mean Long Track Duration":
-                        this.meanLongTrackDuration = Double.parseDouble(curValue);
-                        break;
                     case "Median Short Track Duration":
                         this.medianShortTrackDuration = Double.parseDouble(curValue);
-                        break;
-                    case "Mean Short Track Duration":
-                        this.meanShortTrackDuration = Double.parseDouble(curValue);
                         break;
                     case "Median Displacement":
                         this.medianDisplacement = Double.parseDouble(curValue);
@@ -331,23 +314,11 @@ public class Square {
     public double getMedianDiffusionCoefficient() { return medianDiffusionCoefficient; }   
     public void setMedianDiffusionCoefficient(double medianDiffusionCoefficient) { this.medianDiffusionCoefficient = medianDiffusionCoefficient; }
 
-    public double getMeanDiffusionCoefficient() { return meanDiffusionCoefficient; }
-    public void setMeanDiffusionCoefficient(double meanDiffusionCoefficient) { this.meanDiffusionCoefficient = meanDiffusionCoefficient; }
-
     public double getMedianDiffusionCoefficientExt() { return medianDiffusionCoefficientExt; }
     public void setMedianDiffusionCoefficientExt(double medianDiffusionCoefficientExt) { this.medianDiffusionCoefficientExt = medianDiffusionCoefficientExt; }
 
-    public double getMeanDiffusionCoefficientExt() { return meanDiffusionCoefficientExt; }  
-    public void setMeanDiffusionCoefficientExt(double meanDiffusionCoefficientExt) { this.meanDiffusionCoefficientExt = meanDiffusionCoefficientExt; }
-
     public double getMedianLongTrackDuration() { return medianLongTrackDuration; }
     public void setMedianLongTrackDuration(double medianLongTrackDuration) { this.medianLongTrackDuration = medianLongTrackDuration; }
-
-    public double getMeanLongTrackDuration() { return meanLongTrackDuration; }
-    public void setMeanLongTrackDuration(double meanLongTrackDuration) { this.meanLongTrackDuration = meanLongTrackDuration; }
-
-    public double getMeanShortTrackDuration() { return meanShortTrackDuration; }
-    public void setMeanShortTrackDuration(double meanShortTrackDuration) { this.meanShortTrackDuration = meanShortTrackDuration;  }
 
     public double getMedianShortTrackDuration() { return medianShortTrackDuration; }
     public void setMedianShortTrackDuration(double medianShortTrackDuration) { this.medianShortTrackDuration = medianShortTrackDuration;  }
@@ -385,6 +356,14 @@ public class Square {
     public List<Track> getTracks() { return tracks; }
     public void setTracks(List<Track> tracks) { this.tracks = tracks;  }
 
+    public Table getTracksTable() {
+        return tracksTable;
+    }
+    public void setTracksTable(Table tracksTable) {
+        this.tracksTable = tracksTable;
+    }
+    public void setTracksTable(Track[] tracks) {
+    }
     public void addTrack(Track track) {
         this.tracks.add(track);
     }
@@ -416,13 +395,9 @@ public class Square {
         sb.append(String.format("\tTau                              : %.2f%n", tau));
         sb.append(String.format("\tR Squared                        : %.2f%n", rSquared));
         sb.append(String.format("\tMedian Diffusion Coefficient     : %.2f%n", medianDiffusionCoefficient));
-        sb.append(String.format("\tMean Diffusion Coefficient       : %.2f%n", meanDiffusionCoefficient));
         sb.append(String.format("\tMedian Diffusion Coefficient Ext : %.2f%n", medianDiffusionCoefficientExt));
-        sb.append(String.format("\tMean Diffusion Coefficient Ext   : %.2f%n", meanDiffusionCoefficient));
         sb.append(String.format("\tMedian Long Track Duration       : %.2f%n", medianLongTrackDuration));
-        sb.append(String.format("\tMean Long Track Duration         : %.2f%n", meanLongTrackDuration));
         sb.append(String.format("\tMedian Short Track Duration      : %.2f%n", medianShortTrackDuration));
-        sb.append(String.format("\tMean Short Track Duration        : %.2f%n", meanShortTrackDuration));
         sb.append(String.format("\tMedian Displacement              : %.2f%n", medianDisplacement));
         sb.append(String.format("\tMax Displacement                 : %.2f%n", maxDisplacement));
         sb.append(String.format("\tTotal Displacement               : %.2f%n", totalDisplacement));
