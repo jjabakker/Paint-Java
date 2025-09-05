@@ -9,6 +9,8 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,11 +18,12 @@ import java.util.Comparator;
 import java.util.List;
 
 import paint.objects.Context;
+import paint.objects.Project;
 import paint.utilities.AppLogger;
 import paint.utilities.DirectoryClassifier;
 import paint.utilities.JsonConfig;
 
-import static paint.generateSquares.GenerateSquareCalcs.calculateSquares;
+import static paint.generateSquares.GenerateSquareCalcs.calculateSquaresForExperiment;
 
 class ProjectDirectoryDialog {
 
@@ -55,9 +58,9 @@ class ProjectDirectoryDialog {
         });
 
         okButton.addActionListener(e -> {
-            File selectedDir = new File(directoryField.getText());
-            if (selectedDir.exists() && selectedDir.isDirectory()) {
-                new GenerateSquareDialog(selectedDir).show();
+            Path selectedDirPath = Paths.get(directoryField.getText());
+            if (Files.exists(selectedDirPath) && Files.isDirectory(selectedDirPath)) {
+                new GenerateSquareDialog(selectedDirPath).show();
             } else {
                 JOptionPane.showMessageDialog(frame,
                         "Please select a valid project directory.",
@@ -93,7 +96,8 @@ class ProjectDirectoryDialog {
 class GenerateSquareDialog {
 
     private JFrame frame;
-    private File projectDir;
+    private Path projectPath;
+    private Project project;
 
     private JTextField nrSquaresField;
     private JTextField minTracksField;
@@ -105,9 +109,10 @@ class GenerateSquareDialog {
     private List<JCheckBox> checkBoxes = new ArrayList<>();
     private boolean userChangedInput = false;
 
-    public GenerateSquareDialog(File projectDir) {
-        this.projectDir = projectDir;
-        frame = new JFrame("Generate Squares - " + projectDir.getName());
+    public GenerateSquareDialog(Path projectPath) {
+        this.projectPath = projectPath;
+        this.project = new Project(projectPath);
+        frame = new JFrame("Generate Squares - " + projectPath);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
@@ -181,7 +186,7 @@ class GenerateSquareDialog {
         checkboxControlPanel.add(selectAllButton);
         checkboxControlPanel.add(clearAllButton);
 
-    // Put buttons above the scroll pane
+       // Put buttons above the scroll pane
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.add(checkboxControlPanel, BorderLayout.NORTH);
         centerPanel.add(scrollPane, BorderLayout.CENTER);
@@ -210,31 +215,27 @@ class GenerateSquareDialog {
             double minDensityRatioVal = Double.parseDouble(minDensityRatioField.getText());
             double maxVariabilityVal = Double.parseDouble(maxVariabilityField.getText());
 
-
             System.out.println("Nr of Squares in Row: " + nrSquaresVal);
             System.out.println("Minimum Tracks to Calculate Tau: " + minTracksVal);
             System.out.println("Min Allowable R-squared: " + minRSquaredVal);
             System.out.println("Min Required Density Ratio: " + minDensityRatioVal);
             System.out.println("Max Allowed Variability: " + maxVariabilityVal);
-            System.out.println("Selected Directory: " + projectDir.getAbsolutePath());
+            System.out.println("Selected Directory: " + projectPath);
 
             Context context = new Context();
             for (JCheckBox cb : checkBoxes) {
                 if (cb.isSelected()) {
                     String experimentName = cb.getText();
-                    File expDir = new File(projectDir, experimentName);
+                    Path expPath = projectPath.resolve(experimentName);
+                    File expDir = expPath.toFile();
                     if (!expDir.isDirectory()) {
                         continue;
                     }
                     else if (!DirectoryClassifier.isExperimentDirectory(expDir.toPath()).valid) {
-                        System.out.println("Skipping non-experiment directory: " + expDir);
-                        System.out.println();
+                        AppLogger.infof("Skipping non-experiment directory: %s", expDir);
                     }
                     else {
-                        System.out.println("Running calculations for: " + expDir);
-
-                        calculateSquares(projectDir.toPath(), experimentName, context);
-                        // processExperiment(expDir, nrSquaresVal, minTracksVal, ...);
+                        calculateSquaresForExperiment(project, experimentName, context);
                     }
                 }
             }
@@ -253,7 +254,7 @@ class GenerateSquareDialog {
         checkboxPanel.removeAll();
         checkBoxes.clear();
 
-        File[] subs = projectDir.listFiles();
+        File[] subs = project.getProjectPath().toFile().listFiles();
         if (subs != null) {
 
             Arrays.sort(subs, Comparator.comparing(File::getName, String.CASE_INSENSITIVE_ORDER));
@@ -287,7 +288,7 @@ class GenerateSquareDialog {
             config.setDouble("Generate Squares", "Min Required R Squared", minRSquaredVal);
             config.setDouble("Generate Squares", "Min Required Density Ratio", minDensityRatioVal);
             config.setDouble("Generate Squares", "Max Allowable Variability", maxVariabilityVal);
-            config.setString("Generate Squares", "Last Used Directory", projectDir.getAbsolutePath());
+            config.setString("Generate Squares", "Last Used Directory", project.getProjectPath().toString());
 
             config.removeWithPrefix("Generate Squares", "Checkbox");
             for (JCheckBox cb : checkBoxes) {
@@ -385,6 +386,4 @@ class GenerateSquareDialog {
         @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { callback.run(); }
         @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { callback.run(); }
     }
-
-
 }
