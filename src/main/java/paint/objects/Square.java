@@ -19,16 +19,16 @@ public class Square {
     private int labelNumber;
     private int cellId;
 
-    private boolean selected;
-    private boolean squareManuallyExcluded;
-    private boolean imageExcluded;
-
     private double x0;
     private double y0;
     private double x1;
     private double y1;
 
-    private int numberTracks;
+    private boolean selected;
+    private boolean squareManuallyExcluded;
+    private boolean imageExcluded;
+
+    private int numberOfTracks;
     private double variability;
     private double density;
     private double densityRatio;
@@ -66,8 +66,29 @@ public class Square {
 
     // Constructors
 
-    public Square() {
+    public Square(
+            String uniqueKey,
+            String recordingName,
+            int squareNumber,
+            int rowNumber,
+            int colNumber,
+            double x0,
+            double y0,
+            double x1,
+            double y1) {
 
+        this.uniqueKey = uniqueKey;
+        this.recordingName = recordingName;
+        this.squareNumber = squareNumber;
+        this.rowNumber = rowNumber;
+        this.colNumber = colNumber;
+        this.x0 = x0;
+        this.y0 = y0;
+        this.x1 = x1;
+        this.y1 = y1;
+    }
+
+    public Square() {
     }
 
     public Square(int squareNumber, int numberOfSquaresInRecording) {
