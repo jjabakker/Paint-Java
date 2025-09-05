@@ -4,10 +4,15 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import static paint.constants.PaintConstants.IMAGE_HEIGHT;
+import static paint.constants.PaintConstants.IMAGE_WIDTH;
+
 public class Context {
 
     private int numberOfSquaresInRecording;
     private int numberOfSquaresInRow;
+    private double imageWidth = IMAGE_WIDTH;
+    private double imageHeight = IMAGE_HEIGHT;
     private int numberOfSquaresInColumn;
     private double minRequiredRSquared;
     private double maxAllowableVariability;
@@ -71,11 +76,9 @@ public class Context {
     public int getNumberOfSquaresInRecording() {
         return this.numberOfSquaresInRecording;
     }
-
     public int getNumberOfSquaresInRow() {
         return this.numberOfSquaresInRow;
     }
-
     public int getNumberOfSquaresInColumn() {
         return this.numberOfSquaresInColumn;
     }
@@ -84,9 +87,7 @@ public class Context {
         this.maxFrameGap = maxFrameGap;
     }
 
-    public void setGapClosingMaxDistance(double gapClosingMaxDistance) {
-        this.gapClosingMaxDistance = gapClosingMaxDistance;
-    }
+    public void setGapClosingMaxDistance(double gapClosingMaxDistance) { this.gapClosingMaxDistance = gapClosingMaxDistance; }
 
     public void setLinkingMaxDistance(double linkingMaxDistance) {
         this.linkingMaxDistance = linkingMaxDistance;
@@ -96,29 +97,32 @@ public class Context {
         this.medianFiltering = medianFiltering;
     }
 
-    public void setMinNumberOfSpotsInTrack(int minNumberOfSpotsInTrack) {
-        this.minNumberOfSpotsInTrack = minNumberOfSpotsInTrack;
-    }
+    public void setMinNumberOfSpotsInTrack(int minNumberOfSpotsInTrack) { this.minNumberOfSpotsInTrack = minNumberOfSpotsInTrack; }
+    public int getMinNumberOfSpotsInTrack() { return minNumberOfSpotsInTrack; }
 
     public void setMinTracksForTau(int minTracksForTau) {
         this.minTracksForTau = minTracksForTau;
     }
+    public int getMinTracksForTau() { return minTracksForTau; }
 
     public void setNeighbourMode(String neighbourMode) {
         this.neighbourMode = neighbourMode;
     }
 
-    public void setMaxAllowableVariability(double maxAllowableVariability) {
-        this.maxAllowableVariability = maxAllowableVariability;
-    }
+    public void setMaxAllowableVariability(double maxAllowableVariability) { this.maxAllowableVariability = maxAllowableVariability; }
 
-    public void setMinRequiredDensityRatio(double minRequiredDensityRatio) {
-        this.minRequiredDensityRatio = minRequiredDensityRatio;
-    }
+    public void setMinRequiredDensityRatio(double minRequiredDensityRatio) { this.minRequiredDensityRatio = minRequiredDensityRatio; }
+    public double getMinRequiredDensityRatio() { return minRequiredDensityRatio; }
 
     public void setMinRequiredRSquared(double minRequiredRSquared) {
         this.minRequiredRSquared = minRequiredRSquared;
     }
+    public double getMinRequiredRSquared() {
+        return minRequiredRSquared;
+    }
+
+    public double getImageWidth() { return imageWidth; }
+    public double getImageHeight() { return imageHeight; }
 
     private static Boolean checkBooleanValue(String string) {
         Set<String> yesValues = new HashSet<>(Arrays.asList("y", "ye", "yes", "ok", "true", "t"));
