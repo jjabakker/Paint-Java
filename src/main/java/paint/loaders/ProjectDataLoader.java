@@ -116,6 +116,10 @@ public final class ProjectDataLoader {
 
    }
 
+    public static Project loadBareProject(Path projectPath) {
+        return new Project(projectPath, loadContextFromJsonConfig(projectPath));
+    }
+
 
     public static Project loadProject(Path projectPath, List<String> experimentNames, boolean matureProject) {
         List<Experiment> experiments = new ArrayList<>();
@@ -144,9 +148,10 @@ public final class ProjectDataLoader {
                 AppLogger.info("Loading experiment: " + experimentName);
                 try {
                     Experiment experiment = loadExperiment(projectPath, experimentName, context, matureProject);
-                    if (experiment != null) {
-                        experiments.add(experiment);
-                    }
+                            // Don't store @@@@
+//                    if (experiment != null) {
+//                        experiments.add(experiment);
+//                    }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -158,8 +163,84 @@ public final class ProjectDataLoader {
         }
 
         // Create and return the Project object
-        return new Project(projectPath.getFileName().toString(), projectPath, context, experiments);
+        return new Project(projectPath, context, experiments);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public static Experiment loadExperimentForSquaresCalc(Path projectPath, String experimentName) {
+        Path experimentPath = projectPath.resolve(experimentName);
+
+        Table tracksTable = null;
+        List<Recording> recordings = null;
+        Experiment experiment = new Experiment(experimentName);
+
+        // Load recordings, but do not bother with tracks yet.
+        RecordingTableIO recordingsTableIO = new RecordingTableIO();
+        try {
+            Table recordingsTable = recordingsTableIO.readCsv(experimentPath.resolve(RECORDINGS_CSV));
+            recordings = recordingsTableIO.toEntities(recordingsTable);
+            for (Recording rec : recordings) {
+                experiment.addRecording(rec);
+            }
+        } catch (Exception e) {
+            AppLogger.errorf("Failed to read %s in %s : %s", RECORDINGS_CSV, experimentName, friendlyMessage(e));
+            return null;
+        }
+
+        // Read the experiment 'All Tracks' file
+        TrackTableIO trackTableIO = new TrackTableIO();
+        try {
+            tracksTable = trackTableIO.readCsv(experimentPath.resolve(TRACKS_CSV));
+        }
+        catch (Exception e) {
+            AppLogger.errorf("Failed to read %s in %s: %s", TRACKS_CSV, experimentName, friendlyMessage(e));
+            return null;
+        }
+
+        try {
+            for (Recording recording : recordings) {
+
+                // Find the track records for this recording
+                Table tracksOfRecording = tracksTable.where(
+                        tracksTable.stringColumn(COL_RECORDING_NAME)
+                                .matchesRegex("^" + recording.getRecordingName() + "(?:-threshold-\\d{1,3})?$"));
+
+                // Create the Tracks objects for this recording and add the Tracks objects to the recording
+                List<Track> tracks = trackTableIO.toEntities(tracksOfRecording);
+                recording.setTracks(tracks);  // ToDo - be consistent, use the same call as for squares above
+                recording.setTracksTable(tracksOfRecording);
+            }
+        }
+        catch (Exception e) {
+            AppLogger.errorf("Failed to split Tracks Table of experiment %s - %s.", experimentName, friendlyMessage(e));
+            return null;
+        }
+
+        // Return an experiment filled with recordings and with a tracks table for each recording
+        return experiment;
+    }
+
+
+
+
+
+
+
 
 
     /**
