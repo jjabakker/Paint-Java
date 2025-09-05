@@ -1,13 +1,12 @@
 package paint.calculations;
 
 
+/**
+ * A class to hold the results of a tau calculation.
+ * Three values are returned: the tau value, the R^2 value, and the status that indicates if the calculation was successful.
+ */
+
 public class CalculateTauResult {
-
-
-    /**
-      * A class to hold the results of a tau calculation.
-     * Three values are returned: the tau value, the R^2 value, and the status that indicates if the calculation was successful.
-     */
 
     private  double tau;
     private  double rsquared;
